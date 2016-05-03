@@ -3,6 +3,13 @@ FluVacs Figures - Draft
 Kari and JT
 May 2, 2016
 
+-   [Initial data processing](#initial-data-processing)
+-   [Frequency of Variants](#frequency-of-variants)
+-   [Diversity measures](#diversity-measures)
+    -   [SNV count per sample](#snv-count-per-sample)
+    -   [Shannon's Entropy](#shannons-entropy)
+-   [Heat map](#heat-map)
+
 Initial data processing
 =======================
 
