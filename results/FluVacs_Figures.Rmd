@@ -14,6 +14,9 @@ require(ggplot2)
 require(ggdendro)
 require(grid)
 opts_chunk$set(fig.align="center",warning=FALSE,tidy=T, fig.width=5,fig.height=4)
+theme_set(new = theme_classic()+ theme(
+axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
 source("../scripts/useful_functions.R") # useful functions adapted largley from HIVE work
 ```
 
@@ -89,8 +92,8 @@ So after all that work we are left with all the samples (all seasons) in all.df 
 # Frequency of Variants
 
 ```{r}
-ggplot(subset(all.df,freq.var<0.9),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10()
-ggplot(subset(all.qual.df,freq.var<0.9),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10()
+ggplot(subset(all.df,freq.var<0.9),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10() + ggtitle("All samples")
+ggplot(subset(all.qual.df,freq.var<0.9),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10() + ggtitle("Only high quality samples")
 
 ```
 
@@ -110,12 +113,12 @@ qual.snv<-count_muts(all.qual.df)
 #### all data
 
 ```{r}
-#ggplot(data=subset(all.snv,!is.na(Vax)),aes(x=V1))+geom_boxplot()
+ggplot(data=subset(all.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
 ```
 #### High quality
 
 ```{r}
-#ggplot(data=subset(qual.snv,!is.na(Vax)),aes(x=V1))+geom_boxplot()
+ggplot(data=subset(qual.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
 ```
 
 ### HA NA
@@ -123,14 +126,15 @@ qual.snv<-count_muts(all.qual.df)
 
 ```{r}
 all.snv<-count_muts(subset(all.df,chr %in%c("HA","N_A","NR")))
-#ggplot(data=subset(all.snv,!is.na(Vax)),aes(x=V1,color=Vax))+geom_boxplot()
+ggplot(data=subset(all.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
 ```
+
 #### High quality
 
 ```{r}
-qual.snv<-count_muts(subset(qual.df,chr %in%c("HA","N_A","NR")))
+qual.snv<-count_muts(subset(all.qual.df,chr %in%c("HA","N_A","NR")))
 
-#ggplot(data=subset(qual.snv,!is.na(Vax)),aes(x=V1,color=Vax))+geom_boxplot()
+ggplot(data=subset(qual.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
 ```
 
 ### Anitigenic sites
@@ -148,21 +152,81 @@ Ha_antigenic<-function(df){
   return(df)
 }
 
+
+all.df<-Ha_antigenic(all.df)
+
+all.df.counts<-count_muts(subset(all.df,antigenic==T))
+
+ggplot(data=subset(all.df.counts,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("all samples")
+
 all.qual.df<-Ha_antigenic(all.qual.df)
 
+all.qual.df.counts<-count_muts(subset(all.qual.df,antigenic==T))
+ggplot(data=subset(all.qual.df.counts,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("quality samples")
 
-ggplot(subset(all.qual.df,antigenic==T),aes(x=freq.var))+geom_histogram()
 ```
 
 ## Shannon's Entropy
 
+For the entropy calculations I am assuming 39000 potential variants. This is not right but probably close enough. It is just used to normalize the data. In the future we can use the fasta reference files to get the exact number.
+
 ### Whole genome
 
-### HA NA
+```{r}
+possible_vars<-3900 # fix to be accurate
 
+H<-function(x){
+  x<-subset(x,freq.var<0.9)
+  H_pos<-ddply(x,~chr+pos,summarize,wt=1-sum(freq.var),H=-sum(c(freq.var*log(freq.var),wt*log(wt))))
+sum(H_pos$H)/(possible_vars/3)
+}
+
+all.H<-ddply(all.df,~Lauring_Id+Vax+season,H)
+
+ggplot(data=subset(all.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("all samples")
+
+
+qual.H<-ddply(all.qual.df,~Lauring_Id+Vax+season,H)
+ggplot(data=subset(qual.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("quality samples")
+
+
+```
+
+### HA NA
+```{r}
+all.HA.NA.H<-ddply(subset(all.df,chr %in% c("HA","N_A","NR")),~Lauring_Id+Vax+season,H)
+
+ggplot(data=subset(all.HA.NA.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("all samples")
+
+
+qual.HA.NA.H<-ddply(subset(all.qual.df, chr %in% c("HA","N_A","NR")),~Lauring_Id+Vax+season,H)
+ggplot(data=subset(qual.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("quality samples")
+
+```
 ### Anitigenic sites
 
+
+```{r}
+
+all.ant.H<-ddply(subset(all.df,antigenic==T),~Lauring_Id+Vax+season,H)
+
+ggplot(data=subset(all.ant.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("all samples")
+
+
+
+
+qual.ant.H<-ddply(subset(all.qual.df,antigenic==T),~Lauring_Id+Vax+season,H)
+
+ggplot(data=subset(qual.ant.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("quality samples")
+
+
+
+```
+
+
+
 #Heat map
+Thses are made with the quality samples
 
 ```{r}
 make_heat_map(subset(all.qual.df,season=="07-08"))

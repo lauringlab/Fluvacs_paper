@@ -60,7 +60,7 @@ high_qual<-function(data1.df,dups.df,titer){
 make_heat_map<-function(data.df){
   mut_count <- ddply(data.df, ~mutation, summarize, sample_count = length(mutation))
   
-  pop_mut_count <- subset(mut_count, sample_count > 1)
+  pop_mut_count <- subset(mut_count, sample_count > 0)
   
   popular_muts <- subset(data.df, mutation %in% pop_mut_count$mutation)
   
@@ -96,7 +96,7 @@ make_heat_map<-function(data.df){
   
   mdf <- melt(df, id.vars = "mutation")
   mdf<-mutate(mdf,segment = sub(pat, "\\1", mutation, perl = T))
-  print(head(mdf))
+  #print(head(mdf))
   mdf$value<-mdf$value*100
   
   mdf$value[(mdf$value==0)]<- 0.1
