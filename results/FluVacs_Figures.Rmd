@@ -101,6 +101,7 @@ ggplot(subset(all.qual.df,freq.var<0.9),aes(x=freq.var))+geom_histogram(color="w
 ```
 
 # Diversity measures
+
 ## SNV count per sample
 
 ```{r,snv_sample}
@@ -118,6 +119,7 @@ qual.snv<-count_muts(all.qual.df)
 ```{r}
 ggplot(data=subset(all.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
 ```
+
 #### High quality
 
 ```{r}
@@ -125,6 +127,7 @@ ggplot(data=subset(qual.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir 
 ```
 
 ### HA NA
+
 #### all data
 
 ```{r}
@@ -196,6 +199,7 @@ ggplot(data=subset(qual.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",bin
 ```
 
 ### HA NA
+
 ```{r}
 all.HA.NA.H<-ddply(subset(all.df,chr %in% c("HA","N_A","NR")),~Lauring_Id+Vax+season,H)
 
@@ -206,6 +210,7 @@ qual.HA.NA.H<-ddply(subset(all.qual.df, chr %in% c("HA","N_A","NR")),~Lauring_Id
 ggplot(data=subset(qual.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("quality samples")
 
 ```
+
 ### Anitigenic sites
 
 
@@ -229,7 +234,7 @@ ggplot(data=subset(qual.ant.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center"
 
 
 #Heat map
-Thses are made with the quality samples
+Theses are made with the quality samples
 
 ```{r}
 make_heat_map(subset(all.qual.df,season=="07-08"))

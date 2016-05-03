@@ -131,7 +131,9 @@ ggplot(data = subset(all.snv, !is.na(Vax)), aes(y = V1, x = Vax)) + geom_dotplot
 
     ## `stat_bindot()` using `bins = 30`. Pick better value with `binwidth`.
 
-<img src="FluVacs_Figures_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /> \#\#\#\# High quality
+<img src="FluVacs_Figures_files/figure-markdown_github/unnamed-chunk-3-1.png" style="display: block; margin: auto;" />
+
+#### High quality
 
 ``` r
 ggplot(data = subset(qual.snv, !is.na(Vax)), aes(y = V1, x = Vax)) + geom_dotplot(stackdir = "center", 
@@ -273,7 +275,9 @@ ggplot(data = subset(qual.H), aes(y = V1, x = Vax)) + geom_dotplot(stackdir = "c
 
     ## `stat_bindot()` using `bins = 30`. Pick better value with `binwidth`.
 
-<img src="FluVacs_Figures_files/figure-markdown_github/unnamed-chunk-9-2.png" style="display: block; margin: auto;" /> \#\#\# Anitigenic sites
+<img src="FluVacs_Figures_files/figure-markdown_github/unnamed-chunk-9-2.png" style="display: block; margin: auto;" />
+
+### Anitigenic sites
 
 ``` r
 all.ant.H <- ddply(subset(all.df, antigenic == T), ~Lauring_Id + Vax + season, 
@@ -302,7 +306,7 @@ ggplot(data = subset(qual.ant.H), aes(y = V1, x = Vax)) + geom_dotplot(stackdir 
 Heat map
 ========
 
-Thses are made with the quality samples
+Theses are made with the quality samples
 
 ``` r
 make_heat_map(subset(all.qual.df, season == "07-08"))
