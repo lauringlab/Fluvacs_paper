@@ -5,8 +5,9 @@ processing<-function(data.df,meta.df,pval,phred,mapq,read_cut){
   ### work with meta data and then join data frames
   meta<-rename(meta.df,c("Sample"="Id")) 
   
-  data.df.cut<-join(data.df.cut,meta,by="Id")
+  data.df.cut<-join(data.df.cut,meta,by="Id",type="inner")
   data.df.cut<-mutate(data.df.cut,Lauring_Id=as.numeric(as.character(Id)),Id=paste(season,Id,Vax,sep="."))
+  return(data.df.cut)
 }
 
 

@@ -16,7 +16,7 @@ require(reshape2)
 require(ggplot2)
 require(ggdendro)
 require(grid)
-opts_chunk$set(fig.align="center",warning=FALSE,tidy=T, fig.width=5,fig.height=4)
+opts_chunk$set(fig.align="center",warning=FALSE,tidy=T, fig.width=5,fig.height=4,cache = T)
 theme_set(new = theme_classic()+ theme(
 axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
 axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
@@ -50,7 +50,7 @@ var.2004.5.df<-processing(data.df = other.seasons,meta.df = titer.2004.5,pval = 
 
 var.2004.5.df<-subset(var.2004.5.df,season=="04-05")
 var.2005.6.df<-processing(data.df = other.seasons,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-var.2005.6.df<-subset(var.2004.5.df,season=="05-06")
+var.2005.6.df<-subset(var.2005.6.df,season=="05-06")
 
 var.2007.8.df<-processing(data.df = var.2007.8,meta.df = titer.2007.8,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
 
@@ -123,7 +123,7 @@ ggplot(data=subset(all.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir =
 #### High quality
 
 ```{r}
-ggplot(data=subset(qual.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
+ggplot(data=subset(qual.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.7)+ylab("Number of SNV")
 ```
 
 ### HA NA
@@ -260,7 +260,7 @@ Theses are made with the quality samples
 ```{r,fig.height=10,fig.width=7}
 make_heat_map(subset(all.qual.df,season=="07-08"))
 
-#make_heat_map(subset(all.qual.df,season=="05-06"))
+make_heat_map(subset(all.qual.df,season=="05-06"))
 make_heat_map(subset(all.qual.df,season=="04-05"))
 
 ```
