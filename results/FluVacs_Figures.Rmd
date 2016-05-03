@@ -153,7 +153,18 @@ Ha_antigenic<-function(df){
 
   
   df$antigenic<-F
-  antigenic_sites<-c(48,53,62,63,78,83,84,91,94,122,128,137,138,140,142,144,145,156,157,159,160,168,171,186,192,198,207,208,213,214,219,226,261,278,279,309,311,312)
+  antigenic_sites<-c(122,124,126,130,131,132,133,135,137,138,140,142,143,144,145,146,150,152,168,128,129,155,156,157,158,159,160,163,164,165,186,187,188,189,190,192,193,194,196,197,198,44,45,46,47,48,50,51,53,54,273,275,276,278,279,280,294,297,299,300,304,305,307,308,309,310,311,312,96,102,103,117,121,167,170,171,172,173,174,175,176,177,179,182,201,203,207,208,209,212,213,214,215,216,217,218,219,226,227,228,229,230,238,240,242,246,247,248,57,59,62,63,67,75,78,80,81,82,83,86,87,88,91,92,94,109,260,261,262,265)
+  # antigenic sites:
+# Site A: 122,124,126,130,131,132,133,135,137,138,140,142,143,144,145,146,150,152,168
+# Site B: 128,129,155,156,157,158,159,160,163,164,165,186,187,188,189,190,192,193,194,196,197,198
+# Site C: 44,45,46,47,48,50,51,53,54,273,275,276,278,279,280,294,297,299,300,304,305,307,308,309,310,311,312
+# Site D: 96,102,103,117,121,167,170,171,172,173,174,175,176,177,179,182,201,203,207,208,209,212,213,214,215,216,217,218,219,226,227,228,229,230,238,240,242,246,247,248
+# Site E: 57,59,62,63,67,75,78,80,81,82,83,86,87,88,91,92,94,109,260,261,262,265
+# All sites: 122,124,126,130,131,132,133,135,137,138,140,142,143,144,145,146,150,152,168,128,129,155,156,157,158,159,160,163,164,165,186,187,188,189,190,192,193,194,196,197,198,44,45,46,47,48,50,51,53,54,273,275,276,278,279,280,294,297,299,300,304,305,307,308,309,310,311,312,96,102,103,117,121,167,170,171,172,173,174,175,176,177,179,182,201,203,207,208,209,212,213,214,215,216,217,218,219,226,227,228,229,230,238,240,242,246,247,248,57,59,62,63,67,75,78,80,81,82,83,86,87,88,91,92,94,109,260,261,262,265
+# Cluster Transitions: 145,155,156,158,159,189,193
+    
+    
+    
   df$antigenic[df$chr=="HA" & df$AA_pos %in% antigenic_sites]<-T
   return(df)
 }
@@ -163,12 +174,22 @@ all.df<-Ha_antigenic(all.df)
 
 all.df.counts<-count_muts(subset(all.df,antigenic==T))
 
-ggplot(data=subset(all.df.counts,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("all samples")
+ggplot(data=subset(all.df.counts,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.8)+ylab("Number of SNV")+ggtitle("all samples")
 
 all.qual.df<-Ha_antigenic(all.qual.df)
 
 all.qual.df.counts<-count_muts(subset(all.qual.df,antigenic==T))
-ggplot(data=subset(all.qual.df.counts,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("quality samples")
+ggplot(data=subset(all.qual.df.counts,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.8)+ylab("Number of SNV")+ggtitle("quality samples")
+
+all.df.counts<-count_muts(subset(all.df,antigenic==T & freq.var<0.9))
+
+ggplot(data=subset(all.df.counts),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("all samples frequency<90%")
+
+
+
+all.qual.df.counts<-count_muts(subset(all.qual.df,antigenic==T & freq.var<0.9))
+ggplot(data=subset(all.qual.df.counts),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("quality samples (frequency<90%)")
+
 
 ```
 
@@ -236,10 +257,24 @@ ggplot(data=subset(qual.ant.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center"
 #Heat map
 Theses are made with the quality samples
 
-```{r}
+```{r,fig.height=10,fig.width=7}
 make_heat_map(subset(all.qual.df,season=="07-08"))
 
+#make_heat_map(subset(all.qual.df,season=="05-06"))
 make_heat_map(subset(all.qual.df,season=="04-05"))
 
 ```
 
+# Antigenic Sites
+
+### All data
+```{r,}
+kable(subset(all.df,antigenic==T, select=c(Lauring_Id,mutation,freq.var)))
+
+```
+
+### High quality
+```{r}
+kable(subset(all.qual.df,antigenic==T, select=c(Lauring_Id,mutation,freq.var)))
+
+```
