@@ -22,6 +22,18 @@ axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
 axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
 source("../scripts/useful_functions.R") # useful functions adapted largley from HIVE work
 ```
+
+```{r,titers}
+# read in the csvs and add a season column to use later
+titer.2004.5<-read.csv("../Titers_status_2004-2005.csv",stringsAsFactors = F)
+titer.2004.5$season<-"04-05"
+titer.2005.6<-read.csv("../Titers_status_2005-2006.csv",stringsAsFactors = F)
+titer.2005.6$season<-"05-06"
+titer.2007.8<-read.csv("../Titers_status_2007-2008.csv",stringsAsFactors = F)
+titer.2007.8$season<-"07-08"
+```
+
+
 ```{r, variant_calls}
 
 var.2007.8<-read.csv("../data/processed/Run_1293/Variants/all.sum.csv",stringsAsFactors = F)
@@ -74,34 +86,36 @@ all.qual.df<-subset(all.qual.df,freq.var>=0.01)
 
 ##Figure 3 Coverage plots
 
-These are just from the first runs. I'm not including the duplicates here - should I?
+These are just from the first runs. I'm not including the duplicates here - should I? These have a sliding window of 100 with a step of 100 no overlap.
 
-```{r}
-cov.2007.8<-cbind(read.csv("../data/processed/Run_1293/deepSNV/all.coverage.csv",stringsAsFactors = F),read.csv("../data/processed/Run_1304/deepSNV/all.coverage.csv",stringsAsFactors = F))
+```{r,coverage}
+cov.2007.8<-rbind(read.csv("../data/processed/Run_1293/deepSNV/all.coverage.csv",stringsAsFactors = F),read.csv("../data/processed/Run_1304/deepSNV/all.coverage.csv",stringsAsFactors = F))
 
 other.seasons.cov<-read.csv("../data/processed/Run_1412/deepSNV/all.coverage.csv",stringsAsFactors = F)
 
 
 cov.2004.5<-subset(other.seasons.cov,Id %in% titer.2004.5$Sample)
 cov.2005.6<-subset(other.seasons.cov,Id %in% titer.2005.6$Sample)
+
+
+cov.plot.04.05<-cov_plot(cov.2004.5,"2004-2005",100,100)
+cov.plot.04.05
+
+cov.plot.05.06<-cov_plot(cov.2005.6,"2005-2006",100,100)
+cov.plot.05.06
+
+cov.plot.07.08<-cov_plot(cov.2007.8,"2007-2008",100,100)
+cov.plot.07.08
+
 ```
 
-
+If we plot on a log scale the bars are well above 0. 
 
 
 
 
 # Initial data processing
 
-```{r,titers}
-# read in the csvs and add a season column to use later
-titer.2004.5<-read.csv("../Titers_status_2004-2005.csv",stringsAsFactors = F)
-titer.2004.5$season<-"04-05"
-titer.2005.6<-read.csv("../Titers_status_2005-2006.csv",stringsAsFactors = F)
-titer.2005.6$season<-"05-06"
-titer.2007.8<-read.csv("../Titers_status_2007-2008.csv",stringsAsFactors = F)
-titer.2007.8$season<-"07-08"
-```
 
 
 
@@ -111,8 +125,8 @@ So after all that work we are left with all the samples (all seasons) in all.df 
 # Frequency of Variants
 
 ```{r}
-ggplot(subset(all.df,freq.var<=0.99),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10() + ggtitle("All samples")
-ggplot(subset(all.qual.df,freq.var<=0.9),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10() + ggtitle("Only high quality samples")
+ggplot(subset(all.df,freq.var<=0.99),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+scale_y_log10() + ggtitle("All samples")
+ggplot(subset(all.qual.df,freq.var<=0.99),aes(x=freq.var))+geom_histogram(color="white",binwidth = .01)+scale_y_log10() + ggtitle("Only high quality samples")
 
 ```
 
@@ -161,7 +175,7 @@ ggplot(data=subset(qual.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir 
 
 ### Anitigenic sites
 
-```{r}
+```{r,eval=F}
 Ha_antigenic<-function(df){
   #non_coding<-29
     
@@ -252,7 +266,7 @@ ggplot(data=subset(qual.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",bin
 ### Anitigenic sites
 
 
-```{r}
+```{r,eval=F}
 
 all.ant.H<-ddply(subset(all.df,antigenic==T),~Lauring_Id+Vax+season,H)
 
@@ -291,7 +305,7 @@ make_heat_map(subset(all.qual.df,season=="04-05"))
 ```
 
 ### High quality
-```{r}
+```{r,eval=F}
 x<-Ha_antigenic(qual.2007.8)
 
 kable(subset(x,antigenic==T& season=="07-08", select=c(Lauring_Id,mutation,freq.var,AA_pos)))

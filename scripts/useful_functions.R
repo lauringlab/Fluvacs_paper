@@ -395,3 +395,43 @@ bin_freq<-function(df,col,binsize){
   }
   as.data.frame(cbind(bins,count,freq))
 }
+
+######## Coverage #########
+
+slideFunct <- function(data, window, step){ #dapted from http://coleoguy.blogspot.com/2014/04/sliding-window-analysis.html
+  coverage<-data$coverage
+  concat.pos<-data$concat.pos
+  # c.pos<-data$concat.pos
+  total <- length(coverage)
+  spots <- seq(from=1, to=(total-window), by=step)
+  result <- data.frame(mean=rep(F,times=length(spots)),concat.pos=rep(F,times=length(spots)))
+  for(i in 1:length(spots)){
+    result$mean[i] <- mean(coverage[spots[i]:(spots[i]+window)])
+    result$concat.pos[i]<-mean(concat.pos[spots[i]:(spots[i]+window)])
+    #result$concat.pos[i]<-mean(c.pos[spots[i]:(spots[i]+window)])
+  }
+  return(result)
+}
+
+
+cov_plot<-function(cov.df,title,window,step){
+  
+  cov.slid.df<-ddply(cov.df,~Id+chr,function(x) slideFunct(x,window = window,step=step))
+  
+  x.labels<-ddply(cov.slid.df,~chr,summarize,concat.pos=concat.pos[which(abs(concat.pos-mean(concat.pos))==(min(abs(concat.pos-mean(concat.pos)))))]) # No idea if this will get what I want but heres to hoping!
+  
+  #of course sometimes there are 2 good choices I'll take the first one
+  x.labels<-ddply(x.labels,~chr,function(x) return(x[1,]))
+  
+  x.labels$chr[x.labels$chr %in% c("NR","N_A")]<-"NA"
+  
+  cov.plot<-ggplot(cov.slid.df, #subset(cov.slid.df,!(Sample%in%c("90","91","93"))),
+                   mapping=aes(x=as.factor(concat.pos),
+                               y=mean,fill=chr))+geom_boxplot()
+  
+  cov.plot<-cov.plot+ggtitle(title)+ylab("Read depth")+scale_x_discrete(labels = x.labels$chr,breaks=x.labels$concat.pos)+xlab("Concatenated Genome Position")
+  cov.plot<-cov.plot+theme(axis.title.y = element_text(vjust=1.2))
+  cov.plot<-cov.plot+theme(legend.position="none")  + scale_y_continuous(limits=c(0,88000))
+  return(cov.plot)
+}
+
