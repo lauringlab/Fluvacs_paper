@@ -22,22 +22,6 @@ axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
 axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
 source("../scripts/useful_functions.R") # useful functions adapted largley from HIVE work
 ```
-
-
-
-
-# Initial data processing
-
-```{r,titers}
-# read in the csvs and add a season column to use later
-titer.2004.5<-read.csv("../Titers_status_2004-2005.csv",stringsAsFactors = F)
-titer.2004.5$season<-"04-05"
-titer.2005.6<-read.csv("../Titers_status_2005-2006.csv",stringsAsFactors = F)
-titer.2005.6$season<-"05-06"
-titer.2007.8<-read.csv("../Titers_status_2007-2008.csv",stringsAsFactors = F)
-titer.2007.8$season<-"07-08"
-```
-
 ```{r, variant_calls}
 
 var.2007.8<-read.csv("../data/processed/Run_1293/Variants/all.sum.csv",stringsAsFactors = F)
@@ -57,7 +41,7 @@ var.2007.8.df<-processing(data.df = var.2007.8,meta.df = titer.2007.8,pval = 0.0
 all.df<-rbind(var.2004.5.df,var.2005.6.df)
 all.df<-rbind(all.df,var.2007.8.df)
 
-all.df<-subset(all.df,freq.var>0.005)
+all.df<-subset(all.df,freq.var>=0.01)
 ##### Now for the duplicate runs #######
 
 var.2004.5.df2<-read.csv("../data/processed/2004_2005/Variants/all.sum.csv",stringsAsFactors = F)
@@ -83,20 +67,52 @@ qual.2007.8<-high_qual(data1.df = var.2007.8.df,dups.df = dups.2007.8,titer = 1e
 all.qual.df<-rbind(qual.2004.5,qual.2005.6)
 all.qual.df<-rbind(all.qual.df,qual.2007.8)
 
-all.qual.df<-subset(all.qual.df,freq.var>0.005)
+all.qual.df<-subset(all.qual.df,freq.var>=0.01)
 
 ```
 
 
+##Figure 3 Coverage plots
+
+These are just from the first runs. I'm not including the duplicates here - should I?
+
+```{r}
+cov.2007.8<-cbind(read.csv("../data/processed/Run_1293/deepSNV/all.coverage.csv",stringsAsFactors = F),read.csv("../data/processed/Run_1304/deepSNV/all.coverage.csv",stringsAsFactors = F))
+
+other.seasons.cov<-read.csv("../data/processed/Run_1412/deepSNV/all.coverage.csv",stringsAsFactors = F)
+
+
+cov.2004.5<-subset(other.seasons.cov,Id %in% titer.2004.5$Sample)
+cov.2005.6<-subset(other.seasons.cov,Id %in% titer.2005.6$Sample)
+```
+
+
+
+
+
+
+# Initial data processing
+
+```{r,titers}
+# read in the csvs and add a season column to use later
+titer.2004.5<-read.csv("../Titers_status_2004-2005.csv",stringsAsFactors = F)
+titer.2004.5$season<-"04-05"
+titer.2005.6<-read.csv("../Titers_status_2005-2006.csv",stringsAsFactors = F)
+titer.2005.6$season<-"05-06"
+titer.2007.8<-read.csv("../Titers_status_2007-2008.csv",stringsAsFactors = F)
+titer.2007.8$season<-"07-08"
+```
+
+
+
 So after all that work we are left with all the samples (all seasons) in all.df and only those variants from high quality data in all.qual.df. This includes samples with >10^5^ genomes per microliter or > 10^3^ genomes per microliter but were sequenced in duplicate.
 
-> The notes about NAs being produced is a little concerning. I'll look into it later. My hunch is some of the samples from that were sequenced were not included in the meta data
 
 # Frequency of Variants
 
 ```{r}
-ggplot(subset(all.df,freq.var<0.9),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10() + ggtitle("All samples")
-ggplot(subset(all.qual.df,freq.var<0.9),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10() + ggtitle("Only high quality samples")
+ggplot(subset(all.df,freq.var<=0.99),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10() + ggtitle("All samples")
+ggplot(subset(all.qual.df,freq.var<=0.9),aes(x=freq.var))+geom_histogram(color="white")+scale_x_log10() + ggtitle("Only high quality samples")
 
 ```
 

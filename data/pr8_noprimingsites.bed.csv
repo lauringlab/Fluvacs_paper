@@ -1,0 +1,10 @@
+# These were determined by blasting the segment specific primers against the PR8 fasta file pHW2000-N_A.fa,,
+chr,start,stop
+PB2,34,2307
+PB1,28,2308
+PA,31,2201
+NR,31,1379
+HA,34,1740
+NP,28,1529
+M,32,995
+NS,29,853
