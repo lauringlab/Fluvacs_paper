@@ -1,7 +1,7 @@
 ---
 title: "FluVacs Figures - Draft"
 author: "Kari and JT"
-date: "May 2, 2016"
+date: "June 2, 2016"
 output:
   github_document:
     toc: true
@@ -16,12 +16,18 @@ require(reshape2)
 require(ggplot2)
 require(ggdendro)
 require(grid)
-opts_chunk$set(fig.align="center",warning=FALSE,tidy=T, fig.width=5,fig.height=4,cache = T)
+opts_chunk$set(fig.align="center",warning=FALSE,tidy=T, fig.width=5,fig.height=4,cache = T,echo=F)
 theme_set(new = theme_classic()+ theme(
 axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
 axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
 source("../scripts/useful_functions.R") # useful functions adapted largley from HIVE work
 ```
+
+
+# Initial data processing
+
+So after all that work we are left with all the samples (all seasons) in all.df and only those variants from high quality data in all.qual.df. This includes samples with >10^5^ genomes per microliter or > 10^3^ genomes per microliter but were sequenced in duplicate.
+
 
 ```{r,titers}
 # read in the csvs and add a season column to use later
@@ -33,58 +39,81 @@ titer.2007.8<-read.csv("../Titers_status_2007-2008.csv",stringsAsFactors = F)
 titer.2007.8$season<-"07-08"
 ```
 
+```{r}
+meta.2007.08<-read.csv("../data/raw/2007_2008.meta.csv",stringsAsFactors = F)
+```
 
 ```{r, variant_calls}
 
 var.2007.8<-read.csv("../data/processed/Run_1293/Variants/all.sum.csv",stringsAsFactors = F)
 x<-read.csv("../data/processed/Run_1304/Variants/all.sum.csv",stringsAsFactors = F) # the rest of these samples
 var.2007.8<-rbind(var.2007.8,x) # combine both runs
-other.seasons<-read.csv("../data/processed/Run_1412/Variants/all.sum.csv",stringsAsFactors = F)
+#other.seasons<-read.csv("../data/processed/Run_1412/Variants/all.sum.csv",stringsAsFactors = F)
 
 
-var.2004.5.df<-processing(data.df = other.seasons,meta.df = titer.2004.5,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-
-var.2004.5.df<-subset(var.2004.5.df,season=="04-05")
-var.2005.6.df<-processing(data.df = other.seasons,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-var.2005.6.df<-subset(var.2005.6.df,season=="05-06")
-
-var.2007.8.df<-processing(data.df = var.2007.8,meta.df = titer.2007.8,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-
-all.df<-rbind(var.2004.5.df,var.2005.6.df)
-all.df<-rbind(all.df,var.2007.8.df)
-
-all.df<-subset(all.df,freq.var>=0.01)
-##### Now for the duplicate runs #######
-
-var.2004.5.df2<-read.csv("../data/processed/2004_2005/Variants/all.sum.csv",stringsAsFactors = F)
-var.2004.5.df2<-processing(data.df = var.2004.5.df2,meta.df = titer.2004.5,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-
-var.2005.6.df2<-read.csv("../data/processed/2005-2006/Variants/all.sum.csv",stringsAsFactors = F)
-var.2005.6.df2<-processing(data.df = var.2005.6.df2,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+# var.2004.5.df<-processing(data.df = other.seasons,meta.df = titer.2004.5,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+# 
+# var.2004.5.df<-subset(var.2004.5.df,season=="04-05")
+# var.2005.6.df<-processing(data.df = other.seasons,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+# var.2005.6.df<-subset(var.2005.6.df,season=="05-06")
+# 
+ var.2007.8.df<-processing(data.df = var.2007.8,meta.df = meta.2007.08,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+# 
+# all.df<-rbind(var.2004.5.df,var.2005.6.df)
+# all.df<-rbind(all.df,var.2007.8.df)
+# 
+# all.df<-subset(all.df,freq.var>=0.01)
+# ##### Now for the duplicate runs #######
+# 
+# var.2004.5.df2<-read.csv("../data/processed/2004_2005/Variants/all.sum.csv",stringsAsFactors = F)
+# var.2004.5.df2<-processing(data.df = var.2004.5.df2,meta.df = titer.2004.5,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+# 
+# var.2005.6.df2<-read.csv("../data/processed/2005-2006/Variants/all.sum.csv",stringsAsFactors = F)
+# var.2005.6.df2<-processing(data.df = var.2005.6.df2,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
 
 var.2007.8.df2<-read.csv("../data/processed/2007-2008/Variants/all.sum.csv",stringsAsFactors = F)
 var.2007.8.df2<-processing(data.df = var.2007.8.df2,meta.df = titer.2007.8,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
 
 ### Join duplicates #####
 
-dups.2004.5<-join_dups(data1.df = var.2004.5.df,data2.df = var.2004.5.df2)
-dups.2005.6<-join_dups(data1.df = var.2005.6.df,data2.df = var.2005.6.df2)
+# dups.2004.5<-join_dups(data1.df = var.2004.5.df,data2.df = var.2004.5.df2)
+# dups.2005.6<-join_dups(data1.df = var.2005.6.df,data2.df = var.2005.6.df2)
 dups.2007.8<-join_dups(data1.df = var.2007.8.df,data2.df = var.2007.8.df2)
 
 ##### Merge duplicates with intial data that was >1e5
 
-qual.2004.5<-high_qual(data1.df = var.2004.5.df,dups.df = dups.2004.5,titer = 1e3) # only duplicates above 1e3 kept
-qual.2005.6<-high_qual(data1.df = var.2005.6.df,dups.df = dups.2005.6,titer = 1e3)
+# qual.2004.5<-high_qual(data1.df = var.2004.5.df,dups.df = dups.2004.5,titer = 1e3) # only duplicates above 1e3 kept
+# qual.2005.6<-high_qual(data1.df = var.2005.6.df,dups.df = dups.2005.6,titer = 1e3)
 qual.2007.8<-high_qual(data1.df = var.2007.8.df,dups.df = dups.2007.8,titer = 1e3)
-all.qual.df<-rbind(qual.2004.5,qual.2005.6)
-all.qual.df<-rbind(all.qual.df,qual.2007.8)
+qual.2007.8<-subset(qual.2007.8,freq.var>=0.01 & freq.var<=0.99)
 
-all.qual.df<-subset(all.qual.df,freq.var>=0.01)
+# all.qual.df<-rbind(qual.2004.5,qual.2005.6)
+# all.qual.df<-rbind(all.qual.df,qual.2007.8)
+# 
+# all.qual.df<-subset(all.qual.df,freq.var>=0.01 & freq.var<=0.99)
 
 ```
 
+```{r}
+gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){ # from http://stackoverflow.com/questions/2602583/geometric-mean-is-there-a-built-in
+  if(any(x < 0, na.rm = TRUE)){
+    return(NaN)
+  }
+  if(zero.propagate){
+    if(any(x == 0, na.rm = TRUE)){
+      return(0)
+    }
+    exp(mean(log(x), na.rm = na.rm))
+  } else {
+    exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+  }
+}
 
-##Figure 3 Coverage plots
+var.2007.8.df<-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=gm_mean(NAI.WI.30.post.vax))
+
+qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax))
+```
+#Figure 3 Coverage plots
 
 These are just from the first runs. I'm not including the duplicates here - should I? These have a sliding window of 100 with a step of 100 no overlap.
 
@@ -111,203 +140,123 @@ cov.plot.07.08
 
 If we plot on a log scale the bars are well above 0. 
 
+```{r}
+cov.plot.07.08+scale_y_log10(breaks=c(1,10,100,1000,10000,100000))
+```
 
+# Figure 5 
 
-
-# Initial data processing
-
-
-
-
-So after all that work we are left with all the samples (all seasons) in all.df and only those variants from high quality data in all.qual.df. This includes samples with >10^5^ genomes per microliter or > 10^3^ genomes per microliter but were sequenced in duplicate.
-
+High quality is >10^5^ or >10^3^ sequenced in duplicate
+Currently I am making these plots with just the 2007-2008 samples. Once I have the meta data sorted for the other seasons it will be trivial to add them in. 
 
 # Frequency of Variants
 
+These are the variants between 1-99%. each bin is 1% wide. The y axis is log scaled which in ggplot leads to a problem when there are no observations (lines below axis). I can remove these before publication.
 ```{r}
-ggplot(subset(all.df,freq.var<=0.99),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+scale_y_log10() + ggtitle("All samples")
-ggplot(subset(all.qual.df,freq.var<=0.99),aes(x=freq.var))+geom_histogram(color="white",binwidth = .01)+scale_y_log10() + ggtitle("Only high quality samples")
+ggplot(subset(var.2007.8.df,freq.var<=0.99 & freq.var>=0.01),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+scale_y_log10() + ggtitle("All samples")
+ggplot(subset(qual.2007.8,freq.var<=0.99& freq.var>=0.01),aes(x=freq.var))+geom_histogram(color="white",binwidth = .01)+scale_y_log10() + ggtitle("Only high quality samples")
 
 ```
-
-# Diversity measures
 
 ## SNV count per sample
 
 ```{r,snv_sample}
 count_muts<-function(data.df){
-  ddply(data.df,~Lauring_Id+Vax+season,function(x) dim(x)[1])
-}
-
-all.snv<-count_muts(all.df)
-qual.snv<-count_muts(all.qual.df)
-```
-
-### Whole genome
-#### all data
-
-```{r}
-ggplot(data=subset(all.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
-```
-
-#### High quality
-
-```{r}
-ggplot(data=subset(qual.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.7)+ylab("Number of SNV")
-```
-
-### HA NA
-
-#### all data
-
-```{r}
-all.snv<-count_muts(subset(all.df,chr %in%c("HA","N_A","NR")))
-ggplot(data=subset(all.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
-```
-
-#### High quality
-
-```{r}
-qual.snv<-count_muts(subset(all.qual.df,chr %in%c("HA","N_A","NR")))
-
-ggplot(data=subset(qual.snv,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")
-```
-
-### Anitigenic sites
-
-```{r,eval=F}
-Ha_antigenic<-function(df){
-  #non_coding<-29
-    
-  df<-mutate(df,AA_pos= (pos-1)%/%3+1)
-
+  inter<-ddply(data.df,~Id+Intervention+season,summarize,iSNV=length(mutation))
+  inter$variable="Intervention"
+  names(inter)[2]<-"quality"
   
-  df$antigenic<-F
-  antigenic_sites<-c(122,124,126,130,131,132,133,135,137,138,140,142,143,144,145,146,150,152,168,128,129,155,156,157,158,159,160,163,164,165,186,187,188,189,190,192,193,194,196,197,198,44,45,46,47,48,50,51,53,54,273,275,276,278,279,280,294,297,299,300,304,305,307,308,309,310,311,312,96,102,103,117,121,167,170,171,172,173,174,175,176,177,179,182,201,203,207,208,209,212,213,214,215,216,217,218,219,226,227,228,229,230,238,240,242,246,247,248,57,59,62,63,67,75,78,80,81,82,83,86,87,88,91,92,94,109,260,261,262,265)
-  AA_anti<-antigenic_sites+17
-  # antigenic sites:
-# Site A: 122,124,126,130,131,132,133,135,137,138,140,142,143,144,145,146,150,152,168
-# Site B: 128,129,155,156,157,158,159,160,163,164,165,186,187,188,189,190,192,193,194,196,197,198
-# Site C: 44,45,46,47,48,50,51,53,54,273,275,276,278,279,280,294,297,299,300,304,305,307,308,309,310,311,312
-# Site D: 96,102,103,117,121,167,170,171,172,173,174,175,176,177,179,182,201,203,207,208,209,212,213,214,215,216,217,218,219,226,227,228,229,230,238,240,242,246,247,248
-# Site E: 57,59,62,63,67,75,78,80,81,82,83,86,87,88,91,92,94,109,260,261,262,265
-# All sites: 122,124,126,130,131,132,133,135,137,138,140,142,143,144,145,146,150,152,168,128,129,155,156,157,158,159,160,163,164,165,186,187,188,189,190,192,193,194,196,197,198,44,45,46,47,48,50,51,53,54,273,275,276,278,279,280,294,297,299,300,304,305,307,308,309,310,311,312,96,102,103,117,121,167,170,171,172,173,174,175,176,177,179,182,201,203,207,208,209,212,213,214,215,216,217,218,219,226,227,228,229,230,238,240,242,246,247,248,57,59,62,63,67,75,78,80,81,82,83,86,87,88,91,92,94,109,260,261,262,265
-# Cluster Transitions: 145,155,156,158,159,189,193
-    
-    
-    
-  df$antigenic[df$chr=="HA" & df$AA_pos %in% AA_anti]<-T
-  return(df)
+  HA.r<-ddply(data.df,~Id+responder.HA+season,summarize,iSNV=length(mutation))
+  HA.r$variable='responder.HA'
+  names(HA.r)[2]<-"quality"
+  out<-rbind(inter,HA.r)
+  
+  NA.r<-ddply(data.df,~Id+responder.NA+season,summarize,iSNV=length(mutation))
+  NA.r$variable="responder.NA"
+  names(NA.r)[2]<-"quality"
+  out<-rbind(out,NA.r)
+  
+  HA.geo<-ddply(data.df,~Id+HAI.geo+season,summarize,iSNV=length(mutation))
+  HA.geo$variable="geometric HA"
+  names(HA.geo)[2]<-"quality"
+  out<-rbind(out,HA.geo)
+  
+  NA.geo<-ddply(data.df,~Id+NAI.geo+season,summarize,iSNV=length(mutation))
+  NA.geo$variable<-"geometric NA"
+  names(NA.geo)[2]<-"quality"
+  out<-rbind(out,NA.geo)
 }
 
 
-all.df<-Ha_antigenic(all.df)
-
-all.df.counts<-count_muts(subset(all.df,antigenic==T))
-
-ggplot(data=subset(all.df.counts,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.8)+ylab("Number of SNV")+ggtitle("all samples")
-
-all.qual.df<-Ha_antigenic(all.qual.df)
-
-all.qual.df.counts<-count_muts(subset(all.qual.df,antigenic==T))
-ggplot(data=subset(all.qual.df.counts,!is.na(Vax)),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.8)+ylab("Number of SNV")+ggtitle("quality samples")
-
-all.df.counts<-count_muts(subset(all.df,antigenic==T & freq.var<0.9))
-
-ggplot(data=subset(all.df.counts),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("all samples frequency<90%")
-
-
-
-all.qual.df.counts<-count_muts(subset(all.qual.df,antigenic==T & freq.var<0.9))
-ggplot(data=subset(all.qual.df.counts),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("quality samples (frequency<90%)")
+all.snv<-count_muts(var.2007.8.df)
+qual.snv<-count_muts(qual.2007.8)
 
 
 ```
 
-## Shannon's Entropy
-
-For the entropy calculations I am assuming 39000 potential variants. This is not right but probably close enough. It is just used to normalize the data. In the future we can use the fasta reference files to get the exact number.
-
-### Whole genome
+### iSNV
+### Whole Genome
 
 ```{r}
-possible_vars<-3900 # fix to be accurate
-
-H<-function(x){
-  x<-subset(x,freq.var<0.9)
-  H_pos<-ddply(x,~chr+pos,summarize,wt=1-sum(freq.var),H=-sum(c(freq.var*log(freq.var),wt*log(wt))))
-sum(H_pos$H)/(possible_vars/3)
+dot_plots<-function(df,var){
+out<-ggplot(data=subset(all.snv,variable==var),aes(y=iSNV,x=quality))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("All data")+xlab(var)
+print(out)
 }
 
-all.H<-ddply(all.df,~Lauring_Id+Vax+season,H)
-
-ggplot(data=subset(all.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("all samples")
-
-
-qual.H<-ddply(all.qual.df,~Lauring_Id+Vax+season,H)
-ggplot(data=subset(qual.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("quality samples")
+dot_plots(all.snv,"Intervention")
+dot_plots(all.snv,"responder.HA")
+dot_plots(all.snv,"responder.NA")
+dot_plots(all.snv,"geometric HA")
+dot_plots(all.snv,"geometric NA")
 
 
+```
+
+#### High quality
+
+```{r}
+dot_plots(qual.snv,"Intervention")
+dot_plots(qual.snv,"responder.HA")
+dot_plots(qual.snv,"responder.NA")
+dot_plots(qual.snv,"geometric HA")
+dot_plots(qual.snv,"geometric NA")
 ```
 
 ### HA NA
 
 ```{r}
-all.HA.NA.H<-ddply(subset(all.df,chr %in% c("HA","N_A","NR")),~Lauring_Id+Vax+season,H)
-
-ggplot(data=subset(all.HA.NA.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("all samples")
-
-
-qual.HA.NA.H<-ddply(subset(all.qual.df, chr %in% c("HA","N_A","NR")),~Lauring_Id+Vax+season,H)
-ggplot(data=subset(qual.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("quality samples")
-
+all.ha.na.snv<-count_muts(subset(var.2007.8.df,chr %in%c("HA","N_A","NR")))
+ggplot(data=all.ha.na.snv,aes(y=iSNV,x=Intervention))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("All data")
 ```
 
-### Anitigenic sites
+#### High quality
 
+```{r}
+qual.ha.na.snv<-count_muts(subset(qual.2007.8,chr %in%c("HA","N_A","NR")))
 
-```{r,eval=F}
-
-all.ant.H<-ddply(subset(all.df,antigenic==T),~Lauring_Id+Vax+season,H)
-
-ggplot(data=subset(all.ant.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("all samples")
-
-
-
-
-qual.ant.H<-ddply(subset(all.qual.df,antigenic==T),~Lauring_Id+Vax+season,H)
-
-ggplot(data=subset(qual.ant.H),aes(y=V1,x=Vax))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Shannon's Entropy")+scale_y_log10()+ggtitle("quality samples")
-
-
-
+ggplot(data=qual.ha.na.snv,aes(y=iSNV,x=Intervention))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("High quality data")
 ```
 
+# Table 4
+Average iSNV/ segment
 
+All data 
+```{r}
+chr_muts<-function(data.df){
+  ddply(data.df,~Intervention+chr,summarize,iSNV=round(length(mutation)/length(unique(Id)),2))
+}
+all.chr.counts<-chr_muts(var.2007.8.df)
 
-#Heat map
-Theses are made with the quality samples
-
-```{r,fig.height=10,fig.width=7}
-make_heat_map(subset(all.qual.df,season=="07-08"))
-
-make_heat_map(subset(all.qual.df,season=="05-06"))
-make_heat_map(subset(all.qual.df,season=="04-05"))
-
+all.chr.table<-dcast(all.chr.counts,chr~Intervention,value.var="iSNV")
+knitr::kable(all.chr.table)
 ```
 
-# Antigenic Sites
+Not sure what the NA is we must be missing an intervention somewhere.
 
-### All data
-```{r,}
-#kable(subset(all.df,antigenic==T & season=="07-08", select=c(Lauring_Id,mutation,freq.var,AA_Pos)))
-
-```
-
-### High quality
-```{r,eval=F}
-x<-Ha_antigenic(qual.2007.8)
-
-kable(subset(x,antigenic==T& season=="07-08", select=c(Lauring_Id,mutation,freq.var,AA_pos)))
+High quality data
+```{r}
+qual.chr.counts<-chr_muts(qual.2007.8)
+qual.chr.table<-dcast(qual.chr.counts,chr~Intervention,value.var="iSNV")
+knitr::kable(qual.chr.table)
 
 ```

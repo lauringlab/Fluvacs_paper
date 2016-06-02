@@ -427,7 +427,7 @@ cov_plot<-function(cov.df,title,window,step){
   
   cov.plot<-ggplot(cov.slid.df, #subset(cov.slid.df,!(Sample%in%c("90","91","93"))),
                    mapping=aes(x=as.factor(concat.pos),
-                               y=mean,fill=chr))+geom_boxplot()
+                               y=mean))+geom_boxplot(fill="white")
   
   cov.plot<-cov.plot+ggtitle(title)+ylab("Read depth")+scale_x_discrete(labels = x.labels$chr,breaks=x.labels$concat.pos)+xlab("Concatenated Genome Position")
   cov.plot<-cov.plot+theme(axis.title.y = element_text(vjust=1.2))
