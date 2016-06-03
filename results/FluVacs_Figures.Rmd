@@ -16,7 +16,7 @@ require(reshape2)
 require(ggplot2)
 require(ggdendro)
 require(grid)
-opts_chunk$set(fig.align="center",warning=FALSE,tidy=T, fig.width=5,fig.height=4,cache = T,echo=F)
+opts_chunk$set(fig.align="center",warning=FALSE,tidy=T,cache = T,echo=F)
 theme_set(new = theme_classic()+ theme(
 axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
 axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
@@ -24,9 +24,6 @@ source("../scripts/useful_functions.R") # useful functions adapted largley from 
 ```
 
 
-# Initial data processing
-
-So after all that work we are left with all the samples (all seasons) in all.df and only those variants from high quality data in all.qual.df. This includes samples with >10^5^ genomes per microliter or > 10^3^ genomes per microliter but were sequenced in duplicate.
 
 
 ```{r,titers}
@@ -57,8 +54,9 @@ var.2007.8<-rbind(var.2007.8,x) # combine both runs
 # var.2005.6.df<-processing(data.df = other.seasons,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
 # var.2005.6.df<-subset(var.2005.6.df,season=="05-06")
 # 
- var.2007.8.df<-processing(data.df = var.2007.8,meta.df = meta.2007.08,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-# 
+var.2007.8.df<-processing(data.df = var.2007.8,meta.df = meta.2007.08,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+
+
 # all.df<-rbind(var.2004.5.df,var.2005.6.df)
 # all.df<-rbind(all.df,var.2007.8.df)
 # 
@@ -72,7 +70,7 @@ var.2007.8<-rbind(var.2007.8,x) # combine both runs
 # var.2005.6.df2<-processing(data.df = var.2005.6.df2,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
 
 var.2007.8.df2<-read.csv("../data/processed/2007-2008/Variants/all.sum.csv",stringsAsFactors = F)
-var.2007.8.df2<-processing(data.df = var.2007.8.df2,meta.df = titer.2007.8,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+var.2007.8.df2<-processing(data.df = var.2007.8.df2,meta.df = meta.2007.08,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
 
 ### Join duplicates #####
 
@@ -85,12 +83,13 @@ dups.2007.8<-join_dups(data1.df = var.2007.8.df,data2.df = var.2007.8.df2)
 # qual.2004.5<-high_qual(data1.df = var.2004.5.df,dups.df = dups.2004.5,titer = 1e3) # only duplicates above 1e3 kept
 # qual.2005.6<-high_qual(data1.df = var.2005.6.df,dups.df = dups.2005.6,titer = 1e3)
 qual.2007.8<-high_qual(data1.df = var.2007.8.df,dups.df = dups.2007.8,titer = 1e3)
-qual.2007.8<-subset(qual.2007.8,freq.var>=0.01 & freq.var<=0.99)
-
 # all.qual.df<-rbind(qual.2004.5,qual.2005.6)
 # all.qual.df<-rbind(all.qual.df,qual.2007.8)
 # 
 # all.qual.df<-subset(all.qual.df,freq.var>=0.01 & freq.var<=0.99)
+
+var.2007.8.df<-subset(var.2007.8.df,freq.var>=0.01 & freq.var<=0.99)
+qual.2007.8<-subset(qual.2007.8,freq.var>=0.01 & freq.var<=0.99)
 
 ```
 
@@ -109,9 +108,9 @@ gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){ # from http://stackov
   }
 }
 
-var.2007.8.df<-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=gm_mean(NAI.WI.30.post.vax))
+var.2007.8.df<-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
 
-qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax))
+qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
 ```
 #Figure 3 Coverage plots
 
@@ -144,21 +143,51 @@ If we plot on a log scale the bars are well above 0.
 cov.plot.07.08+scale_y_log10(breaks=c(1,10,100,1000,10000,100000))
 ```
 
+
+I have made the following figures using just thevariant data from the 2007-2008 season. This constitutes the majority of the sequenced data. If we want to include the other seasons we'll just need to incorporate the HAI and NAI titers and sample day in the meta data. I have only included variants between 1-99% frequency.
+
 # Figure 5 
 
-High quality is >10^5^ or >10^3^ sequenced in duplicate
-Currently I am making these plots with just the 2007-2008 samples. Once I have the meta data sorted for the other seasons it will be trivial to add them in. 
+High quality is >10^5^ or >10^3^ sequenced in duplicate.
+Currently I am making these plots with just the 2007-2008 samples. Once I have the meta datafor the other seasons it will be trivial to add them (if we want to do that) 
 
-# Frequency of Variants
+## Frequency of Variants
 
 These are the variants between 1-99%. each bin is 1% wide. The y axis is log scaled which in ggplot leads to a problem when there are no observations (lines below axis). I can remove these before publication.
 ```{r}
-ggplot(subset(var.2007.8.df,freq.var<=0.99 & freq.var>=0.01),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+scale_y_log10() + ggtitle("All samples")
-ggplot(subset(qual.2007.8,freq.var<=0.99& freq.var>=0.01),aes(x=freq.var))+geom_histogram(color="white",binwidth = .01)+scale_y_log10() + ggtitle("Only high quality samples")
+ggplot(var.2007.8.df,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
+ggplot(qual.2007.8,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("Only high quality samples")
 
 ```
 
-## SNV count per sample
+### iSNV
+
+#### By day
+
+```{r,by_day}
+isnv_day<-function(df){
+  ddply(df,~Id+Day.of.Infection.sample.collected+Intervention,summarize,iSNV=length(mutation))
+}
+
+all.isnv.day<-isnv_day(var.2007.8.df)
+all.isnv.day$data="All"
+qual.isnv.day<-isnv_day(qual.2007.8)
+qual.isnv.day$data="High Quality"
+
+all.data.isnv.day<-rbind(all.isnv.day,qual.isnv.day)
+
+
+ggplot(data=all.data.isnv.day,aes(y=iSNV,x=as.factor(Day.of.Infection.sample.collected)))+geom_dotplot(stackdir = "center",binaxis = 'y',position='dodge',dotsize = 0.5)+ylab("Number of SNV")+ggtitle("iSNV by day")+xlab("Day of Infection")+facet_wrap(~data)
+```
+
+```{r,by_day.densisty}
+ggplot(data=all.data.isnv.day,aes(x=as.factor(Day.of.Infection.sample.collected),y=iSNV,fill=Intervention))+geom_boxplot()+ylab("Number of SNV")+ylab("Number of SNV")+ggtitle("iSNV by day")+xlab("Day of Infection")+facet_wrap(~data)
+
+
+```
+
+It looks like the iSNV count peaks around day 3 or 4. But I don't know if that's statistically significant or robust.
+
 
 ```{r,snv_sample}
 count_muts<-function(data.df){
@@ -167,74 +196,79 @@ count_muts<-function(data.df){
   names(inter)[2]<-"quality"
   
   HA.r<-ddply(data.df,~Id+responder.HA+season,summarize,iSNV=length(mutation))
-  HA.r$variable='responder.HA'
+  HA.r$variable='responder (HA)'
   names(HA.r)[2]<-"quality"
   out<-rbind(inter,HA.r)
   
   NA.r<-ddply(data.df,~Id+responder.NA+season,summarize,iSNV=length(mutation))
-  NA.r$variable="responder.NA"
+  NA.r$variable="responder (NA)"
   names(NA.r)[2]<-"quality"
   out<-rbind(out,NA.r)
   
   HA.geo<-ddply(data.df,~Id+HAI.geo+season,summarize,iSNV=length(mutation))
-  HA.geo$variable="geometric HA"
+  HA.geo$variable="above geometric mean (HA)"
   names(HA.geo)[2]<-"quality"
   out<-rbind(out,HA.geo)
   
   NA.geo<-ddply(data.df,~Id+NAI.geo+season,summarize,iSNV=length(mutation))
-  NA.geo$variable<-"geometric NA"
+  NA.geo$variable<-"above geometric mean (NA)"
   names(NA.geo)[2]<-"quality"
   out<-rbind(out,NA.geo)
+  
+  both.responder<-ddply(data.df,~Id+responder.both+season,summarize,iSNV=length(mutation))
+  both.responder$variable<-"responder (HA & NA)"
+  names(both.responder)[2]<-"quality"
+  out<-rbind(out,both.responder)
+  
+  both.geo<-ddply(data.df,~Id+geom.both+season,summarize,iSNV=length(mutation))
+  both.geo$variable<-"above geometric mean  (HA & NA)"
+  names(both.geo)[2]<-"quality"
+  out<-rbind(out,both.geo)
+  
+  
 }
 
 
 all.snv<-count_muts(var.2007.8.df)
 qual.snv<-count_muts(qual.2007.8)
 
+all.snv$data="All"
+qual.snv$data="High Quality"
+all.data.snv<-rbind(all.snv,qual.snv)
+
 
 ```
-
-### iSNV
-### Whole Genome
+#### Whole Genome
 
 ```{r}
-dot_plots<-function(df,var){
-out<-ggplot(data=subset(all.snv,variable==var),aes(y=iSNV,x=quality))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("All data")+xlab(var)
+dot_plots<-function(df,var,title){
+data<-subset(df,variable==var)
+means<-ddply(data,~quality+data,summarize,iSNV=mean(iSNV))
+out<-ggplot(data=data,aes(y=iSNV,x=quality))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of SNV")+ggtitle(title)+xlab(var)+facet_wrap(~data)
+out<-out+geom_point(data=means,aes(y=iSNV,x=quality),shape=95,size=20,col='red')+facet_wrap(~data)
 print(out)
 }
 
-dot_plots(all.snv,"Intervention")
-dot_plots(all.snv,"responder.HA")
-dot_plots(all.snv,"responder.NA")
-dot_plots(all.snv,"geometric HA")
-dot_plots(all.snv,"geometric NA")
+dot_plots(all.data.snv,"Intervention","Vaccine status")
 
 
-```
 
-#### High quality
 
-```{r}
-dot_plots(qual.snv,"Intervention")
-dot_plots(qual.snv,"responder.HA")
-dot_plots(qual.snv,"responder.NA")
-dot_plots(qual.snv,"geometric HA")
-dot_plots(qual.snv,"geometric NA")
+
 ```
 
 ### HA NA
 
 ```{r}
 all.ha.na.snv<-count_muts(subset(var.2007.8.df,chr %in%c("HA","N_A","NR")))
-ggplot(data=all.ha.na.snv,aes(y=iSNV,x=Intervention))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("All data")
-```
-
-#### High quality
-
-```{r}
 qual.ha.na.snv<-count_muts(subset(qual.2007.8,chr %in%c("HA","N_A","NR")))
 
-ggplot(data=qual.ha.na.snv,aes(y=iSNV,x=Intervention))+geom_dotplot(stackdir = "center",binaxis = 'y')+ylab("Number of SNV")+ggtitle("High quality data")
+all.ha.na.snv$data="All"
+qual.ha.na.snv$data="High Quality"
+
+all.data.ha.na.snv<-rbind(all.ha.na.snv,qual.ha.na.snv)
+
+dot_plots(all.data.ha.na.snv,"Intervention","All Data HA & NA")
 ```
 
 # Table 4
@@ -251,7 +285,7 @@ all.chr.table<-dcast(all.chr.counts,chr~Intervention,value.var="iSNV")
 knitr::kable(all.chr.table)
 ```
 
-Not sure what the NA is we must be missing an intervention somewhere.
+Not sure what the NA is we must be missing an intervention for one of the samples.
 
 High quality data
 ```{r}
@@ -260,3 +294,30 @@ qual.chr.table<-dcast(qual.chr.counts,chr~Intervention,value.var="iSNV")
 knitr::kable(qual.chr.table)
 
 ```
+
+# Appendix
+## Extra iSNV groupings
+### Whole genome
+```{r,extra_iSNV}
+dot_plots(all.data.snv,"responder (HA)","HA responders")
+dot_plots(all.data.snv,"responder (NA)","NA responders")
+dot_plots(all.data.snv,"above geometric mean (HA)","Relative HA groups")
+dot_plots(all.data.snv,"above geometric mean (NA)","Relative NA groups")
+dot_plots(all.data.snv,"responder (HA & NA)","HA and NA responders")
+dot_plots(all.data.snv,"above geometric mean  (HA & NA)","Relative HA & NA groups")
+```
+
+### HA and NA
+
+```{r,extra_ha.na}
+dot_plots(all.data.ha.na.snv,"responder (HA)","All Data HA & NA")
+dot_plots(all.data.ha.na.snv,"responder (NA)","All Data HA & NA")
+dot_plots(all.data.ha.na.snv,"above geometric mean (HA)","All Data HA & NA")
+dot_plots(all.data.ha.na.snv,"above geometric mean (NA)","All Data HA & NA")
+dot_plots(all.data.ha.na.snv,"responder (HA & NA)","All Data HA & NA")
+dot_plots(all.data.ha.na.snv,"above geometric mean  (HA & NA)","All Data HA & NA")
+```
+
+
+
+
