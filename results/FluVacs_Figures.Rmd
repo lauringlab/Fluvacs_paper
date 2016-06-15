@@ -1,11 +1,13 @@
 ---
 title: "FluVacs Figures - Draft"
-author: "Kari and JT"
-date: "June 2, 2016"
+author: "JT"
+date: "June 3, 2016"
 output:
-  github_document:
+  html_document:
     toc: true
-    toc_depth: 2
+    toc_depth: 4
+    toc_float: true
+    
 ---
 
 ```{r,include=F}
@@ -153,19 +155,22 @@ Currently I am making these plots with just the 2007-2008 samples. Once I have t
 
 ## Frequency of Variants
 
-These are the variants between 1-99%. each bin is 1% wide. The y axis is log scaled which in ggplot leads to a problem when there are no observations (lines below axis). I can remove these before publication.
+These are the variants between 1-50%. each bin is 1% wide. The y axis is log scaled which in ggplot leads to a problem when there are no observations (lines below axis). I can remove these before publication.
 ```{r}
-ggplot(var.2007.8.df,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
-ggplot(qual.2007.8,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("Only high quality samples")
+ggplot(subset(var.2007.8.df,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
+ggplot(subset(qual.2007.8,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of SNV")
 
 ```
 
 ### iSNV
 
+We are only counting variants between 1% and 50%.
+
 #### By day
 
 ```{r,by_day}
 isnv_day<-function(df){
+  df<-subset(df,freq.var<=0.5)
   ddply(df,~Id+Day.of.Infection.sample.collected+Intervention,summarize,iSNV=length(mutation))
 }
 
@@ -191,6 +196,7 @@ It looks like the iSNV count peaks around day 3 or 4. But I don't know if that's
 
 ```{r,snv_sample}
 count_muts<-function(data.df){
+  data.df<-subset(data.df,freq.var<=0.5)
   inter<-ddply(data.df,~Id+Intervention+season,summarize,iSNV=length(mutation))
   inter$variable="Intervention"
   names(inter)[2]<-"quality"
@@ -242,12 +248,12 @@ all.data.snv<-rbind(all.snv,qual.snv)
 
 ```{r}
 dot_plots<-function(df,var,title){
-data<-subset(df,variable==var)
-means<-ddply(data,~quality+data,summarize,iSNV=mean(iSNV))
-out<-ggplot(data=data,aes(y=iSNV,x=quality))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of SNV")+ggtitle(title)+xlab(var)+facet_wrap(~data)
-out<-out+geom_point(data=means,aes(y=iSNV,x=quality),shape=95,size=20,col='red')+facet_wrap(~data)
+data<-subset(df,variable==var & data=="High Quality")
+means<-ddply(data,~quality,summarize,iSNV=median(iSNV))
+out<-ggplot()+geom_point(data=means,aes(y=iSNV,x=quality),shape=95,size=20,col='red')+geom_dotplot(data=data,aes(y=iSNV,x=quality),stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of SNV")+ggtitle(title)+xlab(var)+facet_wrap(~data)
 print(out)
 }
+
 
 dot_plots(all.data.snv,"Intervention","Vaccine status")
 
@@ -277,6 +283,7 @@ Average iSNV/ segment
 All data 
 ```{r}
 chr_muts<-function(data.df){
+  data.df<-subset(data.df,freq.var<=0.5)
   ddply(data.df,~Intervention+chr,summarize,iSNV=round(length(mutation)/length(unique(Id)),2))
 }
 all.chr.counts<-chr_muts(var.2007.8.df)
@@ -295,7 +302,53 @@ knitr::kable(qual.chr.table)
 
 ```
 
+
 # Appendix
+## Linear plots
+
+```{r}
+count_muts_samples<-function(data.df){
+  data.df<-subset(data.df,freq.var<=0.5)
+  out<-ddply(data.df,~Id,summarize,muts=length(mutation),HAI.WI=HAI.WI.30.post.vax[1],NAI.WI=NAI.WI.30.post.vax[1],Copy_num=Copy_num[1],dpi=Day.of.Infection.sample.collected[1])
+}
+
+lines.07<-count_muts_samples(qual.2007.8)
+
+
+ggplot(lines.07,aes(y=muts,x=Copy_num))+geom_point()
+ggplot(lines.07,aes(y=muts,x=HAI.WI))+geom_point()
+ggplot(lines.07,aes(y=muts,x=NAI.WI))+geom_point()
+ggplot(lines.07,aes(y=muts,x=dpi))+geom_point()
+
+
+```
+
+## Linear model with all variables
+
+NB : I'm not sure what I'm doing here and if it's valid.
+
+```{r}
+model<-lm(lines.07$muts~lines.07$HAI.WI+lines.07$NAI.WI+lines.07$Copy_num+lines.07$dpi)
+
+summary(model)
+
+```
+
+I think this means that maybe the copy number is the only variable that affects the iSNV count. What if we remove the one outlier at 16.
+```{r}
+no_out.07<-subset(lines.07,muts!=16)
+
+model.no<-lm(no_out.07$muts~no_out.07$HAI.WI+no_out.07$NAI.WI+no_out.07$Copy_num+no_out.07$dpi)
+
+summary(model.no)
+
+```
+
+Yep. I looks like that was driving things. 
+
+I'll have to think about whether or not this analysis is justified, valid, and needed.
+
+
 ## Extra iSNV groupings
 ### Whole genome
 ```{r,extra_iSNV}
@@ -317,6 +370,9 @@ dot_plots(all.data.ha.na.snv,"above geometric mean (NA)","All Data HA & NA")
 dot_plots(all.data.ha.na.snv,"responder (HA & NA)","All Data HA & NA")
 dot_plots(all.data.ha.na.snv,"above geometric mean  (HA & NA)","All Data HA & NA")
 ```
+
+## General linear model for predicting diversity.
+
 
 
 
