@@ -135,10 +135,14 @@ infer_all<-function(data.df,cut.low,cut.high){ # maybe coverage will be needed h
 processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T){
   data.df.cut<-subset(data.df,MapQ>mapq & Phred>phred & Read_pos <read_cut[2] & Read_pos>read_cut[1] & p.val<pval) # subset dataframe
   
-  data.df.cut<-ddply(data.df.cut,~chr,primer.cut) # interogating only the sites within primer location 
+  #data.df.cut<-ddply(data.df.cut,~chr,primer.cut) # interogating only the sites within primer location 
+  
+  # Removed for now as it looks like we just have the coding regions here
   
   ### work with meta data and then join data frames
-  meta<-rename(meta.df,c("Sample"="Id"))
+  #meta<-rename(meta.df,c("Sample"="Id"))
+  
+  meta<-meta.df
   data.df.cut<-join(data.df.cut,meta,by="Id",type='left')
   
   #data.df.cut<-mutate(data.df.cut,Lauring_Id=Id,Id=paste(HOUSE_ID,season,Id,VAX,onset,sep="."))
@@ -163,7 +167,7 @@ join_dups<-function(data1.df,data2.df){
   data1.df<-mutate(data1.df,samp_mut=paste0(Id,mutation))
   data2.df<-mutate(data2.df,samp_mut=paste0(Id,mutation))
   #data2.df<-rename(data2.df,c("freq.var"="freq.var2","p.val"="p.val2","MapQ"="MapQ2","Phred"="Phred2","Read_pos"="Read_pos2","sigma2.freq.var"="sigma2.freq.var2","n.tst.fw"="n.tst.fw2","cov.tst.fw"="cov.tst.fw2","n.tst.bw"="n.tst.bw2","cov.tst.bw"="cov.tst.bw2","n.ctrl.fw"="n.ctrl.fw2","cov.ctrl.fw"="cov.ctrl.fw2","n.ctrl.bw"="n.ctrl.bw2","cov.ctrl.bw"="cov.ctrl.bw2","raw.p.val"="raw.p.val2"))
-  dups.df<-merge(data1.df,data2.df,type='inner',by=c("samp_mut","chr","pos","ref","var","Id","mutation","season","Copy_num","Vax"))
+  dups.df<-merge(data1.df,data2.df,type='inner',by=c("samp_mut","chr","pos","ref","var","Id","mutation", "Copy_num","Vax","season", "Intervention","HAI.Uruguay.preseason","HAI.Uruaguay.30.post.vax", "HAI.WI.vax.preseason","HAI.WI.30.post.vax","NAI.WI.vax.preseason", "NAI.WI.30.post.vax","Day.of.Infection.sample.collected","collection_date"))
   #dups.df<-mutate(dups.df,freq.var=rowMeans(cbind(freq.var.x,freq.var.y)))
   #print(names(dups.df))
 }
@@ -173,7 +177,7 @@ mean_dups<-function(data.df,ref.names){
   
   for(i in 1:length(ref.names)){
     matches<-which(grepl(paste0("^",ref.names[i]),names(data.df))==T) # the ^ makes sure the names starts with the matched name 
-    #print(ref.names[i])
+    #print(ref.names[matches])
     if(length(matches)==2){
       data.df<-mutate(data.df, new_col = rowMeans(cbind(data.df[,matches[1]],data.df[,matches[2]])))
       data.df<-rename(data.df,c("new_col"=ref.names[i]))

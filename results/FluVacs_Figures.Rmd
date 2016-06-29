@@ -113,7 +113,27 @@ gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){ # from http://stackov
 var.2007.8.df<-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
 
 qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
+
+### For consensus seqeunce meta data
+# meta.df<-mutate(meta.2007.08,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),collection_date=)
+# meta.df$collection_date<-as.Date(meta.df$collection_date,format = "%d-%b-%y")
+# require(lubridate)
+# meta.df$collection_date<-decimal_date(meta.df$collection_date)
+# 
+# 
+# 
+# write.csv(meta.df,"../data/raw/2007_2008.meta.HAgm.csv")
 ```
+
+```{r,eval=F}
+# This makes the meta data for each sample. I'm doing this for all samples
+
+meta_data<-subset(var.2007.8.df,select=c(Id,mutation,Copy_num,Vax,season,Intervention,HAI.Uruguay.preseason,HAI.Uruaguay.30.post.vax,HAI.WI.vax.preseason,HAI.WI.30.post.vax,NAI.WI.vax.preseason,NAI.WI.30.post.vax,Day.of.Infection.sample.collected,responder.HA,responder.NA,HAI.geo,NAI.geo,responder.both,geom.both))
+
+
+meta_data<-ddply(meta_data,~Id,function(x) x[1,])
+```
+
 #Figure 3 Coverage plots
 
 These are just from the first runs. I'm not including the duplicates here - should I? These have a sliding window of 100 with a step of 100 no overlap.
@@ -174,23 +194,57 @@ isnv_day<-function(df){
   ddply(df,~Id+Day.of.Infection.sample.collected+Intervention,summarize,iSNV=length(mutation))
 }
 
-all.isnv.day<-isnv_day(var.2007.8.df)
-all.isnv.day$data="All"
+#all.isnv.day<-isnv_day(var.2007.8.df)
+#all.isnv.day$data="All"
 qual.isnv.day<-isnv_day(qual.2007.8)
-qual.isnv.day$data="High Quality"
+#qual.isnv.day$data="High Quality"
 
-all.data.isnv.day<-rbind(all.isnv.day,qual.isnv.day)
+#all.data.isnv.day<-rbind(all.isnv.day,qual.isnv.day)
+qual.isnv.day<-rbind(qual.isnv.day,data.frame(Id=rep("extra",3),Day.of.Infection.sample.collected=c(5,6,6),Intervention=c("IIV","IIV","LAIV"),iSNV=rep(NA,3))) # this keeps everything in order. We don't had data for these days and interventions
 
 
-ggplot(data=all.data.isnv.day,aes(y=iSNV,x=as.factor(Day.of.Infection.sample.collected)))+geom_dotplot(stackdir = "center",binaxis = 'y',position='dodge',dotsize = 0.5)+ylab("Number of SNV")+ggtitle("iSNV by day")+xlab("Day of Infection")+facet_wrap(~data)
+iSNV.day<-ggplot(data=qual.isnv.day,aes(y=iSNV,x=as.factor(paste(Day.of.Infection.sample.collected,Intervention,sep="_"))))+geom_dotplot(aes(fill=Intervention),stackdir = "center",binaxis = 'y',position='dodge',binwidth = 1,dotsize = 0.7)+ylab("Number of SNV")+ggtitle("iSNV by day")+xlab("Day of Infection")+stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.5)+scale_y_continuous(limits=c(0,18),breaks=seq(0,18,2))+scale_x_discrete(labels=c("","2","","","3","","","4","","","5","","","6",""))
+
+pdf("~/Box Sync/FluVax Paper/Graphs/iSNV.day.pdf",width=9,height=4)
+iSNV.day
+dev.off()
+
 ```
 
 ```{r,by_day.densisty}
-ggplot(data=all.data.isnv.day,aes(x=as.factor(Day.of.Infection.sample.collected),y=iSNV,fill=Intervention))+geom_boxplot()+ylab("Number of SNV")+ylab("Number of SNV")+ggtitle("iSNV by day")+xlab("Day of Infection")+facet_wrap(~data)
+H<-function(x){
+  H_pos<-ddply(x,~chr+pos,summarize,H=-sum(c(freq.var*log(freq.var))))
+sum(H_pos$H)/(13149)
+}
 
+entropy_day<-function(df){
+
+  ddply(df,~Id+Day.of.Infection.sample.collected+Intervention,summarize,H=H(data.frame(chr,pos,freq.var)))
+  
+}
+
+
+qual.H.day<-entropy_day(qual.2007.8)
+qual.H.day<-rbind(qual.H.day,data.frame(Id=rep("extra",3),Day.of.Infection.sample.collected=c(5,6,6),Intervention=c("IIV","IIV","LAIV"),H=rep(NA,3))) # this keeps everything in order. We don't had data for these days and interventions
+
+H.day<-ggplot(data=qual.H.day,aes(y=H,x=as.factor(paste(Day.of.Infection.sample.collected,Intervention,sep="_"))))+geom_dotplot(aes(fill=Intervention),stackdir = "center",binaxis = 'y',position='dodge')+stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.5)+scale_x_discrete(labels=c("","2","","","3","","","4","","","5","","","6",""))+ylab("Entropy per genomic site")+ggtitle("Entropy by day")+xlab("Day of Infection")
+
+pdf("~/Box Sync/FluVax Paper/Graphs/H.day.pdf",width=7,height=3)
+H.day
+dev.off()
 
 ```
 
+
+```{r}
+require(cowplot)
+
+x<-plot_grid(iSNV.day, H.day, labels = c("A", "B"))
+
+pdf("~/Desktop/HIVE_grant.pdf",width = 12,height = 3.5)
+x
+dev.off()
+```
 It looks like the iSNV count peaks around day 3 or 4. But I don't know if that's statistically significant or robust.
 
 
@@ -371,8 +425,17 @@ dot_plots(all.data.ha.na.snv,"responder (HA & NA)","All Data HA & NA")
 dot_plots(all.data.ha.na.snv,"above geometric mean  (HA & NA)","All Data HA & NA")
 ```
 
-## General linear model for predicting diversity.
 
+```{r,eval=T}
+## Getting data for HA
+ha<-subset(qual.2007.8,chr=='HA')
+dim(ha)
+ha<-ha[order(ha$pos),]
+unique(ha$pos)
+write.csv(x = ha,file="../data/2007_2008.ha.csv",row.names = F)
+
+
+```
 
 
 
