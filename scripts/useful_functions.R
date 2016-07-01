@@ -135,7 +135,7 @@ infer_all<-function(data.df,cut.low,cut.high){ # maybe coverage will be needed h
 processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T){
   data.df.cut<-subset(data.df,MapQ>mapq & Phred>phred & Read_pos <read_cut[2] & Read_pos>read_cut[1] & p.val<pval) # subset dataframe
   
-  #data.df.cut<-ddply(data.df.cut,~chr,primer.cut) # interogating only the sites within primer location 
+  data.df.cut<-ddply(data.df.cut,~chr,primer.cut) # interogating only the sites within primer location 
   
   # Removed for now as it looks like we just have the coding regions here
   

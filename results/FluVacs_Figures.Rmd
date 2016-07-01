@@ -26,6 +26,55 @@ source("../scripts/useful_functions.R") # useful functions adapted largley from 
 ```
 
 
+#Figure 3 Coverage plots
+
+These are just from the first runs. I'm not including the duplicates here - should I? These have a sliding window of 100 with a step of 100 no overlap.
+
+```{r,coverage}
+cov.2007.8<-rbind(read.csv("../data/processed/Run_1293/deepSNV/all.coverage.csv",stringsAsFactors = F),read.csv("../data/processed/Run_1304/deepSNV/all.coverage.csv",stringsAsFactors = F))
+
+other.seasons.cov<-read.csv("../data/processed/Run_1412/deepSNV/all.coverage.csv",stringsAsFactors = F)
+
+
+cov.2004.5<-subset(other.seasons.cov,Id %in% titer.2004.5$Sample)
+cov.2005.6<-subset(other.seasons.cov,Id %in% titer.2005.6$Sample)
+
+
+cov.plot.04.05<-cov_plot(cov.2004.5,"2004-2005",100,100)
+cov.plot.04.05
+
+cov.plot.05.06<-cov_plot(cov.2005.6,"2005-2006",100,100)
+cov.plot.05.06
+
+cov.plot.07.08<-cov_plot(cov.2007.8,"2007-2008",100,100)
+cov.plot.07.08
+
+```
+
+If we plot on a log scale the bars are well above 0. 
+
+```{r}
+cov.plot.07.08+scale_y_log10(breaks=c(1,10,100,1000,10000,100000))
+```
+
+
+
+```{r}
+concat.pos<-ddply(cov.2007.8,~chr, summarize, low=min(concat.pos), high=max(concat.pos))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r,titers}
@@ -132,37 +181,6 @@ meta_data<-subset(var.2007.8.df,select=c(Id,mutation,Copy_num,Vax,season,Interve
 
 
 meta_data<-ddply(meta_data,~Id,function(x) x[1,])
-```
-
-#Figure 3 Coverage plots
-
-These are just from the first runs. I'm not including the duplicates here - should I? These have a sliding window of 100 with a step of 100 no overlap.
-
-```{r,coverage}
-cov.2007.8<-rbind(read.csv("../data/processed/Run_1293/deepSNV/all.coverage.csv",stringsAsFactors = F),read.csv("../data/processed/Run_1304/deepSNV/all.coverage.csv",stringsAsFactors = F))
-
-other.seasons.cov<-read.csv("../data/processed/Run_1412/deepSNV/all.coverage.csv",stringsAsFactors = F)
-
-
-cov.2004.5<-subset(other.seasons.cov,Id %in% titer.2004.5$Sample)
-cov.2005.6<-subset(other.seasons.cov,Id %in% titer.2005.6$Sample)
-
-
-cov.plot.04.05<-cov_plot(cov.2004.5,"2004-2005",100,100)
-cov.plot.04.05
-
-cov.plot.05.06<-cov_plot(cov.2005.6,"2005-2006",100,100)
-cov.plot.05.06
-
-cov.plot.07.08<-cov_plot(cov.2007.8,"2007-2008",100,100)
-cov.plot.07.08
-
-```
-
-If we plot on a log scale the bars are well above 0. 
-
-```{r}
-cov.plot.07.08+scale_y_log10(breaks=c(1,10,100,1000,10000,100000))
 ```
 
 
@@ -438,15 +456,19 @@ unique(ha$pos)
 write.csv(x = ha,file="../data/2007_2008.ha.csv",row.names = F)
 
 
+# concat.pos<-ddply(cov.2007.8,~chr, summarize, low=min(concat.pos), high=max(concat.pos))
+# 
+# con <- file("../data/concat_pos_bris.csv", open="wt")
+# writeLines(paste("# this csv file was created on ",date(), " It represents the ends of the segements aligned to the brisbane plasmid control (years 2007-2008)"), con)
+# write.csv( concat.pos, con)
+# close(con)
+
+
+
+
+
 ```
 
-
-```{r,table_for_stats}
-
-qual.2007.8
-
-
-```
 
 
 
