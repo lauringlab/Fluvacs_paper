@@ -306,13 +306,16 @@ data<-subset(df,variable==var & data=="High Quality")
 means<-ddply(data,~quality,summarize,iSNV=median(iSNV))
 out<-ggplot()+geom_point(data=means,aes(y=iSNV,x=quality),shape=95,size=20,col='red')+geom_dotplot(data=data,aes(y=iSNV,x=quality),stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of SNV")+ggtitle(title)+xlab(var)+facet_wrap(~data)
 print(out)
+print(kable(data))
+sumup<-ddply(data,~quality,summarize,samples=length(Id),average_snv=mean(iSNV))
+kable(sumup)
 }
 
 
 dot_plots(all.data.snv,"Intervention","Vaccine status")
 
 
-
+dot_plots(all.data.snv,"above geometric mean (HA)","above geometric mean (HA)")
 
 
 ```
@@ -437,6 +440,13 @@ write.csv(x = ha,file="../data/2007_2008.ha.csv",row.names = F)
 
 ```
 
+
+```{r,table_for_stats}
+
+qual.2007.8
+
+
+```
 
 
 
