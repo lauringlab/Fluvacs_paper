@@ -72,7 +72,11 @@ for FILE in ./data/concat_pos_bris.csv data/processed/Run_1293/parsed_fa/*.fa; d
 	./scripts/trim_to_coding.py ~/muscle3.8.31/ $FILE ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/Run_1293/coding_fa/$NAME
 done
 
-./scripts/concat_seg.py ./data/processed/Run_1293/coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1293/coding_fa/HA.fa
+./scripts/concat_seg.py ./data/processed/Run_1293/coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1293/HA.fa
+./scripts/concat_seg.py ./data/processed/Run_1293/coding_fa/ NR ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1293/NR.fa
+
+
+
 
 
 ./scripts/parse_consensus.py data/processed/Run_1304/deepSNV/ ./data/concat_pos_bris.csv data/processed/Run_1304/parsed_fa
@@ -83,9 +87,11 @@ for FILE in ./data/concat_pos_bris.csv data/processed/Run_1304/parsed_fa/*.fa; d
 	./scripts/trim_to_coding.py ~/muscle3.8.31/ $FILE ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/Run_1304/coding_fa/$NAME
 done
 
-./scripts/concat_seg.py ./data/processed/Run_1304/coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1304/coding_fa/HA.fa
+./scripts/concat_seg.py ./data/processed/Run_1304/coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1304/HA.fa
+./scripts/concat_seg.py ./data/processed/Run_1304/coding_fa/ NR ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1304/NR.fa
 
-cat ./data/processed/Run_1293/coding_fa/HA.fa ./data/processed/Run_1304/coding_fa/HA.fa > ./data/processed/2007-2008.HA.fa
+cat ./data/processed/Run_1293/HA.fa ./data/processed/Run_1304/HA.fa > ./data/processed/2007-2008.HA.fa
+cat ./data/processed/Run_1293/NR.fa ./data/processed/Run_1304/NR.fa > ./data/processed/2007-2008.NR.fa
 
 
 
