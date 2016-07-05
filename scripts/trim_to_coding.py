@@ -210,7 +210,7 @@ def main(): # The positions will be given as base 0 and adjusted to match the co
     align_ref = []
     align_samp=[]
     for seqname in samp_seqname:
-        print("Aligning %s" % seqname)
+        #print("Aligning %s" % seqname)
         sample_seq=sample[samp_seqname.index(seqname)]
         try:
             ref_seq=ref[ref_seqname.index(seqname)]

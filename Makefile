@@ -1,5 +1,16 @@
 #all : ./results.pdf
 
+# utility function to print various variables. For example, running the
+# following at the command line:
+#
+#	make print-BAM
+#
+# will generate:
+#	BAM=data/raw_june/V1V3_0001.bam data/raw_june/V1V3_0002.bam ...
+print-%:
+	@echo '$*=$($*)'
+
+
 ####################################################################################
 #
 #
@@ -11,12 +22,7 @@
 ###################################################################################
 
 
-
-
-
 #Download the fastq files for
-
-
 
 #####################################################################################
 #
@@ -34,13 +40,13 @@
 #######################################################################################
 
 
-./data/processed/Run_1293/Variants/all.sum.csv: data/raw/Run_1293/*.fastq
+./data/processed/Run_1293/Variants/all.sum.csv: #data/raw/Run_1293/*.fastq
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1293/ -o ./data/processed/Run_1293/ -r ./data/reference/Brisbane_seq_untranslated -p bris -d two.sided -m fisher -a 0.9
 
-./data/processed/Run_1304/Variants/all.sum.csv: data/raw/Run_1304/*.fastq
+./data/processed/Run_1304/Variants/all.sum.csv: #data/raw/Run_1304/*.fastq
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1304/ -o ./data/processed/Run_1304/ -r ./data/reference/Brisbane_seq_untranslated -p Bris -d two.sided -m fisher -a 0.9
 
-./data/processed/2007-2008/Variants/all.sum.csv: data/raw/2007-2008/*.fastq
+./data/processed/2007-2008/Variants/all.sum.csv: #data/raw/2007-2008/*.fastq
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2007-2008/ -o ./data/processed/2007-2008/ -r ./data/reference/Brisbane_seq_untranslated -p Brisbane -d two.sided -m fisher -a 0.9
 
 #####################################################################################
@@ -57,41 +63,19 @@
 
 
 # get the start and stop of each segment in the concatenated genome.
-data/concat_pos_bris.csv: data/processed/Run_1293/deepSNV/all.sum.csv
+./data/concat_pos_bris.csv: data/processed/Run_1293/deepSNV/all.sum.csv
 	Rscript --vanilla scripts/get_concat_pos.R data/processed/Run_1293/deepSNV/all.coverage.csv data/processed/Run_1304/deepSNV/all.coverage.csv ./data/concat_pos_bris.csv
 
+./data/processed/Run_1293/HA.fa ./data/processed/Run_1293/NR.fa: ./data/processed/Run_1293/Variants/all.sum.csv
+	./scripts/consensus.pipe.py data/processed/Run_1293/deepSNV/ ./data/reference/Brisbane_H3N2_plasmids.fa ./data/concat_pos_bris.csv
+./data/processed/Run_1304/HA.fa ./data/processed/Run_1304/NR.fa: ./data/processed/Run_1304/Variants/all.sum.csv
+	./scripts/consensus.pipe.py data/processed/Run_1304/deepSNV/ ./data/reference/Brisbane_H3N2_plasmids.fa ./data/concat_pos_bris.csv
 
-
-# Parse the consensus files
-
-./scripts/parse_consensus.py data/processed/Run_1293/deepSNV/ ./data/concat_pos_bris.csv data/processed/Run_1293/parsed_fa
-
-mkdir ./data/processed/Run_1293/coding_fa
-for FILE in ./data/concat_pos_bris.csv data/processed/Run_1293/parsed_fa/*.fa; do
-	NAME=$(basename $FILE)
-	./scripts/trim_to_coding.py ~/muscle3.8.31/ $FILE ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/Run_1293/coding_fa/$NAME
-done
-
-./scripts/concat_seg.py ./data/processed/Run_1293/coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1293/HA.fa
-./scripts/concat_seg.py ./data/processed/Run_1293/coding_fa/ NR ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1293/NR.fa
-
-
-
-
-
-./scripts/parse_consensus.py data/processed/Run_1304/deepSNV/ ./data/concat_pos_bris.csv data/processed/Run_1304/parsed_fa
-
-mkdir ./data/processed/Run_1304/coding_fa
-for FILE in ./data/concat_pos_bris.csv data/processed/Run_1304/parsed_fa/*.fa; do
-	NAME=$(basename $FILE)
-	./scripts/trim_to_coding.py ~/muscle3.8.31/ $FILE ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/Run_1304/coding_fa/$NAME
-done
-
-./scripts/concat_seg.py ./data/processed/Run_1304/coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1304/HA.fa
-./scripts/concat_seg.py ./data/processed/Run_1304/coding_fa/ NR ./data/raw/2007_2008.meta.HAgm.csv ./data/processed/Run_1304/NR.fa
-
-cat ./data/processed/Run_1293/HA.fa ./data/processed/Run_1304/HA.fa > ./data/processed/2007-2008.HA.fa
-cat ./data/processed/Run_1293/NR.fa ./data/processed/Run_1304/NR.fa > ./data/processed/2007-2008.NR.fa
+# Combine the concatenated coding regions
+./data/processed/2007-2008.HA.fa : ./data/processed/Run_1293/HA.fa ./data/processed/Run_1304/HA.fa
+	cat ./data/processed/Run_1293/HA.fa ./data/processed/Run_1304/HA.fa > ./data/processed/2007-2008.HA.fa
+./data/processed/2007-2008.NR.fa : ./data/processed/Run_1293/NR.fa ./data/processed/Run_1304/NR.fa
+	cat ./data/processed/Run_1293/NR.fa ./data/processed/Run_1304/NR.fa > ./data/processed/2007-2008.NR.fa
 
 
 
