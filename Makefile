@@ -60,6 +60,14 @@ print-%:
 #####################################################################################
 
 
+# Get the difference between the whole genome and coding regions
+
+./data/processed/bis_difference.csv:
+	./scripts/trim_to_coding.py ~/muscle3.8.31/ ./data/reference/Brisbane_seq_untranslated.fa ./data/Brisbane_H3N2_plasmids.fa -csv ./data/processed/bis_difference.csv
+
+# Make figures and run R scripts
+./results/FluVacs_Figures.md ./data/processed/2007_2008.ha.csv: ./data/processed/bis_difference.csv ./data/processed/Run_1293/Variants/all.sum.csv ./data/processed/Run_1304/Variants/all.sum.csv ./data/processed/2007-2008/Variants/all.sum.csv
+	cd ./results/ ; Rscript -e "knitr::knit('./FluVacs_Figures.Rmd')"
 
 
 # get the start and stop of each segment in the concatenated genome.
@@ -77,7 +85,7 @@ print-%:
 ./data/processed/2007-2008.NR.fa : ./data/processed/Run_1293/NR.fa ./data/processed/Run_1304/NR.fa
 	cat ./data/processed/Run_1293/NR.fa ./data/processed/Run_1304/NR.fa > ./data/processed/2007-2008.NR.fa
 
+## Antigenic analysis
 
-
-./results/figures.md:
-	cd ./results/ ; Rscript -e "knitr::knit('./figures.Rmd')"
+./data/processed/2007-2008.putative.antigenic.csv ./data/processed/2007-2008.HA.csv: ./data/processed/2007-2008.HA.fa ./data/processed/2007_2008.ha.csv
+	./scripts/antigenic_sites.py 

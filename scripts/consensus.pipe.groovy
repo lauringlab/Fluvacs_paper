@@ -13,7 +13,7 @@ coding = {
 	doc "Trim the parsed sequences to just the coding regions defined by a separate fasta file which contains the coding region for each segment."
 	output.dir = "${MAIN_DIR}/coding_fa"
 	filter("coding"){
-		exec "${SCRIPTS}/trim_to_coding.py ~/muscle3.8.31/ $input ${CODING_FA} $output"
+		exec "${SCRIPTS}/trim_to_coding.py ~/muscle3.8.31/ $input ${CODING_FA} -out_fa $output"
 	}
 
 }
