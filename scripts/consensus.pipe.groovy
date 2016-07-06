@@ -29,7 +29,7 @@ concatenate = {
 clean_up = {
 	doc "clean up the files that were put in the working directory"
 	exec "mv ./fasta.config.groovy ${MAIN_DIR}/fasta.config.groovy"
-	exec "mv ./commandlog.txt ${MAIN_DIR}/commandlog.txt"
+	exec "mv ./commandlog.txt ${MAIN_DIR}/consensuscommandlog.txt"
 }
 
 run{

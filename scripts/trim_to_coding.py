@@ -146,6 +146,7 @@ def trim(aligned_headers_seqs):
     # Getting the positions to strip from the start
     go=True
     i=0
+    start_excess=0
     while (go==True):
         if (ref_seq[i]=='-'):
             start_excess=i # strip 0 to i
@@ -156,6 +157,7 @@ def trim(aligned_headers_seqs):
     start_excess=start_excess+1 # slicing is inclusive on this end
     end=True
     i=len(ref_seq)-1
+    end_excess=i
     print(i)
     while (end==True):
         if (ref_seq[i]=='-'):
@@ -246,8 +248,8 @@ def main(): # The positions will be given as base 0 and adjusted to match the co
 
 
     if(csv==None):
-        print("writing output to %s"  % args.out_fa[0])
-        SeqIO.write(trimmed, args.out_fa[0], "fasta")
+        print("writing output to %s"  % args.out_fa)
+        SeqIO.write(trimmed, args.out_fa, "fasta")
     else:
         print("writing csv file to %s" % csv)
         with open(csv,'w') as out_file:

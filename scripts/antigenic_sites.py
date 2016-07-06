@@ -14,14 +14,14 @@ Ids=[]
 nucleotide=[]
 protein=[]
 
-for seq_record in SeqIO.parse("./data/processed/2007-2008.HA.fa", "fasta"):
+for seq_record in SeqIO.parse("./results/2007-2008.HA.fa", "fasta"):
     Ids.append(seq_record.id.split("_")[0])
     seq_record.seq.alphabet=IUPAC.unambiguous_dna
     nucleotide.append(seq_record.seq)
     prot=seq_record.seq.translate()
     protein.append(prot)
 
-data=pd.read_csv("./data/processed/2007_2008.ha.csv")
+data=pd.read_csv("./results/2007-2008.HA.csv")
 df=data.sort_values("Id") # Sorting the data frame by sample name. NOTE : The indeces don't change
 df["pos"]=df["coding.pos"]-1 # Note the pandas data frame is in base 1 while everthing else is in base 0 this fixes that
 df["aa_pos"]=df["pos"]//3
@@ -86,7 +86,7 @@ df["aa_var"]=var_aa
 
 
 
-df[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var"]].to_csv("./data/processed/2007-2008.ha.aa.csv")
+df[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var"]].to_csv("./results/2007-2008.HA.aa.csv")
 
 nonsense=df.loc[(df.aa_consensus!=df.aa_var)]
 
@@ -428,4 +428,4 @@ nonsense["PDB_4JTV"]=PDB_4JTV
 
 print(nonsense[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var","PDB_4HMG","PDB_4JTV"]])
 
-nonsense[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var","PDB_4HMG","PDB_4JTV"]].to_csv("./data/processed/2007-2008.HA.nonsymom.csv")
+nonsense[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var","PDB_4HMG","PDB_4JTV"]].to_csv("./results/2007-2008.putative.antigenic.csv")
