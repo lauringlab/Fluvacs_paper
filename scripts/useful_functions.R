@@ -94,12 +94,12 @@ make_heat_map<-function(data.df,s,title){ # s=season
 ######## Procesing #########
 
 
-regions.bed <-read.csv("../data/pr8_noprimingsites.bed.csv",stringsAsFactors = F,comment.char = "#") # these sites should be the same for Pr8 and these viruses but I'll check that later
+regions.bed <-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") # these are the untranslated regions from the brisbane sequence
 
-primer.cut<-function(x){ # a helper function to remove the variants that lie in the primer regions
+coding.cut<-function(x){ # a helper function to remove the variants that lie in the primer regions
   chr<-unique(x$chr)
-  start<-regions.bed$start[match(x$chr,regions.bed$chr)]
-  stop<-regions.bed$stop[match(x$chr,regions.bed$chr)]
+  start<-regions.bed$off.5[match(x$chr,regions.bed$chr)]
+  stop<-regions.bed$off.3[match(x$chr,regions.bed$chr)]
   
   subset(x,pos>start & pos<stop)
 }
@@ -135,7 +135,7 @@ infer_all<-function(data.df,cut.low,cut.high){ # maybe coverage will be needed h
 processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T){
   data.df.cut<-subset(data.df,MapQ>mapq & Phred>phred & Read_pos <read_cut[2] & Read_pos>read_cut[1] & p.val<pval) # subset dataframe
   
-  data.df.cut<-ddply(data.df.cut,~chr,primer.cut) # interogating only the sites within primer location 
+  data.df.cut<-ddply(data.df.cut,~chr,coding.cut) # interogating only the sites within primer location 
   
   # Removed for now as it looks like we just have the coding regions here
   

@@ -26,11 +26,15 @@ parser.add_argument('in_fa', metavar='in_fa', nargs='+',
 parser.add_argument('ref_fa', metavar='ref', nargs='+',
                     help='The reference fasta to which the sequences will be trimmed.')
 
-parser.add_argument('out_fa', metavar='out_fa', nargs='+',
-                    help='The trimmed fasta that will be the output')
+parser.add_argument('-out_fa',action='store',dest='out_fa',default=None,
+                    help='optional output the trimmed fasta file')
+
+parser.add_argument('-csv',action='store',dest='csv',default=None,
+                    help='optional output - a csv file recording the number of bp trimmed off the 5\' and 3\' ends')
+
 args = parser.parse_args()
 
-
+csv=args.csv
 
 def Align(headers_seqs, progpath, musclegapopen=None):
     """Performs a multiple sequence alignment of two or more sequences.
@@ -162,9 +166,13 @@ def trim(aligned_headers_seqs):
 
     print("%s bases taken off the 5' end" % str(start_excess))
     print("%s bases taken off the 3' end " % str(len(ref_seq)-1-end_excess))
+
+
+
     samp_seq=aligned_headers_seqs[1]
     samp_seq.seq=samp_seq.seq[start_excess:end_excess]
-    return(samp_seq)
+
+    return([samp_seq,start_excess,end_excess+1]) # In a 1 base system (like R) The start will be the last base to not be exclued on the 5' and end is the last base off the end to be included.
 
 
 
@@ -210,7 +218,7 @@ def main(): # The positions will be given as base 0 and adjusted to match the co
     align_ref = []
     align_samp=[]
     for seqname in samp_seqname:
-        print("Aligning %s" % seqname)
+        #print("Aligning %s" % seqname)
         sample_seq=sample[samp_seqname.index(seqname)]
         try:
             ref_seq=ref[ref_seqname.index(seqname)]
@@ -222,13 +230,30 @@ def main(): # The positions will be given as base 0 and adjusted to match the co
         align_samp.append(alignments[1])
     print("Trimming...\n")
     trimmed=[]
+    segs=[]
+    off_5=[]
+    off_3=[]
     for i in range(0,len(align_samp)):
         print("Trimming %s" % align_samp[i].id)
+        trimmed_out=trim([align_ref[i],align_samp[i]])
+        trimmed.append(trimmed_out[0])
+        segs.append(align_samp[i].id)
+        off_5.append(trimmed_out[1])
+        off_3.append(trimmed_out[2])
 
-        trimmed.append(trim([align_ref[i],align_samp[i]]))
 
 
-    print("writing output to %s"  % args.out_fa[0])
 
-    SeqIO.write(trimmed, args.out_fa[0], "fasta")
+
+    if(csv==None):
+        print("writing output to %s"  % args.out_fa[0])
+        SeqIO.write(trimmed, args.out_fa[0], "fasta")
+    else:
+        print("writing csv file to %s" % csv)
+        with open(csv,'w') as out_file:
+           out_file.write("chr,off.5,off.3\n")
+           for i in range(0,len(off_5)) :
+               out_file.write(str(segs[i])+","+str(off_5[i])+","+str(off_3[i])+'\n')
+
+
 main()
