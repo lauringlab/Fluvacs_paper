@@ -25,130 +25,9 @@ axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to 
 source("../scripts/useful_functions.R") # useful functions adapted largley from HIVE work
 ```
 
-
-
-```{r,titers,eval=F}
-# read in the csvs and add a season column to use later
-titer.2004.5<-read.csv("../Titers_status_2004-2005.csv",stringsAsFactors = F)
-titer.2004.5$season<-"04-05"
-titer.2005.6<-read.csv("../Titers_status_2005-2006.csv",stringsAsFactors = F)
-titer.2005.6$season<-"05-06"
-titer.2007.8<-read.csv("../Titers_status_2007-2008.csv",stringsAsFactors = F)
-titer.2007.8$season<-"07-08"
-```
-
 ```{r}
-meta.2007.08<-read.csv("../data/raw/2007_2008.meta.csv",stringsAsFactors = F)
+minor<-read.csv("../results/2007-2008.wg.csv")
 ```
-
-```{r, variant_calls}
-
-var.2007.8<-read.csv("../data/processed/Run_1293/Variants/all.sum.csv",stringsAsFactors = F)
-x<-read.csv("../data/processed/Run_1304/Variants/all.sum.csv",stringsAsFactors = F) # the rest of these samples
-var.2007.8<-rbind(var.2007.8,x) # combine both runs
-#other.seasons<-read.csv("../data/processed/Run_1412/Variants/all.sum.csv",stringsAsFactors = F)
-
-
-# var.2004.5.df<-processing(data.df = other.seasons,meta.df = titer.2004.5,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-# 
-# var.2004.5.df<-subset(var.2004.5.df,season=="04-05")
-# var.2005.6.df<-processing(data.df = other.seasons,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-# var.2005.6.df<-subset(var.2005.6.df,season=="05-06")
-# 
-var.2007.8.df<-processing(data.df = var.2007.8,meta.df = meta.2007.08,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-
-
-# all.df<-rbind(var.2004.5.df,var.2005.6.df)
-# all.df<-rbind(all.df,var.2007.8.df)
-# 
-# all.df<-subset(all.df,freq.var>=0.01)
-# ##### Now for the duplicate runs #######
-# 
-# var.2004.5.df2<-read.csv("../data/processed/2004_2005/Variants/all.sum.csv",stringsAsFactors = F)
-# var.2004.5.df2<-processing(data.df = var.2004.5.df2,meta.df = titer.2004.5,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-# 
-# var.2005.6.df2<-read.csv("../data/processed/2005-2006/Variants/all.sum.csv",stringsAsFactors = F)
-# var.2005.6.df2<-processing(data.df = var.2005.6.df2,meta.df = titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-
-var.2007.8.df2<-read.csv("../data/processed/2007-2008/Variants/all.sum.csv",stringsAsFactors = F)
-var.2007.8.df2<-processing(data.df = var.2007.8.df2,meta.df = meta.2007.08,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-
-### Join duplicates #####
-
-# dups.2004.5<-join_dups(data1.df = var.2004.5.df,data2.df = var.2004.5.df2)
-# dups.2005.6<-join_dups(data1.df = var.2005.6.df,data2.df = var.2005.6.df2)
-dups.2007.8<-join_dups(data1.df = var.2007.8.df,data2.df = var.2007.8.df2)
-
-##### Merge duplicates with intial data that was >1e5
-
-# qual.2004.5<-high_qual(data1.df = var.2004.5.df,dups.df = dups.2004.5,titer = 1e3) # only duplicates above 1e3 kept
-# qual.2005.6<-high_qual(data1.df = var.2005.6.df,dups.df = dups.2005.6,titer = 1e3)
-qual.2007.8<-high_qual(data1.df = var.2007.8.df,dups.df = dups.2007.8,titer = 1e3)
-# all.qual.df<-rbind(qual.2004.5,qual.2005.6)
-# all.qual.df<-rbind(all.qual.df,qual.2007.8)
-# 
-# all.qual.df<-subset(all.qual.df,freq.var>=0.01 & freq.var<=0.99)
-
-var.2007.8.df<-subset(var.2007.8.df,freq.var>=0.01 & freq.var<=0.99)
-qual.2007.8<-subset(qual.2007.8,freq.var>=0.01 & freq.var<=0.99)
-
-bris.bed<-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") 
-
-coding.adjust<-function(x){
-  chr<-unique(x$chr)
-  start<-bris.bed$off.5[match(x$chr,bris.bed$chr)]
-
-  mutate(x,coding.pos=pos-start)
-  }
-
-qual.2007.8<-ddply(qual.2007.8,~chr,coding.adjust)
-  
-
-
-
-
-```
-
-```{r}
-gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){ # from http://stackoverflow.com/questions/2602583/geometric-mean-is-there-a-built-in
-  if(any(x < 0, na.rm = TRUE)){
-    return(NaN)
-  }
-  if(zero.propagate){
-    if(any(x == 0, na.rm = TRUE)){
-      return(0)
-    }
-    exp(mean(log(x), na.rm = na.rm))
-  } else {
-    exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
-  }
-}
-
-var.2007.8.df<-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
-
-qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
-
-### For consensus seqeunce meta data
-# meta.df<-mutate(meta.2007.08,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),collection_date=)
-# meta.df$collection_date<-as.Date(meta.df$collection_date,format = "%d-%b-%y")
-# require(lubridate)
-# meta.df$collection_date<-decimal_date(meta.df$collection_date)
-# 
-# 
-# 
-# write.csv(meta.df,"../data/raw/2007_2008.meta.HAgm.csv")
-```
-
-```{r,eval=F}
-# This makes the meta data for each sample. I'm doing this for all samples
-
-meta_data<-subset(var.2007.8.df,select=c(Id,mutation,Copy_num,Vax,season,Intervention,HAI.Uruguay.preseason,HAI.Uruaguay.30.post.vax,HAI.WI.vax.preseason,HAI.WI.30.post.vax,NAI.WI.vax.preseason,NAI.WI.30.post.vax,Day.of.Infection.sample.collected,responder.HA,responder.NA,HAI.geo,NAI.geo,responder.both,geom.both))
-
-
-meta_data<-ddply(meta_data,~Id,function(x) x[1,])
-```
-
-
 # Figure 4
 
 High quality is >10^5^ or >10^3^ sequenced in duplicate.
@@ -160,7 +39,7 @@ These are the variants between 1-50%. each bin is 1% wide. The y axis is log sca
 ```{r}
 #ggplot(subset(var.2007.8.df,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
 
-fig_4A<-ggplot(subset(qual.2007.8,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
+fig_4A<-ggplot(minor,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
 fig_4A+ggtitle("Figure 4A")
 
 pdf("./figures/fig_4A.pdf")
@@ -168,7 +47,6 @@ fig_4A
 dev.off()
 
 
-minor=subset(qual.2007.8,freq.var<=0.5)
 minor_counts<-ddply(minor,~mutation,summarize,count=length(mutation))
 
 fig_4B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
@@ -189,16 +67,21 @@ The x axis is so large because there are 2 mutations that are found in 55 and 35
 ```{r}
 qual.ha.snv<-ddply(minor,~HAI.geo+Id,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr=="HA")))
 
-means<-ddply(qual.ha.snv,~HAI,summarize,iSNV=median(iSNV))
-fig_4C<-ggplot()+geom_point(data=means,aes(y=iSNV,x=HAI),shape=95,size=20,col='red')+geom_dotplot(data=qual.ha.snv,aes(y=iSNV,x=HAI),stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of iSNV")
+## define custom median function https://designdatadecisions.wordpress.com/2015/06/09/graphs-in-r-overlaying-data-summaries-in-dotplots/
+plot.median <- function(x) {
+  m <- median(x)
+  c(y = m, ymin = m, ymax = m)
+}
+
+
+fig_4C<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of iSNV")+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)
 fig_4C
 
 
-qual.na.snv<-ddply(minor,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr %in%c("N_A","NR"))))
+qual.na.snv<-ddply(minor,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr =="NR")))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
 
-means<-ddply(qual.na.snv,~NAI,summarize,iSNV=median(iSNV))
-fig_4D<-ggplot()+geom_point(data=means,aes(y=iSNV,x=NAI),shape=95,size=20,col='red')+geom_dotplot(data=qual.na.snv,aes(y=iSNV,x=NAI),stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of iSNV")
+fig_4D<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.01)#+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
 fig_4D
 
 ```
@@ -339,29 +222,7 @@ I'll have to think about whether or not this analysis is justified, valid, and n
 
 
 
-```{r,eval=T}
-## Getting data for HA
-#ha<-subset(qual.2007.8,chr=='HA')
-ha<-subset(minor,chr=='HA')
 
-dim(ha)
-ha<-ha[order(ha$pos),]
-unique(ha$pos)
-write.csv(x = ha,file="../results/2007-2008.HA.csv",row.names = F)
-
-head(minor)
-# concat.pos<-ddply(cov.2007.8,~chr, summarize, low=min(concat.pos), high=max(concat.pos))
-# 
-# con <- file("../data/concat_pos_bris.csv", open="wt")
-# writeLines(paste("# this csv file was created on ",date(), " It represents the ends of the segements aligned to the brisbane plasmid control (years 2007-2008)"), con)
-# write.csv( concat.pos, con)
-# close(con)
-
-
-
-
-
-```
 
 ```{r,by_day}
 isnv_day<-function(df){
