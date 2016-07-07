@@ -1,4 +1,4 @@
-#!/Users/jt/.virtualenvs/sci-py3/bin/python
+#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 
 from Bio.Seq import Seq
 from Bio import SeqIO
@@ -72,12 +72,12 @@ def Align(headers_seqs, progpath, musclegapopen=None):
         are in the same order as in the input list 'headers_seqs'.
     """
     if not (isinstance(headers_seqs, list) and len(headers_seqs) >= 2):
-        raise ValueError('header_seqs does not specify a list with at least two entries.')
+        raise ValueError, 'header_seqs does not specify a list with at least two entries.'
     if not os.path.isdir(progpath):
-        raise ValueError("Cannot find directory %s." % progpath)
+        raise ValueError, "Cannot find directory %s." % progpath
     exe = os.path.abspath("%s/muscle" % progpath) # the executable
     if not os.path.isfile(exe):
-        raise IOError("Cannot find executable at %s." % exe)
+        raise IOError, "Cannot find executable at %s." % exe
     currdir = os.getcwd()
     tempdir = tempfile.mkdtemp()
     try:
@@ -101,7 +101,7 @@ def Align(headers_seqs, progpath, musclegapopen=None):
             os.remove("%s/%s" % (tempdir, file)) # remove files from temporary directory
         os.rmdir(tempdir) # remove temporary directory
     if len(aligned_headers_seqs) != len(headers_seqs):
-        raise ValueError("Did not return the correct number of aligned sequences.")
+        raise ValueError, "Did not return the correct number of aligned sequences."
     # put the aligned sequences in the same order as the input sequences
     # n = len(aligned_headers_seqs[0][1]) # length of aligned sequences
     # d = dict(aligned_headers_seqs)
@@ -140,7 +140,7 @@ def trim(aligned_headers_seqs):
         I have test the results and the output is correct
     """
     if not (isinstance(aligned_headers_seqs, list) and len(aligned_headers_seqs) >= 2):
-        raise ValueError("Input does not specify at least two aligned sequences.")
+        raise ValueError, "Input does not specify at least two aligned sequences."
     ref_seq = aligned_headers_seqs[0].seq# str yields the sequence
     #print(ref_seq)
     # Getting the positions to strip from the start
@@ -166,8 +166,8 @@ def trim(aligned_headers_seqs):
             end=False
         i=i-1
 
-    print("%s bases taken off the 5' end" % str(start_excess))
-    print("%s bases taken off the 3' end " % str(len(ref_seq)-1-end_excess))
+    print "%s bases taken off the 5' end" % str(start_excess)
+    print "%s bases taken off the 3' end " % str(len(ref_seq)-1-end_excess)
 
 
 
@@ -197,13 +197,13 @@ def ReadFASTA(fastafile):
 
 def main(): # The positions will be given as base 0 and adjusted to match the convention (base 1) in the funciton
     """Main body of script."""
-    print("\nBeginning execution trimming script.")
+    print "\nBeginning execution trimming script."
 
     # parse arguments
     args = parser.parse_args()
     alignerpath = args.aligner_path[0]
     if not os.path.isdir(alignerpath):
-        raise IOError("The directory of %s specified by musclepath does not exist." % (alignerpath))
+        raise IOError,"The directory of %s specified by musclepath does not exist." % (alignerpath)
     prog = 'MUSCLE'
 
     sample=ReadFASTA(args.in_fa[0])
@@ -225,7 +225,7 @@ def main(): # The positions will be given as base 0 and adjusted to match the co
         try:
             ref_seq=ref[ref_seqname.index(seqname)]
         except ValueError:
-            raise ValueError(" Segement %s was not found in the reference sequence" % seqname)
+            raise ValueError, " Segement %s was not found in the reference sequence" % seqname
 
         alignments=Align([ref_seq, sample_seq], alignerpath)
         align_ref.append(alignments[0])
@@ -236,7 +236,7 @@ def main(): # The positions will be given as base 0 and adjusted to match the co
     off_5=[]
     off_3=[]
     for i in range(0,len(align_samp)):
-        print("Trimming %s" % align_samp[i].id)
+        print "Trimming %s" % align_samp[i].id
         trimmed_out=trim([align_ref[i],align_samp[i]])
         trimmed.append(trimmed_out[0])
         segs.append(align_samp[i].id)
@@ -248,10 +248,10 @@ def main(): # The positions will be given as base 0 and adjusted to match the co
 
 
     if(csv==None):
-        print("writing output to %s"  % args.out_fa)
+        print "writing output to %s"  % args.out_fa
         SeqIO.write(trimmed, args.out_fa, "fasta")
     else:
-        print("writing csv file to %s" % csv)
+        print "writing csv file to %s" % csv
         with open(csv,'w') as out_file:
            out_file.write("chr,off.5,off.3\n")
            for i in range(0,len(off_5)) :

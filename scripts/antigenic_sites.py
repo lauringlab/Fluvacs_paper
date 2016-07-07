@@ -1,4 +1,4 @@
-#!/Users/jt/.virtualenvs/sci-py3/bin/python
+#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 
 from Bio.Seq import Seq
 from Bio import SeqIO
@@ -159,6 +159,7 @@ def Align(headers_seqs, progpath, program='PROBCONS', musclegapopen=None):
             else:
                 p = subprocess.Popen("%s -in %s -out %s" % (exe, infile, outfile), shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE) # run MUSCLE
             (output, errors) = p.communicate()
+            open(outfile, 'wb').write(output)
         try:
             aligned_headers_seqs = ReadFASTA(outfile)
         except:
@@ -419,7 +420,7 @@ for id in nonsense.Id:
     if str(id) in dn_Ids:
         i=dn_Ids.index(str(id)) # get the index of the sample
         pos=list(nonsense["aa_pos"])[counter]
-        nice=find_aligments('probcons','/Users/jt/probcons/',dn_protein[i],[pos])
+        nice=find_aligments('muscle',os.path.expanduser('~/muscle3.8.31'),dn_protein[i],[pos])
         PDB_4HMG.append(nice[0])
         PDB_4JTV.append(nice[1])
     counter=counter+1
