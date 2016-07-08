@@ -1,4 +1,4 @@
-#!/Users/jt/.virtualenvs/sci-py3/bin/python
+#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 
 from Bio.Seq import Seq
 from Bio import SeqIO
@@ -9,23 +9,50 @@ import tempfile
 import sys
 import subprocess
 
+"""
+The goal of this work is to determine which HA variants are nonsymonous and whether or any of the nonsymonous
+variants are in putative antigenic regions. I am only looking at minor variants in this analyis and so nonsymonous
+variants will be identified as variants that change the amino acid a given position compared to the sample's consensus
+seqeunce (not the plasmid control).
+"""
 
 Ids=[]
 nucleotide=[]
 protein=[]
 
+"""
+The first step will be to read in the parsed HA consensus sequences. They are in two fasta files named after
+the run from which they come (1293 & 1304). Here I am reading each sequence translating, and then saving the
+sequence names, nucleotide seq object, and protein seq object in separate lists. I'm not inlcuding a stop codon
+character in the translation.
+"""
+
+
 for seq_record in SeqIO.parse("./results/2007-2008.HA.fa", "fasta"):
     Ids.append(seq_record.id.split("_")[0])
     seq_record.seq.alphabet=IUPAC.unambiguous_dna
     nucleotide.append(seq_record.seq)
-    prot=seq_record.seq.translate()
+    prot=seq_record.seq.translate(to_stop=True)
     protein.append(prot)
-
+"""
+Now I will read in all polymorphisms on HA from the 2007-2008 season.
+Now to find the codon of each of these positions we will just need to use a little modular algebra.
+bp 0-2 are in represent the o aa 3-5 the 1 and so forth. So bp divided by 3 no remander should do the trick.
+This will give the amino acid position or "aa_pos"
+"""
 data=pd.read_csv("./results/2007-2008.HA.csv")
 df=data.sort_values("Id") # Sorting the data frame by sample name. NOTE : The indeces don't change
 df["pos"]=df["coding.pos"]-1 # Note the pandas data frame is in base 1 while everthing else is in base 0 this fixes that
 df["aa_pos"]=df["pos"]//3
 
+"""
+Here I am looping through the sample names (Id) in the variant csv. For each Id,
+I am finding the index of that Id in the Id list; This is also the index of the sample in the protein list.
+There are mulitple variants in some samples - by looping through the Ids in the data frame I will grab each of
+these instances separately. I am using a counter to keep track of what row of the data frame. I am then taking
+the appropriate amino acid position and grabing the consensus amino acid for that position in the sample.
+These amino acids are stored in a list and then added to the data frame in the last line
+"""
 
 counter=0
 consens=[]
@@ -40,6 +67,15 @@ for id in df.Id:
         consens.append("NA")
     counter=counter+1
 df["aa_consensus"]=consens
+
+
+"""
+Now I am looping through the variants by sample name (as above). This time I am introducing the mutation into the
+nucleaic acid consensus. I am then retranslating the seqeunce, and grabing the appropriate amino acid. As before
+each step is saved as a list and in the end the variant amino acid is added to the data frame.
+If the variant amino acid is different than the consensus, the sample Id, nucleaic acid, and amino acid sequences
+are also saved in separate lists to be used later (denoted as dn_*)
+"""
 
 
 counter=0
@@ -63,7 +99,7 @@ for id in df.Id:
         seq=''.join(seq)
         seq=Seq(seq,IUPAC.unambiguous_dna)
         var_nucleotide.append(seq)
-        prot=seq.translate()
+        prot=seq.translate(to_stop=True)
         aa_pos=list(df["aa_pos"])
         aa_pos=aa_pos[counter]
         aa=str(prot)[aa_pos]
@@ -84,11 +120,29 @@ for id in df.Id:
     counter=counter+1
 df["aa_var"]=var_aa
 
-
+"""
+Id is the sample name, ref is the reference base in the plasmid control, var is the variant in the sample, freq.var
+the frequency, pos the nucleaic acid postion, aa_pos the amino acid position, aa_consensus the amino acid at the
+consensus level, and aa_var the variant amino acid.
+"""
 
 df[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var"]].to_csv("./results/2007-2008.HA.aa.csv")
 
 nonsense=df.loc[(df.aa_consensus!=df.aa_var)]
+
+
+
+
+
+"""
+Here I am adpapting the HA number script made by Jesse Bloom of the Bloom lab. Currently his script runs as an
+exicutable that takes in a file containing variables - sequence, position of interest, and path to aligner.
+I will adapt this into a function to be used here. I will also have to alter the output.
+Currently I am just grabbing some of the text output as formating in his script and saving it in lists to be
+added to the data frame.
+"""
+
+
 
 def Align(headers_seqs, progpath, program='PROBCONS', musclegapopen=None):
     """Performs a multiple sequence alignment of two or more sequences.
@@ -152,7 +206,7 @@ def Align(headers_seqs, progpath, program='PROBCONS', musclegapopen=None):
             p = subprocess.Popen("%s %s" % (exe, infile), shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE) # run ProbCons
             (output, errors) = p.communicate()
 
-            open(outfile, 'wb').write(output)
+            open(outfile, 'w').write(output)
         elif program == 'MUSCLE':
             if musclegapopen != None:
                 p = subprocess.Popen("%s -gapopen %d -in %s -out %s" % (exe, musclegapopen, infile, outfile), shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE) # run MUSCLE
@@ -412,6 +466,12 @@ def find_aligments(aligner,aligner_path,seq,pos): # The positions will be given 
         print( '\n'.join(sitestring))
         return([sitestring[1][4:-7],sitestring[2][4:-7]])
 
+"""
+Now I am looping through all nonsynonymous mutations as before and applying the function above to get the
+H3 numbering system. The script takes in base 0 positions and handels them accordingly.
+"""
+
+
 counter=0
 PDB_4HMG=[]
 PDB_4JTV=[]
@@ -419,7 +479,7 @@ for id in nonsense.Id:
     if str(id) in dn_Ids:
         i=dn_Ids.index(str(id)) # get the index of the sample
         pos=list(nonsense["aa_pos"])[counter]
-        nice=find_aligments('probcons','/Users/jt/probcons/',dn_protein[i],[pos])
+        nice=find_aligments('muscle',os.path.expanduser('~/muscle3.8.31'),dn_protein[i],[pos])
         PDB_4HMG.append(nice[0])
         PDB_4JTV.append(nice[1])
     counter=counter+1

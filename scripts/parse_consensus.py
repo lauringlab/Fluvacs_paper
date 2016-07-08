@@ -1,4 +1,4 @@
-#!/Users/jt/.virtualenvs/sci-py3/bin/python
+#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 import argparse
 import glob
 import pandas as pd
@@ -42,9 +42,9 @@ seg_df=pd.read_csv(key, sep=',',comment='#')
 segs=seg_df['chr']
 
 
-print('working with ' + fa)
+print 'working with ' + fa
 with open(fa,'r') as f:
     line=f.readlines()[0] # There is only 1 line
 for chr in segs:
-    #print(chr)
+    #print chr
     print_seg(line,chr,seg_df,out_file)

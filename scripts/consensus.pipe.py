@@ -1,4 +1,4 @@
-#!/Users/jt/.virtualenvs/sci-py3/bin/python
+#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 
 import os
 import os.path
@@ -29,7 +29,7 @@ bpipe_command='~/variant_pipeline/lib/bpipe-0.9.8.7/bin/bpipe' # The path to the
 test=args.test
 
 
-print("Processing fastas from " + input_dir)
+print "Processing fastas from " + input_dir
 
 
 # add variables to the bpipe config file to pass them to the pipeline
