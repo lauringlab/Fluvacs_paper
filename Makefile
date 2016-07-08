@@ -68,26 +68,27 @@ write.paper :	./results/FluVacs_Figures.md\
 #This is a hack incase you want to rerun the secondary analysis only and
 # already have the results of the primary analysis
 
-./data/processed/Run_1293/Variants/all.sum.csv ./data/processed/Run_1293/deepSNV/all.coverage.csv: #data/raw/Run_1293/*.fastq
-	if[ ! -f ./data/processed/Run_1293/Variants/all.sum.csv ];then python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1293/ -o ./data/processed/Run_1293/ -r ./data/reference/Brisbane_seq_untranslated -p bris -d two.sided -m fisher -a 0.9;fi
+./data/processed/Run_1293/Variants/all.sum.csv ./data/processed/Run_1293/deepSNV/all.coverage.csv: data/raw/Run_1293/*.fastq
+	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1293/ -o ./data/processed/Run_1293/ -r ./data/reference/Brisbane_seq_untranslated -p bris -d two.sided -m fisher -a 0.9
 
-./data/processed/Run_1304/Variants/all.sum.csv ./data/processed/Run_1304/deepSNV/all.coverage.csv: #data/raw/Run_1304/*.fastq
-	if[ ! -f ./data/processed/Run_1304/Variants/all.sum.csv ];then python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1304/ -o ./data/processed/Run_1304/ -r ./data/reference/Brisbane_seq_untranslated -p Bris -d two.sided -m fisher -a 0.9;fi
+./data/processed/Run_1304/Variants/all.sum.csv ./data/processed/Run_1304/deepSNV/all.coverage.csv: data/raw/Run_1304/*.fastq
+	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1304/ -o ./data/processed/Run_1304/ -r ./data/reference/Brisbane_seq_untranslated -p Bris -d two.sided -m fisher -a 0.9
 
-./data/processed/2007-2008/Variants/all.sum.csv ./data/processed/2007-2008/deepSNV/all.coverage.csv: #data/raw/2007-2008/*.fastq
-	if[ ! -f ./data/processed/2007-2008/Variants/all.sum.csv ];then python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2007-2008/ -o ./data/processed/2007-2008/ -r ./data/reference/Brisbane_seq_untranslated -p Brisbane -d two.sided -m fisher -a 0.9;fi
+./data/processed/2007-2008/Variants/all.sum.csv ./data/processed/2007-2008/deepSNV/all.coverage.csv: data/raw/2007-2008/*.fastq
+	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2007-2008/ -o ./data/processed/2007-2008/ -r ./data/reference/Brisbane_seq_untranslated -p Brisbane -d two.sided -m fisher -a 0.9
 
-./data/processed/Run_1412/Variants/all.sum.csv ./data/processed/Run_1412/deepSNV/all.coverage.csv: #data/raw/Run_1412/*.fastq
-	if[ ! -f ./data/processed/Run_1412/Variants/all.sum.csv ];then python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1412/ -o ./data/processed/Run_1412/ -r ./data/reference/CalH3N2_untranslated -p CAcontrol -d two.sided -m fisher -a 0.9;fi
+./data/processed/Run_1412/Variants/all.sum.csv ./data/processed/Run_1412/deepSNV/all.coverage.csv: data/raw/Run_1412/*.fastq
+	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1412/ -o ./data/processed/Run_1412/ -r ./data/reference/CalH3N2_untranslated -p CAcontrol -d two.sided -m fisher -a 0.9
 
-./data/processed/2004-2005/Variants/all.sum.csv ./data/processed/2004-2005/deepSNV/all.coverage.csv: #data/raw/2004-2005/*.fastq
-	if [ ! -f ./data/processed/2004-2005/Variants/all.sum.csv ];then python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2004-2005/ -o ./data/processed/2004-2005/ -r ./data/reference/CalH3N2_untranslated -p Cal_H3N2 -d two.sided -m fisher -a 0.9;fi
-./data/processed/2005-2006/Variants/all.sum.csv ./data/processed/2005-2006/deepSNV/all.coverage.csv: #data/raw/2005-2006/*.fastq
-	if[ ! -f ./data/processed/2005-2006/Variants/all.sum.csv ];then python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2005-2006/ -o ./data/processed/2005-2006/ -r ./data/reference/CalH3N2_untranslated -p Cal_H3N2 -d two.sided -m fisher -a 0.9;fi
-
-
+./data/processed/2004-2005/Variants/all.sum.csv ./data/processed/2004-2005/deepSNV/all.coverage.csv: data/raw/2004-2005/*.fastq
+	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2004-2005/ -o ./data/processed/2004-2005/ -r ./data/reference/CalH3N2_untranslated -p Cal_H3N2 -d two.sided -m fisher -a 0.9
+./data/processed/2005-2006/Variants/all.sum.csv ./data/processed/2005-2006/deepSNV/all.coverage.csv: data/raw/2005-2006/*.fastq
+	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2005-2006/ -o ./data/processed/2005-2006/ -r ./data/reference/CalH3N2_untranslated -p Cal_H3N2 -d two.sided -m fisher -a 0.9
 
 
+bowtie_alignments: 
+	bowtie2-build ./data/reference/Brisbane_seq_untranslated.fa ./data/reference/Brisbane_seq_untranslated
+	bowtie2-build ./data/reference/CalH3N2_untranslated.fa ./data/reference/CalH3N2_untranslated
 
 
 

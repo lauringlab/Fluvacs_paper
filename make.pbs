@@ -7,7 +7,7 @@
 #PBS -m abe
 #PBS -j oe
 #PBS -V
-#PBS -l nodes=1:ppn=6,mem=145gb,walltime=40:00:00
+#PBS -l nodes=1:ppn=6,mem=145gb,walltime=150:00:00
 
 echo Running job name $PBS_JOBNAME with ID $PBS_JOBID on host $PBS_O_HOST;
 echo Working directory is $PBS_O_WORKDIR
@@ -21,14 +21,15 @@ module add samtools
 module add python
 module add R/3.1.1
 module add pysam/0.8.2.1
-
+module add biopython
 
 cd $PBS_O_WORKDIR
 
-#make ./data/processed/Run_1293/Variants/all.sum.csv
-#make ./data/processed/Run_1304/Variants/all.sum.csv
+make ./data/processed/Run_1293/Variants/all.sum.csv
+make ./data/processed/Run_1304/Variants/all.sum.csv
 make ./data/processed/2007-2008/Variants/all.sum.csv
-
-
+make ./data/processed/Run_1412/Variants/all.sum.csv
+make ./data/processed/2004-2005/Variants/all.sum.csv
+make ./data/processed/2005-2006/Variants/all.sum.csv
 
 echo Finish time: `date`
