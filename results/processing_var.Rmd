@@ -22,19 +22,8 @@ source("../scripts/useful_functions.R") # useful functions adapted largley from 
 ```
 
 
-
-```{r,titers,eval=F}
-# read in the csvs and add a season column to use later
-titer.2004.5<-read.csv("../Titers_status_2004-2005.csv",stringsAsFactors = F)
-titer.2004.5$season<-"04-05"
-titer.2005.6<-read.csv("../Titers_status_2005-2006.csv",stringsAsFactors = F)
-titer.2005.6$season<-"05-06"
-titer.2007.8<-read.csv("../Titers_status_2007-2008.csv",stringsAsFactors = F)
-titer.2007.8$season<-"07-08"
-```
-
 ```{r}
-meta.2007.08<-read.csv("../data/raw/2007_2008.meta.csv",stringsAsFactors = F)
+meta.2007.08<-read.csv("../data/raw/all.meta.csv",stringsAsFactors = F)
 ```
 
 ```{r, variant_calls}
@@ -125,8 +114,29 @@ gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){ # from http://stackov
 qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
 minor=subset(qual.2007.8,freq.var<=0.5)
 
+
 ### For consensus seqeunce meta data
-meta.df<-mutate(meta.2007.08,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax))
+
+HAI.gm<-ddply(meta.2007.08,~season,summarise,gm_mean=gm_mean(HAI.post.vax))
+NAI.gm<-ddply(meta.2007.08,~season,summarise,gm_mean=gm_mean(NAI.post.vax))
+
+HAI.cut<-function(x){
+  season<-unique(x$season)
+  gm<-HAI.gm$gm_mean[which(HAI.gm$season==season)]
+  #print(gm)
+  mutate(x,HAI.geo=HAI.post.vax>gm)
+  }
+
+NAI.cut<-function(x){
+  season<-unique(x$season)
+  gm<-NAI.gm$gm_mean[which(NAI.gm$season==season)]
+  #print(gm)
+  mutate(x,NAI.geo=NAI.post.vax>gm)
+  }
+meta.df<-ddply(meta.2007.08,~season,HAI.cut)
+meta.df<-ddply(meta.df,~season,NAI.cut)
+
+#meta.df<-mutate(meta.2007.08,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax))
 meta.df$collection_date<-as.Date(meta.df$collection_date,format = "%d-%b-%y")
 require(lubridate)
 meta.df$collection_date<-decimal_date(meta.df$collection_date)

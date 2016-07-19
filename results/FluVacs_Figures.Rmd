@@ -93,7 +93,7 @@ dev.off()
 ```
 
 
-There are very few iSNV in NA. Also I need to account for the samples with no variants in either chr.
+There are very few iSNV in NA. 
 
 
 # Table 3
