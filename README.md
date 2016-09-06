@@ -96,3 +96,17 @@ The following command deconcatinates the consensus sequence of each sample (the 
 make ./results/2007-2008.HA.aa.csv
 make ./resutls/2007-2008.putative.antigenic.csv
 ```
+
+
+
+## Running the analysis in it's entirety
+
+The analysis can be run in it's entirety (from fastq to final figures) using the following command.
+
+```
+make write.paper
+```
+
+A pictoral summary of the analyis is provided below.
+
+<img src="write.paper.png"/>
