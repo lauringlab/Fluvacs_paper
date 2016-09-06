@@ -30,6 +30,22 @@ This pipeline requires [fastqc](http://www.bioinformatics.babraham.ac.uk/project
 
 Information on the dependencies needed to run the varaint\_pipline can be found [here](https://github.com/lauringlab/variant_pipeline)
 
+The python code used in this analysis has been tested in version 2.7.11 (although it will probably work in other versions) and relies on the following modules
+
+```
+argparse
+Bio.Seq 
+Bio 
+Bio.Alphabet 
+glob
+os
+os.path
+pandas 
+shutil
+sys
+subprocess
+tempfile
+```
 
 The session information on the Rmarkdown file that reproduces the figures is below.
 ```
