@@ -66,7 +66,7 @@ pipelineAndCodingOutput= ./data/processed/bis_difference.csv ./data/processed/Ca
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2005-2006/ -o ./data/processed/2005-2006/ -r ./data/reference/CalH3N2_untranslated -p Cal_H3N2 -d two.sided -m fisher -a 0.9
 
 
-bowtie_alignments: 
+bowtie_alignments:
 	bowtie2-build ./data/reference/Brisbane_seq_untranslated.fa ./data/reference/Brisbane_seq_untranslated
 	bowtie2-build ./data/reference/CalH3N2_untranslated.fa ./data/reference/CalH3N2_untranslated
 
@@ -81,6 +81,10 @@ bowtie_alignments:
 	cat ./data/processed/Run_1293/HA.fa ./data/processed/Run_1304/HA.fa > ./results/2007-2008.HA.fa
 ./results/2007-2008.NR.fa : ./data/processed/Run_1293/NR.fa ./data/processed/Run_1304/NR.fa
 	cat ./data/processed/Run_1293/NR.fa ./data/processed/Run_1304/NR.fa > ./results/2007-2008.NR.fa
+./results/2004-2006.HA.fa : data/processed/Run_1412/HA.fa
+	cp data/processed/Run_1412/HA.fa results/2004-2006.HA.fa
+./results/2204-2006.NR.fa : data/processed/Run_1412/NR.fa
+	cp data/processed/Run_1412/NR.fa results/2004-2006.NR.fa
 
 ## Get consensus sequences
 ./data/processed/Run_1293/HA.fa ./data/processed/Run_1293/NR.fa: ./data/processed/Run_1293/deepSNV/*.fa ./data/processed/concat_pos_bris.csv
@@ -90,6 +94,7 @@ bowtie_alignments:
 	python ./scripts/consensus.pipe.py data/processed/Run_1304/deepSNV/ ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/concat_pos_bris.csv
 
 ./data/processed/Run_1412/HA.fa ./data/processed/Run_1412/NR.fa : ./data/processed/Run_1412/deepSNV/*.fa ./data/processed/concat_pos_CalH3N2.csv
+	cp -v ./data/processed/2005-2006/deepSNV/536.removed.fa ./data/processed/Run_1412/deepSNV/536.removed.fa
 	python ./scripts/consensus.pipe.py data/processed/Run_1412/deepSNV/ ./data/reference/CalH3N2SeqCont.fa ./data/processed/concat_pos_CalH3N2.csv
 
 ./data/processed/2004-2005/HA.fa ./data/processed/2004-2005/NR.fa : ./data/processed/2004-2005/deepSNV/*.fa ./data/processed/concat_pos_CalH3N2.csv

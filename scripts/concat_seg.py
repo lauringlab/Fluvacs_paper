@@ -47,7 +47,7 @@ def ReadFASTA(fastafile):
 meta_df=pd.read_csv(args.key[0])
 lauring_id=list(meta_df["Id"])
 
-
+print lauring_id
 
 
 selected_seg=[]
@@ -60,13 +60,19 @@ for fa in glob.glob(args.dir[0]+"/*.fa"):
                 if int(Id) in lauring_id:
                     i=lauring_id.index(int(Id))
                     intervention=list(meta_df["Intervention"])[i]
-                    geom=int(list(meta_df["HAI.geo"])[i])
+                    if args.seg[0]=="HA":
+                        geom=int(list(meta_df["HAI.geo"])[i])
+                    if args.seg[0]=="NR":
+                        geom=int(list(meta_df["NAI.geo"])[i])
                     date=list(meta_df["collection_date"])[i]
+                    print Id
                 else:
+                    print "didn't find" + Id
                     intervention="NA"
                     geom="NA"
                     date="NA"
             except ValueError:
+                    print "value error for " + Id
                     intervention="NA"
                     geom="NA"
                     date="NA"

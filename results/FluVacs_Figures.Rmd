@@ -74,20 +74,26 @@ plot.median <- function(x) {
 }
 
 
-fig_4C<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of iSNV")+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)
+fig_4C<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.15)+ylab("Number of iSNV")+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)
 fig_4C
 
+pdf("./figures/fig_4C.pdf")
+fig_4C
+dev.off()
 
 qual.na.snv<-ddply(minor,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr =="NR")))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
 
-fig_4D<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',dotsize = 0.01)#+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
+fig_4D<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.15)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+ylab("Number of iSNV")
 fig_4D
 
+pdf("./figures/fig_4D.pdf")
+fig_4D
+dev.off()
 ```
 
 
-There are very few iSNV in NA. Also I need to account for the samples with no variants in either chr.
+There are very few iSNV in NA. 
 
 
 # Table 3
@@ -139,6 +145,18 @@ cov.plot.05.06
 cov.plot.07.08<-cov_plot(cov.2007.8,"2007-2008",100,100)
 cov.plot.07.08
 
+pdf("./figures/sup_1A.pdf")
+cov.plot.07.08
+dev.off()
+
+pdf("./figures/sup_1B.pdf")
+cov.plot.04.05
+dev.off()
+
+pdf("./figures/sup_1C.pdf")
+cov.plot.05.06
+dev.off()
+
 ```
 
 If we plot on a log scale the bars are well above 0. 
@@ -158,17 +176,24 @@ concat.pos<-ddply(cov.2007.8,~chr, summarize, low=min(concat.pos), high=max(conc
 ```{r,extra_iSNV}
 qual.ha.snv<-ddply(minor,~HAI.geo+Id,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
 
-means<-ddply(qual.ha.snv,~HAI,summarize,iSNV=median(iSNV))
-sup_2A<-ggplot()+geom_point(data=means,aes(y=iSNV,x=HAI),shape=95,size=20,col='red')+geom_dotplot(data=qual.ha.snv,aes(y=iSNV,x=HAI),stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of iSNV")
+sup_2A<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
 sup_2A
 
 
 qual.na.snv<-ddply(minor,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
 
-means<-ddply(qual.na.snv,~NAI,summarize,iSNV=median(iSNV))
-sup_2B<-ggplot()+geom_point(data=means,aes(y=iSNV,x=NAI),shape=95,size=20,col='red')+geom_dotplot(data=qual.na.snv,aes(y=iSNV,x=NAI),stackdir = "center",binaxis = 'y',dotsize = 0.5)+ylab("Number of iSNV")
+sup_2B<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
 sup_2B
+
+
+pdf("./figures/sup_2A.pdf")
+sup_2A
+dev.off()
+
+pdf("./figures/sup_2B.pdf")
+sup_2B
+dev.off()
 
 
 ```
@@ -183,7 +208,7 @@ count_muts_samples<-function(data.df){
   out<-ddply(data.df,~Id,summarize,muts=length(mutation),HAI.WI=HAI.WI.30.post.vax[1],NAI.WI=NAI.WI.30.post.vax[1],Copy_num=Copy_num[1],dpi=Day.of.Infection.sample.collected[1])
 }
 
-lines.07<-count_muts_samples(qual.2007.8)
+lines.07<-count_muts_samples(minor)
 
 
 ggplot(lines.07,aes(y=muts,x=Copy_num))+geom_point()
@@ -232,7 +257,7 @@ isnv_day<-function(df){
 
 #all.isnv.day<-isnv_day(var.2007.8.df)
 #all.isnv.day$data="All"
-qual.isnv.day<-isnv_day(qual.2007.8)
+qual.isnv.day<-isnv_day(minor)
 #qual.isnv.day$data="High Quality"
 
 #all.data.isnv.day<-rbind(all.isnv.day,qual.isnv.day)
@@ -241,9 +266,9 @@ qual.isnv.day<-rbind(qual.isnv.day,data.frame(Id=rep("extra",3),Day.of.Infection
 
 iSNV.day<-ggplot(data=qual.isnv.day,aes(y=iSNV,x=as.factor(paste(Day.of.Infection.sample.collected,Intervention,sep="_"))))+geom_dotplot(aes(fill=Intervention),stackdir = "center",binaxis = 'y',position='dodge',binwidth = 1,dotsize = 0.7)+ylab("Number of SNV")+ggtitle("iSNV by day")+xlab("Day of Infection")+stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.5)+scale_y_continuous(limits=c(0,18),breaks=seq(0,18,2))+scale_x_discrete(labels=c("","2","","","3","","","4","","","5","","","6",""))
 
-pdf("~/Box Sync/FluVax Paper/Graphs/iSNV.day.pdf",width=9,height=4)
-iSNV.day
-dev.off()
+# pdf("~/Box Sync/FluVax Paper/Graphs/iSNV.day.pdf",width=9,height=4)
+# iSNV.day
+# dev.off()
 
 ```
 
