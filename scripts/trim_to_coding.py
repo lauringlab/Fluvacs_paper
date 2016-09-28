@@ -8,7 +8,7 @@ import glob
 import os
 import tempfile
 import subprocess
-
+import sys
 
 """ This script takes in 2 fasta files and trimms the sequences in 1 to that of the reference.
     I am using MUSCLE to align the sequences, and am drawing heavily (in many cases verbatim) from the HA_number script

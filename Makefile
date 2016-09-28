@@ -1,15 +1,5 @@
 #all : ./results.pdf
 
-# utility function to print various variables. For example, running the
-# following at the command line:
-#
-#	make print-BAM
-#
-# will generate:
-#	BAM=data/raw_june/V1V3_0001.bam data/raw_june/V1V3_0002.bam ...
-print-%:
-	@echo '$*=$($*)'
-
 
 
 finalResults= ./results/FluVacs_Figures.md ./results/2007-2008.putative.antigenic.csv ./results/2007-2008.HA.fa ./results/2007-2008.NR.fa ./results/2007-2008.HA.aa.csv
