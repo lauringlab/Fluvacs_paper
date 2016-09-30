@@ -8,13 +8,19 @@ import os
 import tempfile
 import sys
 import subprocess
+import argparse
 
-"""
-The goal of this work is to determine which HA variants are nonsymonous and whether or any of the nonsymonous
-variants are in putative antigenic regions. I am only looking at minor variants in this analyis and so nonsymonous
-variants will be identified as variants that change the amino acid a given position compared to the sample's consensus
-seqeunce (not the plasmid control).
-"""
+
+
+parser=argparse.ArgumentParser(description="The goal of this work is to determine which HA variants are nonsymonous and whether or any of the nonsymonous variants are in putative antigenic regions. I am only looking at minor variants in this analyis and so nonsymonous variants will be identified as variants that change the amino acid a given position compared to the sample's consensus seqeunce (not the plasmid control).")
+
+parser.add_argument('muscle', metavar='muscle', nargs='+',
+                    help='The directory that contains the muscle exicutable')
+
+args=parser.parse_args()
+
+muscle_dir=os.path.abspath(args.muscle[0])
+
 
 Ids=[]
 nucleotide=[]
@@ -479,7 +485,7 @@ for id in nonsense.Id:
     if str(id) in dn_Ids:
         i=dn_Ids.index(str(id)) # get the index of the sample
         pos=list(nonsense["aa_pos"])[counter]
-        nice=find_aligments('muscle',os.path.expanduser('~/muscle3.8.31'),dn_protein[i],[pos])
+        nice=find_aligments('muscle',muscle_dir,dn_protein[i],[pos])
         PDB_4HMG.append(nice[0])
         PDB_4JTV.append(nice[1])
     counter=counter+1

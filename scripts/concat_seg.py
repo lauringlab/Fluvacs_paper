@@ -1,4 +1,3 @@
-#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 
 from Bio.Seq import Seq
 from Bio import SeqIO

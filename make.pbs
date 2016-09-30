@@ -1,7 +1,7 @@
 #!/bin/sh
 #PBS -S /bin/sh
 #PBS -A alauring_fluxm
-#PBS -N Fluvac_dups
+#PBS -N Fluvac_rerun
 #PBS -q fluxm
 #PBS -M mccrone@umich.edu
 #PBS -m abe
@@ -13,23 +13,22 @@ echo Running job name $PBS_JOBNAME with ID $PBS_JOBID on host $PBS_O_HOST;
 echo Working directory is $PBS_O_WORKDIR
 echo Start time: `date`;
 
-module add med
-module add fastqc
-module add java
-module add bowtie2
-module add samtools
-module add python
-module add R/3.1.1
-module add pysam/0.8.2.1
-module add biopython
 
 cd $PBS_O_WORKDIR
 
-make ./data/processed/Run_1293/Variants/all.sum.csv
-make ./data/processed/Run_1304/Variants/all.sum.csv
-make ./data/processed/2007-2008/Variants/all.sum.csv
-make ./data/processed/Run_1412/Variants/all.sum.csv
-make ./data/processed/2004-2005/Variants/all.sum.csv
-make ./data/processed/2005-2006/Variants/all.sum.csv
+#make ./data/processed/Run_1293/Variants/all.sum.csv
+#make ./data/processed/Run_1304/Variants/all.sum.csv
+#make ./data/processed/2007-2008/Variants/all.sum.csv
+#make ./data/processed/Run_1412/Variants/all.sum.csv
+#make ./data/processed/2004-2005/Variants/all.sum.csv
+#make ./data/processed/2005-2006/Variants/all.sum.csv
+
+
+#make ./results/FluVacs_Figures.md
+
+#make ./results/2007-2008.HA.aa.csv
+#make ./resutls/2007-2008.putative.antigenic.csv
+
+make write.paper
 
 echo Finish time: `date`

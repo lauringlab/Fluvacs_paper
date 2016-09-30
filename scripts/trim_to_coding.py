@@ -1,4 +1,3 @@
-#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 
 from Bio.Seq import Seq
 from Bio import SeqIO
@@ -34,7 +33,14 @@ parser.add_argument('-csv',action='store',dest='csv',default=None,
 
 args = parser.parse_args()
 
+
+
 csv=args.csv
+
+if csv != None:
+    output_dir=os.path.dirname(csv)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
 def Align(headers_seqs, progpath, musclegapopen=None):
     """Performs a multiple sequence alignment of two or more sequences.
@@ -79,7 +85,9 @@ def Align(headers_seqs, progpath, musclegapopen=None):
     if not os.path.isfile(exe):
         raise IOError, "Cannot find executable at %s." % exe
     currdir = os.getcwd()
-    tempdir = tempfile.mkdtemp()
+    #print currdir
+    tempdir = tempfile.mkdtemp(dir="./")
+    #print tempdir + " has been made"
     try:
         # do stuff in a temporary directory
         infile = "%s/in.fasta" % tempdir # input file

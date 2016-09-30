@@ -4,6 +4,9 @@
 
 finalResults= ./results/FluVacs_Figures.md ./results/2007-2008.putative.antigenic.csv ./results/2007-2008.HA.fa ./results/2007-2008.NR.fa ./results/2007-2008.HA.aa.csv
 
+musclePath= /sw/lsa/centos7/muscle/3.8.31/bin/
+
+#musclePath= ~/muscle3.8.31/
 write.paper :	$(finalResults)
 	echo 'Done!'
 
@@ -23,10 +26,10 @@ pipelineAndCodingOutput= ./data/processed/bis_difference.csv ./data/processed/Ca
 # Get the difference between the whole genome and coding regions
 
 ./data/processed/bis_difference.csv:./data/reference/Brisbane_seq_untranslated.fa ./data/reference/Brisbane_H3N2_plasmids.fa
-	python ./scripts/trim_to_coding.py ~/muscle3.8.31/ ./data/reference/Brisbane_seq_untranslated.fa ./data/reference/Brisbane_H3N2_plasmids.fa -csv ./data/processed/bis_difference.csv
+	python ./scripts/trim_to_coding.py $(musclePath) ./data/reference/Brisbane_seq_untranslated.fa ./data/reference/Brisbane_H3N2_plasmids.fa -csv ./data/processed/bis_difference.csv
 
 ./data/processed/CalH3N2_difference.csv: ./data/reference/CalH3N2_untranslated.fa ./data/reference/CalH3N2SeqCont.fa
-	python ./scripts/trim_to_coding.py ~/muscle3.8.31/ ./data/reference/CalH3N2_untranslated.fa ./data/reference/CalH3N2SeqCont.fa -csv ./data/processed/CalH3N2_difference.csv
+	python ./scripts/trim_to_coding.py $(musclePath) ./data/reference/CalH3N2_untranslated.fa ./data/reference/CalH3N2SeqCont.fa -csv ./data/processed/CalH3N2_difference.csv
 
 
 #####################################################################################
@@ -74,7 +77,7 @@ bowtie_alignments:
 
 
 ./results/2007-2008.putative.antigenic.csv ./results/2007-2008.HA.aa.csv : ./results/2007-2008.HA.fa ./results/2007-2008.HA.csv
-		python ./scripts/antigenic_sites.py
+		python ./scripts/antigenic_sites.py $(musclePath)
 
 # Combine the concatenated coding regions
 ./results/2007-2008.HA.fa : ./data/processed/Run_1293/HA.fa ./data/processed/Run_1304/HA.fa
@@ -88,20 +91,20 @@ bowtie_alignments:
 
 ## Get consensus sequences
 ./data/processed/Run_1293/HA.fa ./data/processed/Run_1293/NR.fa: ./data/processed/Run_1293/deepSNV/*.fa ./data/processed/concat_pos_bris.csv
-	python ./scripts/consensus.pipe.py data/processed/Run_1293/deepSNV/ ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/concat_pos_bris.csv
+	python ./scripts/consensus.pipe.py data/processed/Run_1293/deepSNV/ ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/concat_pos_bris.csv $(musclePath)
 
 ./data/processed/Run_1304/HA.fa ./data/processed/Run_1304/NR.fa: ./data/processed/Run_1304/deepSNV/*.fa ./data/processed/concat_pos_bris.csv
-	python ./scripts/consensus.pipe.py data/processed/Run_1304/deepSNV/ ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/concat_pos_bris.csv
+	python ./scripts/consensus.pipe.py data/processed/Run_1304/deepSNV/ ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/concat_pos_bris.csv $(musclePath)
 
 ./data/processed/Run_1412/HA.fa ./data/processed/Run_1412/NR.fa : ./data/processed/Run_1412/deepSNV/*.fa ./data/processed/concat_pos_CalH3N2.csv
 	cp -v ./data/processed/2005-2006/deepSNV/536.removed.fa ./data/processed/Run_1412/deepSNV/536.removed.fa
-	python ./scripts/consensus.pipe.py data/processed/Run_1412/deepSNV/ ./data/reference/CalH3N2SeqCont.fa ./data/processed/concat_pos_CalH3N2.csv
+	python ./scripts/consensus.pipe.py data/processed/Run_1412/deepSNV/ ./data/reference/CalH3N2SeqCont.fa ./data/processed/concat_pos_CalH3N2.csv $(musclePath)
 
 ./data/processed/2004-2005/HA.fa ./data/processed/2004-2005/NR.fa : ./data/processed/2004-2005/deepSNV/*.fa ./data/processed/concat_pos_CalH3N2.csv
-	python ./scripts/consensus.pipe.py data/processed/2004-2005/deepSNV/ ./data/reference/CalH3N2SeqCont.fa ./data/processed/concat_pos_CalH3N2.csv
+	python ./scripts/consensus.pipe.py data/processed/2004-2005/deepSNV/ ./data/reference/CalH3N2SeqCont.fa ./data/processed/concat_pos_CalH3N2.csv $(musclePath)
 
 ./data/processed/2005-2006/HA.fa ./data/processed/2005-2006/NR.fa : ./data/processed/2005-2006/deepSNV/*.fa ./data/processed/concat_pos_CalH3N2.csv
-	python ./scripts/consensus.pipe.py data/processed/2005-2006/deepSNV/ ./data/reference/CalH3N2SeqCont.fa ./data/processed/concat_pos_CalH3N2.csv
+	python ./scripts/consensus.pipe.py data/processed/2005-2006/deepSNV/ ./data/reference/CalH3N2SeqCont.fa ./data/processed/concat_pos_CalH3N2.csv $(musclePath)
 
 # get the start and stop of each segment in the concatenated genome.
 ./data/processed/concat_pos_bris.csv: data/processed/Run_1293/deepSNV/all.coverage.csv data/processed/Run_1304/deepSNV/all.coverage.csv

@@ -1,4 +1,3 @@
-#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 import argparse
 import glob
 import pandas as pd
