@@ -1,5 +1,0 @@
-CONCAT_CSV="/scratch/alauring_fluxm/mccrone/FluVac_paper/data/processed/concat_pos_bris.csv"
-CODING_FA="/scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa"
-SCRIPTS="/scratch/alauring_fluxm/mccrone/FluVac_paper/scripts"
-MAIN_DIR="/scratch/alauring_fluxm/mccrone/FluVac_paper/data/processed/Run_1293/deepSNV/.."
-MUSCLE_DIR="/sw/lsa/centos7/muscle/3.8.31/bin"
