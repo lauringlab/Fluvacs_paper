@@ -58,11 +58,12 @@ outfile = open(f+'renaming_log.txt','w')
 
 # Now to search through the fastq files or fastq.gz and copy them to the new makes
 for filename in glob.glob(s + "*.fastq"):
+    #print(filename)
     path=os.path.abspath(filename) # getteh full name and path
-    name=filename.split("_")
-    just_file=name[0].split("/")
-    bad_name = just_file[-1] # the bad name is the first bit
-    lane_junk = name[1]
+    name=filename.split("/")[-1]
+    bad_name = name.split("_")[0] # the bad name is the first bit
+    #print(bad_name)
+    lane_junk = name.split("_")[1]
     read_number=lane_junk.split(".fastq") # info about the read 
     fastq_number=str(1) #always 1 from the sra
     read_number=str(read_number[0]) # read direction
@@ -82,4 +83,13 @@ for filename in glob.glob(s + "*.fastq"):
 
 outfile.close()
 
+def file_len(fname):
+    with open(fname) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
+# Make sure the files were moved and delete the log if they weren't
 
+if file_len(outfile)<1:
+    os.remove(outfile)
+    print("Renaming failed - less than 1 line in the log")

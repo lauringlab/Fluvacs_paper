@@ -128,24 +128,24 @@ pipelineAndCodingOutput= ./data/processed/bis_difference.csv ./data/processed/Ca
 # Rename files and move them to the proper directories
 allFastq = $(fastq20042005) $(fastq20052006) $(fastq20072008) $(fastqRun1293) $(fastqRun1304) $(fastqRun1412)
 
-$(fastqRun1293) : ./data/raw/Run_1293/SRA_files_are_Downloaded.txt
+./data/raw/Run_1293/renaming_log.txt : ./data/raw/Run_1293/SRA_files_are_Downloaded.txt
 	python scripts/change_names_sra.py -s ./data/raw/Run_1293/ -f ./data/raw/Run_1293/ -k ./data/raw/Run_1293/Run-1293.info.tsv  -run	
 
 
-$(fastqRun1304) : ./data/raw/Run_1304/SRA_files_are_Downloaded.txt
+./data/raw/Run_1304/renaming_log.txt : ./data/raw/Run_1304/SRA_files_are_Downloaded.txt
 	python scripts/change_names_sra.py -s ./data/raw/Run_1304/ -f ./data/raw/Run_1304/ -k ./data/raw/Run_1304/Run-1304.info.tsv  -run	
 
-$(fastqRun1412) : ./data/raw/Run_1412/SRA_files_are_Downloaded.txt
+./data/raw/Run_1412/renaming_log.txt : ./data/raw/Run_1412/SRA_files_are_Downloaded.txt
 	python scripts/change_names_sra.py -s ./data/raw/Run_1412/ -f ./data/raw/Run_1412/ -k ./data/raw/Run_1412/Run-1412.info.tsv  -run	
 
 
-$(fastq20042005) : ./data/raw/2004-2005/SRA_files_are_Downloaded.txt
+./data/raw/2004-2005/renaming_log.txt: ./data/raw/2004-2005/SRA_files_are_Downloaded.txt
 	python scripts/change_names_sra.py -s data/raw/2004-2005/ -f data/raw/2004-2005/ -k data/raw/2004-2005/2004-2005.info.tsv  -run	
 
-$(fastq20052006) : ./data/raw/2005-2006/SRA_files_are_Downloaded.txt
+./data/raw/2005-2006/renaming_log.txt: ./data/raw/2005-2006/SRA_files_are_Downloaded.txt
 	python scripts/change_names_sra.py -s data/raw/2005-2006/ -f data/raw/2005-2006/ -k data/raw/2005-2006/2005-2006.info.tsv  -run	
 
-$(fastq20072008) : ./data/raw/2007-2008/SRA_files_are_Downloaded.txt
+./data/raw/2007-2008/renaming_log.txt: ./data/raw/2007-2008/SRA_files_are_Downloaded.txt
 	python scripts/change_names_sra.py -s data/raw/2007-2008/ -f data/raw/2007-2008/ -k data/raw/2007-2008/2007-2008.info.tsv  -run	
 
 
@@ -166,22 +166,22 @@ $(fastq20072008) : ./data/raw/2007-2008/SRA_files_are_Downloaded.txt
 #This is a hack incase you want to rerun the secondary analysis only and
 # already have the results of the primary analysis
 
-./data/processed/Run_1293/Variants/all.sum.csv ./data/processed/Run_1293/deepSNV/all.coverage.csv ./data/processed/Run_1293/deepSNV/*.fa: $(fastqRun1293)
+./data/processed/Run_1293/Variants/all.sum.csv ./data/processed/Run_1293/deepSNV/all.coverage.csv ./data/processed/Run_1293/deepSNV/*.fa: ./data/raw/Run_1293/renaming_log.txt
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1293/ -o ./data/processed/Run_1293/ -r ./data/reference/Brisbane_seq_untranslated -p bris -d two.sided -m fisher -a 0.9
 
-./data/processed/Run_1304/Variants/all.sum.csv ./data/processed/Run_1304/deepSNV/all.coverage.csv ./data/processed/Run_1304/deepSNV/*.fa: $(fastqRun1304)
+./data/processed/Run_1304/Variants/all.sum.csv ./data/processed/Run_1304/deepSNV/all.coverage.csv ./data/processed/Run_1304/deepSNV/*.fa: ./data/raw/Run_1304/renaming_log.txt
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1304/ -o ./data/processed/Run_1304/ -r ./data/reference/Brisbane_seq_untranslated -p Bris -d two.sided -m fisher -a 0.9
 
-./data/processed/2007-2008/Variants/all.sum.csv ./data/processed/2007-2008/deepSNV/all.coverage.csv ./data/processed/2007-2008/deepSNV/*.fa: $(fastq20072008)
+./data/processed/2007-2008/Variants/all.sum.csv ./data/processed/2007-2008/deepSNV/all.coverage.csv ./data/processed/2007-2008/deepSNV/*.fa: ./data/raw/2007-2008/renaming_log.txt
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2007-2008/ -o ./data/processed/2007-2008/ -r ./data/reference/Brisbane_seq_untranslated -p Brisbane -d two.sided -m fisher -a 0.9
 
-./data/processed/Run_1412/Variants/all.sum.csv ./data/processed/Run_1412/deepSNV/all.coverage.csv ./data/processed/Run_1412/deepSNV/*.fa: $(fastqRun1412)
+./data/processed/Run_1412/Variants/all.sum.csv ./data/processed/Run_1412/deepSNV/all.coverage.csv ./data/processed/Run_1412/deepSNV/*.fa: ./data/raw/Run_1412/renaming_log.txt
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1412/ -o ./data/processed/Run_1412/ -r ./data/reference/CalH3N2_untranslated -p CAcontrol -d two.sided -m fisher -a 0.9
 
-./data/processed/2004-2005/Variants/all.sum.csv ./data/processed/2004-2005/deepSNV/all.coverage.csv ./data/processed/2004-2005/deepSNV/*.fa: $(fastq20042005) 
+./data/processed/2004-2005/Variants/all.sum.csv ./data/processed/2004-2005/deepSNV/all.coverage.csv ./data/processed/2004-2005/deepSNV/*.fa:  ./data/raw/2004-2005/renaming_log.txt
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2004-2005/ -o ./data/processed/2004-2005/ -r ./data/reference/CalH3N2_untranslated -p Cal_H3N2 -d two.sided -m fisher -a 0.9
 
-./data/processed/2005-2006/Variants/all.sum.csv ./data/processed/2005-2006/deepSNV/all.coverage.csv ./data/processed/2005-2006/deepSNV/*.fa: $(fastq20052006)
+./data/processed/2005-2006/Variants/all.sum.csv ./data/processed/2005-2006/deepSNV/all.coverage.csv ./data/processed/2005-2006/deepSNV/*.fa: ./data/raw/2005-2006/renaming_log.txt
 	python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/2005-2006/ -o ./data/processed/2005-2006/ -r ./data/reference/CalH3N2_untranslated -p Cal_H3N2 -d two.sided -m fisher -a 0.9
 
 
