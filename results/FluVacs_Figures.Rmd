@@ -26,7 +26,7 @@ source("../scripts/useful_functions.R") # useful functions adapted largley from 
 ```
 
 ```{r}
-minor<-read.csv("../results/2007-2008.wg.csv")
+minor.07.08<-read.csv("../results/2007-2008.wg.csv")
 ```
 # Figure 4
 
@@ -39,7 +39,7 @@ These are the variants between 1-50%. each bin is 1% wide. The y axis is log sca
 ```{r}
 #ggplot(subset(var.2007.8.df,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
 
-fig_4A<-ggplot(minor,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
+fig_4A<-ggplot(minor.07.08,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
 fig_4A+ggtitle("Figure 4A")
 
 pdf("./figures/fig_4A.pdf")
@@ -47,7 +47,7 @@ fig_4A
 dev.off()
 
 
-minor_counts<-ddply(minor,~mutation,summarize,count=length(mutation))
+minor_counts<-ddply(minor.07.08,~mutation,summarize,count=length(mutation))
 
 fig_4B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
 fig_4B+ggtitle("Figure 4B")
@@ -65,7 +65,7 @@ The x axis is so large because there are 2 mutations that are found in 55 and 35
 
 
 ```{r}
-qual.ha.snv<-ddply(minor,~HAI.geo+Id,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr=="HA")))
+qual.ha.snv<-ddply(minor.07.08,~HAI.geo+Id,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr=="HA")))
 
 ## define custom median function https://designdatadecisions.wordpress.com/2015/06/09/graphs-in-r-overlaying-data-summaries-in-dotplots/
 plot.median <- function(x) {
@@ -81,7 +81,7 @@ pdf("./figures/fig_4C.pdf")
 fig_4C
 dev.off()
 
-qual.na.snv<-ddply(minor,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr =="NR")))
+qual.na.snv<-ddply(minor.07.08,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr =="NR")))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
 
 fig_4D<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.15)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+ylab("Number of iSNV")
@@ -102,7 +102,16 @@ Average iSNV/ segment
 All data 
 ```{r}
 
-qual.chr.counts<-ddply(minor,~Intervention+chr+Id,summarize,iSNV=length(mutation))
+qual.chr.counts<-ddply(minor.07.08,~Intervention+chr+Id,summarize,iSNV=length(mutation))
+
+columns<-unique(qual.chr.counts$Intervention)
+qual.chr.counts$n=NA
+for(i in 1:length(columns)){
+x<-length(unique(qual.chr.counts$Id[which(qual.chr.counts$Intervention==columns[i])]))
+qual.chr.counts$n[which(qual.chr.counts$Intervention==columns[i])]=x
+}
+
+qual.chr.counts<-mutate(qual.chr.counts,Intervention=paste0(Intervention," ","(n=",n,")"))
 
 qual.chr.sum<-ddply(qual.chr.counts,~Intervention+chr,summarize,mean_iSNV=mean(iSNV),range=IQR(iSNV))
 
@@ -113,6 +122,48 @@ knitr::kable(qual.chr.table)
 ```
 
 
+# iSNV/day Figure 
+
+
+```{r, isnv_by_day}
+isnv.day.intervention<-ddply(minor.07.08,~Intervention+Id+Day.of.Infection.sample.collected,summarize,iSNV=length(mutation))
+
+
+fig_xA<-ggplot(data=isnv.day.intervention,aes(y=iSNV,x=factor(Day.of.Infection.sample.collected),fill=factor(Intervention)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.4,position='dodge')+geom_boxplot(aes(lower=..middle.., upper=..middle..,ymin=..middle.., ymax=..middle..),outlier.shape = 32)+ylab("Number of iSNV")+xlab("Day of Infection")+scale_fill_discrete(name="Intervention")
+fig_xA
+
+isnv.day.HAI<-ddply(minor.07.08,~HAI.geo+Id+Day.of.Infection.sample.collected,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
+
+
+fig_xB<-ggplot(data=isnv.day.HAI,aes(y=iSNV,x=factor(Day.of.Infection.sample.collected),fill=factor(HAI)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.4,position='dodge')+geom_boxplot(aes(lower=..middle.., upper=..middle..,ymin=..middle.., ymax=..middle..),outlier.shape = 32)+ylab("Number of iSNV")+xlab("Day of Infection")+scale_fill_discrete(name="HAI")
+fig_xB
+
+isnv.day.NAI<-ddply(minor.07.08,~NAI.geo+Id+Day.of.Infection.sample.collected,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
+
+subset(isnv.day.NAI,(is.na(NAI)))
+isnv.day.NAI<-subset(isnv.day.NAI,!(is.na(NAI)))
+
+fig_xC<-ggplot(data=isnv.day.NAI,aes(y=iSNV,x=factor(Day.of.Infection.sample.collected),fill=factor(NAI)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.4,position='dodge')+geom_boxplot(aes(lower=..middle.., upper=..middle..,ymin=..middle.., ymax=..middle..),outlier.shape = 32)+ylab("Number of iSNV")+xlab("Day of Infection")+scale_fill_discrete(name="NAI")
+fig_xC
+
+#stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.5)
+
+
+pdf("./figures/fig_xA.pdf",width = 20,height = 12)
+fig_xA
+dev.off()
+
+pdf("./figures/fig_xB.pdf",width = 20,height = 12)
+fig_xB
+dev.off()
+
+pdf("./figures/fig_xC.pdf",width = 20,height = 12)
+fig_xC
+dev.off()
+
+
+
+```
 
 #Supplemental Figure 1)
 
@@ -174,13 +225,13 @@ concat.pos<-ddply(cov.2007.8,~chr, summarize, low=min(concat.pos), high=max(conc
 
 # Supplemental Figure 2)
 ```{r,extra_iSNV}
-qual.ha.snv<-ddply(minor,~HAI.geo+Id,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
+qual.ha.snv<-ddply(minor.07.08,~HAI.geo+Id,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
 
 sup_2A<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
 sup_2A
 
 
-qual.na.snv<-ddply(minor,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
+qual.na.snv<-ddply(minor.07.08,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
 
 sup_2B<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
@@ -198,6 +249,143 @@ dev.off()
 
 ```
 
+## Supplemental figure 3 2004-2005
+
+
+```{r}
+#ggplot(subset(var.2007.8.df,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
+
+minor.04.05<-read.csv("../results/2004-2005.wg.csv",stringsAsFactors = F)
+sup_3A<-ggplot(minor.04.05,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
+sup_3A+ggtitle("2004-2005")
+
+pdf("./figures/sup_3A.pdf")
+sup_3A
+dev.off()
+
+
+minor_counts<-ddply(minor.04.05,~mutation,summarize,count=length(mutation))
+
+sup_3B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
+sup_3B+ggtitle("2004-2005")
+
+
+
+pdf("./figures/sup_3B.pdf")
+sup_3B
+dev.off()
+
+
+
+qual.chr.counts<-ddply(minor.04.05,~Intervention+chr+Id,summarize,iSNV=length(mutation))
+
+columns<-unique(qual.chr.counts$Intervention)
+qual.chr.counts$n=NA
+for(i in 1:length(columns)){
+x<-length(unique(qual.chr.counts$Id[which(qual.chr.counts$Intervention==columns[i])]))
+qual.chr.counts$n[which(qual.chr.counts$Intervention==columns[i])]=x
+}
+
+qual.chr.counts<-mutate(qual.chr.counts,Intervention=paste0(Intervention," ","(n=",n,")"))
+
+
+qual.chr.sum<-ddply(qual.chr.counts,~Intervention+chr,summarize,mean_iSNV=mean(iSNV),range=IQR(iSNV))
+
+qual.chr.tab<-mutate(qual.chr.sum,iSNV=paste0(round(mean_iSNV,2)," \u00b1 ","(",range,")"))
+qual.chr.table<-dcast(qual.chr.tab,chr~Intervention,value.var="iSNV")
+knitr::kable(qual.chr.table)
+
+qual.chr.counts<-ddply(minor.04.05,~HAI.geo+chr+Id,summarize,iSNV=length(mutation))
+
+qual.chr.counts<-mutate(qual.chr.counts,HAI.geo=ifelse(HAI.geo,yes = "Above geometric mean",no= "Below geometric mean"))
+
+columns<-unique(qual.chr.counts$HAI.geo)
+qual.chr.counts$n=NA
+for(i in 1:length(columns)){
+x<-length(unique(qual.chr.counts$Id[which(qual.chr.counts$HAI.geo==columns[i])]))
+qual.chr.counts$n[which(qual.chr.counts$HAI.geo==columns[i])]=x
+}
+
+qual.chr.counts<-mutate(qual.chr.counts,HAI.geo=paste0(HAI.geo," ","(n=",n,")"))
+
+
+qual.chr.sum<-ddply(qual.chr.counts,~HAI.geo+chr,summarize,mean_iSNV=mean(iSNV),range=IQR(iSNV))
+
+qual.chr.tab<-mutate(qual.chr.sum,iSNV=paste0(round(mean_iSNV,2)," \u00b1 ","(",range,")"))
+qual.chr.table<-dcast(qual.chr.tab,chr~HAI.geo,value.var="iSNV")
+knitr::kable(qual.chr.table)
+
+```
+
+## Supplemental figure 4 2005-2006
+
+
+```{r}
+#ggplot(subset(var.2007.8.df,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
+
+minor.05.06<-read.csv("../results/2005-2006.wg.csv",stringsAsFactors = F)
+sup_4A<-ggplot(minor.05.06,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_discrete(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
+sup_4A+ggtitle("2005-2006")
+
+pdf("./figures/sup_4A.pdf")
+sup_4A
+dev.off()
+
+
+minor_counts<-ddply(minor.05.06,~mutation,summarize,count=length(mutation))
+
+sup_4B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
+sup_4B+ggtitle("2005-2006")
+
+
+
+pdf("./figures/sup_4B.pdf")
+sup_4B
+dev.off()
+
+
+
+qual.chr.counts<-ddply(minor.05.06,~Intervention+chr+Id,summarize,iSNV=length(mutation))
+
+
+columns<-unique(qual.chr.counts$Intervention)
+qual.chr.counts$n=NA
+for(i in 1:length(columns)){
+x<-length(unique(qual.chr.counts$Id[which(qual.chr.counts$Intervention==columns[i])]))
+qual.chr.counts$n[which(qual.chr.counts$Intervention==columns[i])]=x
+}
+
+qual.chr.counts<-mutate(qual.chr.counts,Intervention=paste0(Intervention," ","(n=",n,")"))
+
+
+qual.chr.sum<-ddply(qual.chr.counts,~Intervention+chr,summarize,mean_iSNV=mean(iSNV),range=IQR(iSNV))
+
+qual.chr.tab<-mutate(qual.chr.sum,iSNV=paste0(round(mean_iSNV,2)," \u00b1 ","(",range,")"))
+qual.chr.table<-dcast(qual.chr.tab,chr~Intervention,value.var="iSNV")
+knitr::kable(qual.chr.table)
+
+qual.chr.counts<-ddply(minor.05.06,~HAI.geo+chr+Id,summarize,iSNV=length(mutation))
+
+qual.chr.counts<-mutate(qual.chr.counts,HAI.geo=ifelse(HAI.geo,yes = "Above geometric mean",no= "Below geometric mean"))
+
+columns<-unique(qual.chr.counts$HAI.geo)
+qual.chr.counts$n=NA
+for(i in 1:length(columns)){
+x<-length(unique(qual.chr.counts$Id[which(qual.chr.counts$HAI.geo==columns[i])]))
+qual.chr.counts$n[which(qual.chr.counts$HAI.geo==columns[i])]=x
+}
+
+qual.chr.counts<-mutate(qual.chr.counts,HAI.geo=paste0(HAI.geo," ","(n=",n,")"))
+
+
+qual.chr.sum<-ddply(qual.chr.counts,~HAI.geo+chr,summarize,mean_iSNV=mean(iSNV),range=IQR(iSNV))
+
+qual.chr.tab<-mutate(qual.chr.sum,iSNV=paste0(round(mean_iSNV,2)," \u00b1 ","(",range,")"))
+qual.chr.table<-dcast(qual.chr.tab,chr~HAI.geo,value.var="iSNV")
+knitr::kable(qual.chr.table)
+
+```
+
 
 # Appendix
 ## Linear plots
@@ -208,7 +396,7 @@ count_muts_samples<-function(data.df){
   out<-ddply(data.df,~Id,summarize,muts=length(mutation),HAI.WI=HAI.WI.30.post.vax[1],NAI.WI=NAI.WI.30.post.vax[1],Copy_num=Copy_num[1],dpi=Day.of.Infection.sample.collected[1])
 }
 
-lines.07<-count_muts_samples(minor)
+lines.07<-count_muts_samples(minor.07.08)
 
 
 ggplot(lines.07,aes(y=muts,x=Copy_num))+geom_point()
@@ -257,7 +445,7 @@ isnv_day<-function(df){
 
 #all.isnv.day<-isnv_day(var.2007.8.df)
 #all.isnv.day$data="All"
-qual.isnv.day<-isnv_day(minor)
+qual.isnv.day<-isnv_day(minor.07.08)
 #qual.isnv.day$data="High Quality"
 
 #all.data.isnv.day<-rbind(all.isnv.day,qual.isnv.day)
