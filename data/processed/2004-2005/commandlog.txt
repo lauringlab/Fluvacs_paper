@@ -1,0 +1,112 @@
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 11:45:20 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/1460.log
+# ################ Finished at Wed Jul 06 11:45:20 EDT 2016 Duration = 0.124 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 11:45:24 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/1512.log
+# ################ Finished at Wed Jul 06 11:45:24 EDT 2016 Duration = 0.109 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 11:48:01 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/1585.log
+# ################ Finished at Wed Jul 06 11:48:01 EDT 2016 Duration = 0.109 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 11:48:05 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/1636.log
+# ################ Finished at Wed Jul 06 11:48:06 EDT 2016 Duration = 0.125 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 11:51:57 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/2803.log
+# ################ Finished at Wed Jul 06 11:51:57 EDT 2016 Duration = 0.113 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 11:52:02 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/2854.log
+# ################ Finished at Wed Jul 06 11:52:02 EDT 2016 Duration = 0.108 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 11:54:26 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/3726.log
+# ################ Finished at Wed Jul 06 11:54:26 EDT 2016 Duration = 0.131 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 11:54:30 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/3777.log
+# ################ Finished at Wed Jul 06 11:54:31 EDT 2016 Duration = 0.110 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 13:15:12 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/4820.log
+# ################ Finished at Wed Jul 06 13:15:12 EDT 2016 Duration = 0.103 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 13:15:17 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/4871.log
+# ################ Finished at Wed Jul 06 13:15:17 EDT 2016 Duration = 0.127 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 13:38:29 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/5076.log
+# ################ Finished at Wed Jul 06 13:38:29 EDT 2016 Duration = 0.147 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 13:39:06 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/5130.log
+# ################ Finished at Wed Jul 06 13:39:06 EDT 2016 Duration = 0.105 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 13:39:10 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/5182.log
+# ################ Finished at Wed Jul 06 13:39:10 EDT 2016 Duration = 0.114 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 13:43:15 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/5303.log
+# ################ Finished at Wed Jul 06 13:43:15 EDT 2016 Duration = 0.108 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Wed Jul 06 13:43:20 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/5355.log
+# ################ Finished at Wed Jul 06 13:43:20 EDT 2016 Duration = 0.106 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Thu Jul 07 10:08:04 EDT 2016
+# Input files:  /Users/jt/Documents/Analysis/FluVac_paper/data/raw/2004-2005/*.fastq
+# Output Log:  .bpipe/logs/1370.log
+# ################ Finished at Thu Jul 07 10:08:04 EDT 2016 Duration = 0.113 seconds #################
+

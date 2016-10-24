@@ -1,0 +1,103 @@
+
+####################################################################################################
+# Starting pipeline at Thu Jul 14 13:50:52 EDT 2016
+# Input files:  [/Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/100.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/101.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/103.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/104.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/105.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/106.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/11.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/12.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/13.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/14.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/36.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/37.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/38.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/44.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/80.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/81.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/82.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/83.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/84.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/85.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/86.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/88.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/89.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/90.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/91.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/92.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/93.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/96.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/98.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/Wis.removed.fa]
+# Output Log:  .bpipe/logs/3839.log
+# Stage parse [81]
+# Stage parse [37]
+# Stage parse [93]
+# Stage parse [103]
+# Stage parse [100]
+# Stage parse [91]
+# Stage parse [85]
+# Stage parse [84]
+# Stage parse [90]
+# Stage parse [92]
+# Stage parse [13]
+# Stage parse [101]
+# Stage parse [11]
+# Stage parse [106]
+# Stage parse [86]
+# Stage parse [88]
+# Stage parse [98]
+# Stage parse [38]
+# Stage parse [89]
+# Stage parse [14]
+# Stage parse [44]
+# Stage parse [83]
+# Stage parse [104]
+# Stage parse [80]
+# Stage parse [36]
+# Stage parse [12]
+# Stage parse [Wis]
+# Stage parse [96]
+# Stage parse [105]
+# Stage parse [82]
+# Stage coding [82]
+# Stage coding [93]
+# Stage coding [83]
+# Stage coding [36]
+# Stage coding [81]
+# Stage coding [100]
+# Stage coding [44]
+# Stage coding [11]
+# Stage coding [13]
+# Stage coding [101]
+# Stage coding [14]
+# Stage coding [90]
+# Stage coding [91]
+# Stage coding [92]
+# Stage coding [96]
+# Stage coding [103]
+# Stage coding [84]
+# Stage coding [85]
+# Stage coding [104]
+# Stage coding [89]
+# Stage coding [37]
+# Stage coding [38]
+# Stage coding [12]
+# Stage coding [Wis]
+# Stage coding [106]
+# Stage coding [105]
+# Stage coding [98]
+# Stage coding [86]
+# Stage coding [88]
+# Stage coding [80]
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/14.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/14.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/101.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/101.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/36.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/36.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/11.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/11.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/13.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/13.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/92.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/92.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/82.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/82.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/83.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/83.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/100.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/100.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/104.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/104.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/103.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/103.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/85.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/85.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/44.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/44.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/93.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/93.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/81.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/81.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/84.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/84.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/37.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/37.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/96.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/96.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/91.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/91.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/89.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/89.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/90.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/90.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/88.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/88.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/80.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/80.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/106.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/106.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/98.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/98.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/105.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/105.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/38.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/38.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/12.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/12.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/86.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/86.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../parsed_fa/Wis.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/Brisbane_H3N2_plasmids.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/Wis.removed.parsed.coding.fa
+# Stage concatenate
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/concat_seg.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../HA.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/concat_seg.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../coding_fa/ NR ./data/raw/2007_2008.meta.HAgm.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../NR.fa
+# Stage clean_up
+mv ./fasta.config.groovy /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../fasta.config.groovy
+mv ./commandlog.txt /Users/jt/Documents/Analysis/FluVac_paper/data/processed/Run_1304/deepSNV/../consensuscommandlog.txt
+# ################ Finished at Thu Jul 14 13:51:02 EDT 2016 Duration = 9.898 seconds #################
+
