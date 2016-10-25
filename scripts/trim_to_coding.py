@@ -1,4 +1,3 @@
-#!/Users/jt/.virtualenvs/sci-py2.7/bin/python
 
 from Bio.Seq import Seq
 from Bio import SeqIO
@@ -8,7 +7,7 @@ import glob
 import os
 import tempfile
 import subprocess
-
+import sys
 
 """ This script takes in 2 fasta files and trimms the sequences in 1 to that of the reference.
     I am using MUSCLE to align the sequences, and am drawing heavily (in many cases verbatim) from the HA_number script
@@ -34,7 +33,14 @@ parser.add_argument('-csv',action='store',dest='csv',default=None,
 
 args = parser.parse_args()
 
+
+
 csv=args.csv
+
+if csv != None:
+    output_dir=os.path.dirname(csv)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
 def Align(headers_seqs, progpath, musclegapopen=None):
     """Performs a multiple sequence alignment of two or more sequences.
@@ -79,7 +85,9 @@ def Align(headers_seqs, progpath, musclegapopen=None):
     if not os.path.isfile(exe):
         raise IOError, "Cannot find executable at %s." % exe
     currdir = os.getcwd()
-    tempdir = tempfile.mkdtemp()
+    #print currdir
+    tempdir = tempfile.mkdtemp(dir="./")
+    #print tempdir + " has been made"
     try:
         # do stuff in a temporary directory
         infile = "%s/in.fasta" % tempdir # input file
