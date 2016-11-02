@@ -59,7 +59,7 @@ fig_4B
 dev.off()
 ```
 
-The x axis is so large because there are 2 mutations that are found in 55 and 35 samples. Both of these are infered minor variants. They may be artifacts of our analysis.
+The x axis is so large because there are 2 mutations that are found in 62 and 41 samples. Both of these are infered minor variants. They may be artifacts of our analysis.
 
 
 
@@ -207,10 +207,12 @@ dev.off()
 pdf("./figures/sup_1C.pdf")
 cov.plot.05.06
 dev.off()
-
 ```
 
 If we plot on a log scale the bars are well above 0. 
+
+
+So there are a few samples with poor coverage that should be removed from the analysis, but none of them were in the 2007-2008 year.
 
 ```{r}
 cov.plot.07.08+scale_y_log10(breaks=c(1,10,100,1000,10000,100000))
@@ -388,7 +390,6 @@ knitr::kable(qual.chr.table)
 
 
 # Appendix
-## Linear plots
 
 ```{r}
 count_muts_samples<-function(data.df){
@@ -406,35 +407,6 @@ ggplot(lines.07,aes(y=muts,x=dpi))+geom_point()
 
 
 ```
-
-## Linear model with all variables
-
-NB : I'm not sure what I'm doing here and if it's valid.
-
-```{r}
-model<-lm(lines.07$muts~lines.07$HAI.WI+lines.07$NAI.WI+lines.07$Copy_num+lines.07$dpi)
-
-summary(model)
-
-```
-
-I think this means that maybe the copy number is the only variable that affects the iSNV count. What if we remove the one outlier at 16.
-```{r}
-no_out.07<-subset(lines.07,muts!=16)
-
-model.no<-lm(no_out.07$muts~no_out.07$HAI.WI+no_out.07$NAI.WI+no_out.07$Copy_num+no_out.07$dpi)
-
-summary(model.no)
-
-```
-
-Yep. I looks like that was driving things. 
-
-I'll have to think about whether or not this analysis is justified, valid, and needed.
-
-
-
-
 
 
 ```{r,by_day}
