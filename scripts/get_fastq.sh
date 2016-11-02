@@ -1,5 +1,5 @@
 #!/bin/bash
-SRA=($(cut -f1 -d '	' $1 |grep -v "sra_accession"))
+SRA=($(cut -f1 -d ',' $1 |grep -v "sra_accession"))
 for (( i=0; i<${#SRA[@]}; i++ ))
  do 
     echo downloading ${SRA[i]}

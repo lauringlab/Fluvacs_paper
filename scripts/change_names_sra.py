@@ -41,9 +41,9 @@ names =  open(key,"r")
 next(names) # skip the header of the csv
 for line in names:
     line = line.strip()
-    line = line.split('\t')
+    line = line.split(',')
     junk_names.append(line[0])    
-    new=line[2]   
+    new=line[1]   
     new_names.append(new)
    # print(line)
 names.close()
@@ -90,6 +90,6 @@ def file_len(fname):
     return i + 1
 # Make sure the files were moved and delete the log if they weren't
 
-if file_len(outfile)<1:
+if file_len(f+'renaming_log.txt')<1:
     os.remove(outfile)
     print("Renaming failed - less than 1 line in the log")
