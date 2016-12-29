@@ -1,7 +1,7 @@
 ---
-title: "FluVacs Figures - Draft"
+title: "FluVacs Figures"
 author: "JT"
-date: "June 3, 2016"
+date: "December 29, 2016"
 output:
   html_document:
     toc: true
@@ -28,6 +28,42 @@ source("../scripts/useful_functions.R") # useful functions adapted largley from 
 ```{r}
 minor.07.08<-read.csv("../results/2007-2008.wg.csv")
 ```
+
+Here verify the average coverage of the sample is >1000
+
+```{r}
+read_rbind<-function(list,list2=NULL){
+  out<-data.frame()
+  for(i in 1:length(list)){
+    print(paste0("reading in ",list[i]))
+    
+    x<-read.csv(list[i],stringsAsFactors = F)
+    if(is.null(list2)==F){
+      x$run=list2[i]
+      print(paste0("appending run column: ",list2[i]))
+    }
+    out<-rbind(x,out)
+  }
+  return(out)
+}
+
+
+cov_files<-c("../data/processed/Run_1293/deepSNV/all.coverage.csv","../data/processed/Run_1304/deepSNV/all.coverage.csv","../data/processed/Run_1412/deepSNV/all.coverage.csv","../data/processed/2004-2005/deepSNV/all.coverage.csv","../data/processed/2005-2006/deepSNV/all.coverage.csv","../data/processed/2007-2008/deepSNV/all.coverage.csv")
+
+
+ cov<-read_rbind(cov_files,c("1293","1304","1412","2004-5","2005-6","2007-8"))
+ 
+ cov.sample<-ddply(cov,~Id+run,summarize,cov=mean(coverage))
+
+ ggplot(cov.sample,aes(x=as.factor(run),y=cov))+geom_boxplot()+geom_point(position="jitter")+xlab("Run")+ylab("Mean Coverage in the sample") #+ scale_y_continuous(limits=c(0,50000),breaks = seq(0,50000,by=10000))
+
+ poor_cov<-subset(cov.sample,cov<1000)
+ poor_cov$Id<-as.numeric(poor_cov$Id)
+removed<-dim(subset(minor.07.08,Id %in% poor_cov$Id))[1]
+ 
+```
+There were `r removed` samples removed from the the minority analysis based on a mean coverage less than 1000X.
+
 # Figure 4
 
 High quality is >10^5^ or >10^3^ sequenced in duplicate.
@@ -386,6 +422,47 @@ qual.chr.tab<-mutate(qual.chr.sum,iSNV=paste0(round(mean_iSNV,2)," \u00b1 ","(",
 qual.chr.table<-dcast(qual.chr.tab,chr~HAI.geo,value.var="iSNV")
 knitr::kable(qual.chr.table)
 
+```
+
+# Response to reviewers
+
+# HAI NAI titers by ID
+
+```{r}
+meta.all<-read.csv("../data/raw/all.meta.csv",stringsAsFactors = F)
+titer_data<-subset(meta.all,select=c(Id,season,HAI.post.vax,NAI.post.vax))
+write.csv(x = titer_data,file = "./titer_data.csv")
+```
+
+
+Diversity by titer
+
+```{r}
+qual.ha.snv<-ddply(minor.07.08,~HAI.post.vax+Id,summarize,HAI=HAI.post.vax[1],iSNV=sum(which(chr=="HA")))
+
+## define custom median function https://designdatadecisions.wordpress.com/2015/06/09/graphs-in-r-overlaying-data-summaries-in-dotplots/
+plot.median <- function(x) {
+  m <- median(x)
+  c(y = m, ymin = m, ymax = m)
+}
+
+
+titer_3C<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=as.factor(HAI)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.15)+ylab("Number of iSNV")+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+xlab("HAI")+scale_x_discrete(labels=paste0("1:",unique(qual.ha.snv$HAI)))+scale_y_continuous(breaks=c(0,2,4,6))
+titer_3C
+
+pdf("./figures/titer_3C.pdf",width = 10)
+titer_3C
+dev.off()
+
+qual.na.snv<-ddply(minor.07.08,~NAI.post.vax+Id,summarize,NAI=NAI.post.vax[1],iSNV=sum(which(chr =="NR")))
+qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
+
+titer_3D<-ggplot(data=qual.na.snv,aes(y=iSNV,x=as.factor(NAI)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.15)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+ylab("Number of iSNV")+xlab("NAI")+scale_x_discrete(labels=paste0("1:",unique(qual.na.snv$NAI)))+scale_y_continuous(breaks=c(0,2,4,6,8,10))
+titer_3D
+
+pdf("./figures/titer_3D.pdf",width=12)
+titer_3D
+dev.off()
 ```
 
 
