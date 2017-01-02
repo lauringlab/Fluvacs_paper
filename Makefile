@@ -15,11 +15,11 @@ write.paper :	$(finalResults)
 
 
 # Make figures and run R scripts
-./results/FluVacs_Figures.md: ./results/2007-2008.wg.csv
+./results/FluVacs_Figures.md: ./results/2007-2008.wg.csv ./results/2004-2005.wg.csv ./results/2005-2006.wg.csv
 	cd ./results/ ; Rscript -e "knitr::knit('./FluVacs_Figures.Rmd')"
 
-pipelineAndCodingOutput= ./data/processed/bis_difference.csv ./data/processed/CalH3N2_difference.csv ./data/processed/Run_1293/Variants/all.sum.csv ./data/processed/Run_1304/Variants/all.sum.csv ./data/processed/2007-2008/Variants/all.sum.csv 
-./results/2007-2008.HA.csv 	./results/2007-2008.wg.csv: $(pipelineAndCodingOutput)
+pipelineAndCodingOutput= ./data/processed/bis_difference.csv ./data/processed/CalH3N2_difference.csv ./data/processed/Run_1293/Variants/all.sum.csv ./data/processed/Run_1304/Variants/all.sum.csv ./data/processed/2007-2008/Variants/all.sum.csv ./data/processed/2004-2005/Variants/all.sum.csv ./data/processed/2005-2006/Variants/all.sum.csv ./data/processed/Run_1412/Variants/all.sum.csv
+./results/2007-2008.HA.csv ./results/2007-2008.wg.csv ./results/2004-2005.wg.csv ./results/2005-2006.wg.csv : $(pipelineAndCodingOutput)
 	cd ./results/ ; Rscript -e "knitr::knit('./processing_var.Rmd')"
 
 
