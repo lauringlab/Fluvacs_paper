@@ -74,6 +74,11 @@ qual.2007.8<-high_qual(data1.df = var.2007.8.df,dups.df = dups.2007.8,titer = 1e
 
 var.2007.8.df<-subset(var.2007.8.df,freq.var>=0.01 & freq.var<=0.99)
 qual.2007.8<-subset(qual.2007.8,freq.var>=0.01 & freq.var<=0.99)
+qual.2004.5<-subset(qual.2004.5,freq.var>=0.01 & freq.var<=0.99)
+qual.2005.6<-subset(qual.2005.6,freq.var>=0.01 & freq.var<=0.99)
+
+
+
 
 bris.bed<-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") 
 
@@ -138,15 +143,15 @@ NAI.gm<-ddply(meta.all,~season,summarise,gm_mean=gm_mean(NAI.post.vax))
 HAI.cut<-function(x){
   season<-unique(x$season)
   gm<-HAI.gm$gm_mean[which(HAI.gm$season==season)]
-  #print(gm)
-  mutate(x,HAI.geo=HAI.post.vax>gm)
+  print(gm)
+  mutate(x,HAI.geo=HAI.post.vax>gm,HAI.cut=HAI.post.vax>=40)
   }
 
 NAI.cut<-function(x){
   season<-unique(x$season)
   gm<-NAI.gm$gm_mean[which(NAI.gm$season==season)]
-  #print(gm)
-  mutate(x,NAI.geo=NAI.post.vax>gm)
+  print(gm)
+  mutate(x,NAI.geo=NAI.post.vax>gm,NAI.cut=NAI.post.vax>=40)
   }
 meta.df<-ddply(meta.all,~season,HAI.cut)
 meta.df<-ddply(meta.df,~season,NAI.cut)

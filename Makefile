@@ -77,7 +77,7 @@ bowtie_alignments:
 
 
 ./results/2007-2008.putative.antigenic.csv ./results/2007-2008.HA.aa.csv : ./results/2007-2008.HA.fa ./results/2007-2008.HA.csv
-		python ./scripts/antigenic_sites.py $(musclePath)
+		python ./scripts/antigenic_sites.py $(musclePath) ./results/2007-2008.HA.fa ./results/2007-2008.HA.csv 2007-2008
 
 # Combine the concatenated coding regions
 ./results/2007-2008.HA.fa : ./data/processed/Run_1293/HA.fa ./data/processed/Run_1304/HA.fa

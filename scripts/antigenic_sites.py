@@ -3,6 +3,7 @@
 from Bio.Seq import Seq
 from Bio import SeqIO
 from Bio.Alphabet import IUPAC
+from Bio.Alphabet import generic_dna
 import pandas as pd
 import os
 import tempfile
@@ -17,36 +18,53 @@ parser=argparse.ArgumentParser(description="The goal of this work is to determin
 parser.add_argument('muscle', metavar='muscle', nargs='+',
                     help='The directory that contains the muscle exicutable')
 
+parser.add_argument('fasta',metavar='fasta',nargs='+',
+			help = "The file containing the fasta files of all the samples to be analyzed.")
+
+parser.add_argument('snv',metavar='snv',nargs='+',help = 'The csv containing the snv calls to analyze.')
+
+parser.add_argument('prefix',metavar='prefix',nargs='+',
+			help = "The prefix used to save the putative.csv and aa.csv files")
+
 args=parser.parse_args()
 
 muscle_dir=os.path.abspath(args.muscle[0])
-
-
+fasta=os.path.abspath(args.fasta[0])
+snv=os.path.abspath(args.snv[0])
 Ids=[]
 nucleotide=[]
 protein=[]
 
 """
-The first step will be to read in the parsed HA consensus sequences. They are in two fasta files named after
-the run from which they come (1293 & 1304). Here I am reading each sequence translating, and then saving the
+The first step will be to read in the parsed HA consensus sequences. Here I am reading each sequence translating, and then saving the
 sequence names, nucleotide seq object, and protein seq object in separate lists. I'm not inlcuding a stop codon
 character in the translation.
 """
 
 
-for seq_record in SeqIO.parse("./results/2007-2008.HA.fa", "fasta"):
+for seq_record in SeqIO.parse(fasta, "fasta"):
     Ids.append(seq_record.id.split("_")[0])
-    seq_record.seq.alphabet=IUPAC.unambiguous_dna
-    nucleotide.append(seq_record.seq)
-    prot=seq_record.seq.translate(to_stop=True)
-    protein.append(prot)
+    
+    seq_record.seq.alphabet=generic_dna
+    
+    # in sample 427 there is a gap in the consensus near the end of the segment. This sample has low coverage. The consensus reads CA-TTA In every other sample this position is a T. I am making it a T here for translation purposes. It is the only gap in all the HA consesus sequences.
+    if seq_record.id.split("_")[0]=='427':
+        str_seq=str(seq_record.seq).replace("-","N")
+        seq=Seq(str_seq,generic_dna)
+        nucleotide.append(seq)
+        prot=seq.translate(to_stop=True)
+        protein.append(prot)
+    else:
+        nucleotide.append(seq_record.seq)
+        prot=seq_record.seq.translate(to_stop=True)
+        protein.append(prot)
 """
 Now I will read in all polymorphisms on HA from the 2007-2008 season.
 Now to find the codon of each of these positions we will just need to use a little modular algebra.
 bp 0-2 are in represent the o aa 3-5 the 1 and so forth. So bp divided by 3 no remander should do the trick.
 This will give the amino acid position or "aa_pos"
 """
-data=pd.read_csv("./results/2007-2008.HA.csv")
+data=pd.read_csv(snv)
 df=data.sort_values("Id") # Sorting the data frame by sample name. NOTE : The indeces don't change
 df["pos"]=df["coding.pos"]-1 # Note the pandas data frame is in base 1 while everthing else is in base 0 this fixes that
 df["aa_pos"]=df["pos"]//3
@@ -132,7 +150,7 @@ the frequency, pos the nucleaic acid postion, aa_pos the amino acid position, aa
 consensus level, and aa_var the variant amino acid.
 """
 
-df[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var"]].to_csv("./results/2007-2008.HA.aa.csv")
+df[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var"]].to_csv("./results/"+args.prefix[0]+".aa.csv")
 
 nonsense=df.loc[(df.aa_consensus!=df.aa_var)]
 
@@ -494,4 +512,4 @@ nonsense["PDB_4JTV"]=PDB_4JTV
 
 print(nonsense[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var","PDB_4HMG","PDB_4JTV"]])
 
-nonsense[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var","PDB_4HMG","PDB_4JTV"]].to_csv("./results/2007-2008.putative.antigenic.csv")
+nonsense[["Id","ref",'var',"freq.var","pos","aa_pos","aa_consensus","aa_var","PDB_4HMG","PDB_4JTV"]].to_csv("./results/"+args.prefix[0]+".putative.antigenic.csv")

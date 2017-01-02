@@ -10,9 +10,8 @@ This document will run the first analysis on the variant calls. It will take in 
 
 
 
-
 ```r
-meta.2007.08 <- read.csv("../data/raw/all.meta.csv", stringsAsFactors = F)
+meta.all <- read.csv("../data/raw/all.meta.csv", stringsAsFactors = F)
 ```
 
 
@@ -20,47 +19,49 @@ meta.2007.08 <- read.csv("../data/raw/all.meta.csv", stringsAsFactors = F)
 var.2007.8 <- read.csv("../data/processed/Run_1293/Variants/all.sum.csv", stringsAsFactors = F)
 x <- read.csv("../data/processed/Run_1304/Variants/all.sum.csv", stringsAsFactors = F)  # the rest of these samples
 var.2007.8 <- rbind(var.2007.8, x)  # combine both runs
-# other.seasons<-read.csv('../data/processed/Run_1412/Variants/all.sum.csv',stringsAsFactors
-# = F)
 
-
-# var.2004.5.df<-processing(data.df = other.seasons,meta.df =
-# titer.2004.5,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-# var.2004.5.df<-subset(var.2004.5.df,season=='04-05')
-# var.2005.6.df<-processing(data.df = other.seasons,meta.df =
-# titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-# var.2005.6.df<-subset(var.2005.6.df,season=='05-06')
-var.2007.8.df <- processing(data.df = var.2007.8, meta.df = meta.2007.08, pval = 0.01, 
+var.2007.8.df <- processing(data.df = var.2007.8, meta.df = meta.all, pval = 0.01, 
     phred = 35, mapq = 30, read_cut = c(32, 94))
 
 
-# all.df<-rbind(var.2004.5.df,var.2005.6.df)
-# all.df<-rbind(all.df,var.2007.8.df) all.df<-subset(all.df,freq.var>=0.01)
+other.seasons <- read.csv("../data/processed/Run_1412/Variants/all.sum.csv", 
+    stringsAsFactors = F)
+
+
+other.seasons.df <- processing(data.df = other.seasons, meta.df = meta.all, 
+    pval = 0.01, phred = 35, mapq = 30, read_cut = c(32, 94))
+
+var.2004.5.df <- subset(other.seasons.df, season == "04-05")
+var.2005.6.df <- subset(other.seasons.df, season == "05-06")
+
 # ##### Now for the duplicate runs #######
-# var.2004.5.df2<-read.csv('../data/processed/2004_2005/Variants/all.sum.csv',stringsAsFactors
-# = F) var.2004.5.df2<-processing(data.df = var.2004.5.df2,meta.df =
-# titer.2004.5,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-# var.2005.6.df2<-read.csv('../data/processed/2005-2006/Variants/all.sum.csv',stringsAsFactors
-# = F) var.2005.6.df2<-processing(data.df = var.2005.6.df2,meta.df =
-# titer.2005.6,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+var.2004.5.df2 <- read.csv("../data/processed/2004-2005/Variants/all.sum.csv", 
+    stringsAsFactors = F)
+var.2004.5.df2 <- processing(data.df = var.2004.5.df2, meta.df = meta.all, pval = 0.01, 
+    phred = 35, mapq = 30, read_cut = c(32, 94))
+# 
+var.2005.6.df2 <- read.csv("../data/processed/2005-2006/Variants/all.sum.csv", 
+    stringsAsFactors = F)
+var.2005.6.df2 <- mutate(var.2005.6.df2, Id = gsub(536, 530, Id))
+var.2005.6.df2 <- processing(data.df = var.2005.6.df2, meta.df = meta.all, pval = 0.01, 
+    phred = 35, mapq = 30, read_cut = c(32, 94))
+
 
 var.2007.8.df2 <- read.csv("../data/processed/2007-2008/Variants/all.sum.csv", 
     stringsAsFactors = F)
-var.2007.8.df2 <- processing(data.df = var.2007.8.df2, meta.df = meta.2007.08, 
-    pval = 0.01, phred = 35, mapq = 30, read_cut = c(32, 94))
+var.2007.8.df2 <- processing(data.df = var.2007.8.df2, meta.df = meta.all, pval = 0.01, 
+    phred = 35, mapq = 30, read_cut = c(32, 94))
 
 ### Join duplicates #####
 
-# dups.2004.5<-join_dups(data1.df = var.2004.5.df,data2.df = var.2004.5.df2)
-# dups.2005.6<-join_dups(data1.df = var.2005.6.df,data2.df = var.2005.6.df2)
+dups.2004.5 <- join_dups(data1.df = var.2004.5.df, data2.df = var.2004.5.df2)
+dups.2005.6 <- join_dups(data1.df = var.2005.6.df, data2.df = var.2005.6.df2)
 dups.2007.8 <- join_dups(data1.df = var.2007.8.df, data2.df = var.2007.8.df2)
 
 ##### Merge duplicates with intial data that was >1e5
 
-# qual.2004.5<-high_qual(data1.df = var.2004.5.df,dups.df =
-# dups.2004.5,titer = 1e3) # only duplicates above 1e3 kept
-# qual.2005.6<-high_qual(data1.df = var.2005.6.df,dups.df =
-# dups.2005.6,titer = 1e3)
+qual.2004.5 <- high_qual(data1.df = var.2004.5.df, dups.df = dups.2004.5, titer = 1000)  # only duplicates above 1e3 kept
+qual.2005.6 <- high_qual(data1.df = var.2005.6.df, dups.df = dups.2005.6, titer = 1000)
 qual.2007.8 <- high_qual(data1.df = var.2007.8.df, dups.df = dups.2007.8, titer = 1000)
 # all.qual.df<-rbind(qual.2004.5,qual.2005.6)
 # all.qual.df<-rbind(all.qual.df,qual.2007.8)
@@ -68,18 +69,37 @@ qual.2007.8 <- high_qual(data1.df = var.2007.8.df, dups.df = dups.2007.8, titer 
 
 var.2007.8.df <- subset(var.2007.8.df, freq.var >= 0.01 & freq.var <= 0.99)
 qual.2007.8 <- subset(qual.2007.8, freq.var >= 0.01 & freq.var <= 0.99)
+qual.2004.5 <- subset(qual.2004.5, freq.var >= 0.01 & freq.var <= 0.99)
+qual.2005.6 <- subset(qual.2005.6, freq.var >= 0.01 & freq.var <= 0.99)
+
+
+
 
 bris.bed <- read.csv("../data/processed/bis_difference.csv", stringsAsFactors = F, 
     comment.char = "#")
 
-coding.adjust <- function(x) {
+coding.adjust.bris <- function(x) {
     chr <- unique(x$chr)
     start <- bris.bed$off.5[match(x$chr, bris.bed$chr)]
     
     mutate(x, coding.pos = pos - start)
 }
 
-qual.2007.8 <- ddply(qual.2007.8, ~chr, coding.adjust)
+
+
+qual.2007.8 <- ddply(qual.2007.8, ~chr, coding.adjust.bris)
+
+
+cal.bed <- read.csv("../data/processed/CalH3N2_difference.csv")
+coding.adjust.cal <- function(x) {
+    chr <- unique(x$chr)
+    start <- cal.bed$off.5[match(x$chr, cal.bed$chr)]
+    
+    mutate(x, coding.pos = pos - start)
+}
+
+qual.2004.5 <- ddply(qual.2004.5, ~chr, coding.adjust.cal)
+qual.2005.6 <- ddply(qual.2005.6, ~chr, coding.adjust.cal)
 ```
 
 
@@ -103,17 +123,20 @@ gm_mean = function(x, na.rm = TRUE, zero.propagate = FALSE) {
 # var.2007.8.df<-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T),
 # geom.both=(HAI.geo&NAI.geo==T))
 
-qual.2007.8 <- mutate(qual.2007.8, responder.HA = HAI.WI.30.post.vax > 40, responder.NA = NAI.WI.30.post.vax > 
-    40, HAI.geo = HAI.WI.30.post.vax > gm_mean(HAI.WI.30.post.vax), NAI.geo = NAI.WI.30.post.vax > 
-    gm_mean(NAI.WI.30.post.vax), responder.both = (responder.NA & responder.HA == 
-    T), geom.both = (HAI.geo & NAI.geo == T))
-minor = subset(qual.2007.8, freq.var <= 0.5)
+# qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T),
+# geom.both=(HAI.geo&NAI.geo==T))
+minor.07.08 = subset(qual.2007.8, freq.var <= 0.5)
+
+minor.04.05 = subset(qual.2004.5, freq.var <= 0.5)
+
+minor.05.06 = subset(qual.2005.6, freq.var <= 0.5)
+
 
 
 ### For consensus seqeunce meta data
 
-HAI.gm <- ddply(meta.2007.08, ~season, summarise, gm_mean = gm_mean(HAI.post.vax))
-NAI.gm <- ddply(meta.2007.08, ~season, summarise, gm_mean = gm_mean(NAI.post.vax))
+HAI.gm <- ddply(meta.all, ~season, summarise, gm_mean = gm_mean(HAI.post.vax))
+NAI.gm <- ddply(meta.all, ~season, summarise, gm_mean = gm_mean(NAI.post.vax))
 
 HAI.cut <- function(x) {
     season <- unique(x$season)
@@ -128,10 +151,21 @@ NAI.cut <- function(x) {
     # print(gm)
     mutate(x, NAI.geo = NAI.post.vax > gm)
 }
-meta.df <- ddply(meta.2007.08, ~season, HAI.cut)
+meta.df <- ddply(meta.all, ~season, HAI.cut)
 meta.df <- ddply(meta.df, ~season, NAI.cut)
 
-# meta.df<-mutate(meta.2007.08,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax))
+
+minor.04.05 <- ddply(minor.04.05, ~season, HAI.cut)
+minor.04.05 <- ddply(minor.04.05, ~season, NAI.cut)
+
+minor.05.06 <- ddply(minor.05.06, ~season, HAI.cut)
+minor.05.06 <- ddply(minor.05.06, ~season, NAI.cut)
+
+minor.07.08 <- ddply(minor.07.08, ~season, HAI.cut)
+minor.07.08 <- ddply(minor.07.08, ~season, NAI.cut)
+
+
+# meta.df<-mutate(meta.all,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax))
 meta.df$collection_date <- as.Date(meta.df$collection_date, format = "%d-%b-%y")
 require(lubridate)
 ```
@@ -170,31 +204,22 @@ writing the outputs
 
 ```r
 ## Getting data for HA ha<-subset(qual.2007.8,chr=='HA')
-ha <- subset(minor, chr == "HA")
+ha.07.08 <- subset(minor.07.08, chr == "HA")
+ha.04.05 <- subset(minor.04.05, chr == "HA")
+ha.05.06 <- subset(minor.05.06, chr == "HA")
 
-dim(ha)
-```
 
-```
 
-## [1] 38 45
-```
+# dim(ha) ha<-ha[order(ha$pos),] unique(ha$pos)
+write.csv(x = ha.07.08, file = "../results/2007-2008.HA.csv", row.names = F)
+write.csv(x = ha.04.05, file = "../results/2004-2005.HA.csv", row.names = F)
+write.csv(x = ha.05.06, file = "../results/2005-2006.HA.csv", row.names = F)
 
-```r
-ha <- ha[order(ha$pos), ]
-unique(ha$pos)
-```
 
-```
-##  [1]  222  234  314  440  700  701  717  758  761  791  883  894  899  909
-## [15] 1044 1077 1144 1150 1214 1226 1258 1265 1298 1325 1365 1433 1436 1487
-## [29] 1505 1532 1569 1589 1595 1643
-```
-
-```r
-write.csv(x = ha, file = "../results/2007-2008.HA.csv", row.names = F)
-write.csv(x = minor, file = "../results/2007-2008.wg.csv", row.names = F)
-write.csv(meta.df, "../data/raw/2007_2008.meta.HAgm.csv")
+write.csv(x = minor.07.08, file = "../results/2007-2008.wg.csv", row.names = F)
+write.csv(x = minor.04.05, file = "../results/2004-2005.wg.csv", row.names = F)
+write.csv(x = minor.05.06, file = "../results/2005-2006.wg.csv", row.names = F)
+write.csv(meta.df, "../data/raw/meta.all.HAgm.csv")
 ```
 
 
