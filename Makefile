@@ -76,7 +76,6 @@ consensus: ./results/2007-2008.HA.fa ./results/2007-2008.NR.fa ./results/2004-20
 	python ./scripts/consensus.pipe.py data/processed/Run_1304/deepSNV/ ./data/reference/Brisbane_H3N2_plasmids.fa ./data/processed/concat_pos_bris.csv $(musclePath)
 
 ./data/processed/Run_1412/HA.fa ./data/processed/Run_1412/NR.fa : ./data/processed/concat_pos_CalH3N2.csv ./data/raw/meta.all.HAgm.csv
-	cp -v ./data/processed/2005-2006/deepSNV/536.removed.fa ./data/processed/Run_1412/deepSNV/536.removed.fa
 	python ./scripts/consensus.pipe.py data/processed/Run_1412/deepSNV/ ./data/reference/CalH3N2SeqCont.fa ./data/processed/concat_pos_CalH3N2.csv $(musclePath)
 
 ./data/processed/2004-2005/HA.fa ./data/processed/2004-2005/NR.fa : ./data/processed/concat_pos_CalH3N2.csv ./data/raw/meta.all.HAgm.csv
