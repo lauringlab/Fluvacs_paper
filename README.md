@@ -31,21 +31,11 @@ This pipeline requires [fastqc](http://www.bioinformatics.babraham.ac.uk/project
 
 More information on the dependencies needed to run the varaint\_pipline can be found [here](https://github.com/lauringlab/variant_pipeline)
 
-The python code used in this analysis has been tested in version 2.7.11 (although it will probably work in other versions) and relies on the following modules
+The python code used in this analysis has been tested in version 2.7.11 (although it will probably work in other versions) and relies on the following modules. The version used for each module is also listed.
 
 ```
-argparse
-Bio.Seq 
-Bio 
-Bio.Alphabet 
-glob
-os
-os.path
-pandas 
-shutil
-sys
-subprocess
-tempfile
+biopython -- 1.67
+pandas -- 0.18.1
 ```
 
 The session information on the Rmarkdown file that reproduces the figures is below.
@@ -58,16 +48,18 @@ locale:
 [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 
 attached base packages:
-[1] grid      stats     graphics  grDevices utils     datasets  methods   base     
+[1] grid      stats     graphics  grDevices utils     datasets 
+[7] methods   base     
 
 other attached packages:
-[1] ggdendro_0.1-17 reshape2_1.4.1  ggplot2_2.1.0   plyr_1.8.3      knitr_1.13     
+[1] cowplot_0.6.2   ggdendro_0.1-17 reshape2_1.4.1  ggplot2_2.1.0  
+[5] plyr_1.8.4      knitr_1.14     
 
 loaded via a namespace (and not attached):
- [1] MASS_7.3-45      colorspace_1.2-6 scales_0.4.0     magrittr_1.5     tools_3.2.3     
- [6] gtable_0.2.0     Rcpp_0.12.5      stringi_1.0-1    stringr_1.0.0    munsell_0.4.3 
-
-
+ [1] Rcpp_0.12.7      MASS_7.3-45      gtable_0.2.0    
+ [4] formatR_1.4      magrittr_1.5     scales_0.4.0    
+ [7] stringi_1.0-1    tools_3.2.3      stringr_1.0.0   
+[10] munsell_0.4.3    colorspace_1.2-6
 ```
 
 The consensus sequence analysis and antigenic analysis relies on [muscle](http://www.drive5.com/muscle/downloads.htm). It expects the exicutable to be named "muscle". Please change the path to this exicutable in the Makefile.
