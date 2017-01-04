@@ -1,18 +1,18 @@
 
 ####################################################################################################
-# Starting pipeline at Wed Nov 02 18:31:49 EDT 2016
+# Starting pipeline at Wed Jan 04 13:30:55 EST 2017
 # Input files:  [/scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.2.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/508.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/508.2.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.2.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/530.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/530.2.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.2.1.fastq]
-# Output Log:  .bpipe/logs/46171.log
-# Stage fastqc [530]
-# Stage fastqc [529]
+# Output Log:  .bpipe/logs/11342.log
+# Stage fastqc [504]
 # Stage fastqc [Cal-H3N2]
 # Stage fastqc [508]
-# Stage fastqc [504]
+# Stage fastqc [530]
+# Stage fastqc [529]
 fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.1.1.fastq
 fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/508.1.1.fastq
-fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.1.1.fastq
 fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.1.1.fastq
 fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/530.1.1.fastq
+fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.1.1.fastq
 fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/508.2.1.fastq
 fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.2.1.fastq
 fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.2.1.fastq
@@ -20,23 +20,23 @@ fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_
 fastqc -o 01_fastqc --noextract -f fastq /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.2.1.fastq
 # Stage bowtie2 [508]
 # Stage bowtie2 [529]
-# Stage bowtie2 [Cal-H3N2]
 # Stage bowtie2 [504]
+# Stage bowtie2 [Cal-H3N2]
 # Stage bowtie2 [530]
-bowtie2 --seed 42 --sensitive -x /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated -1 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.1.1.fastq -2 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.2.1.fastq -S ./03_align/504.sam
 bowtie2 --seed 42 --sensitive -x /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated -1 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/530.1.1.fastq -2 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/530.2.1.fastq -S ./03_align/530.sam
-bowtie2 --seed 42 --sensitive -x /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated -1 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.1.1.fastq -2 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.2.1.fastq -S ./03_align/529.sam
-bowtie2 --seed 42 --sensitive -x /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated -1 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.1.1.fastq -2 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.2.1.fastq -S ./03_align/Cal-H3N2.sam
 bowtie2 --seed 42 --sensitive -x /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated -1 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/508.1.1.fastq -2 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/508.2.1.fastq -S ./03_align/508.sam
+bowtie2 --seed 42 --sensitive -x /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated -1 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.1.1.fastq -2 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.2.1.fastq -S ./03_align/504.sam
+bowtie2 --seed 42 --sensitive -x /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated -1 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.1.1.fastq -2 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.2.1.fastq -S ./03_align/Cal-H3N2.sam
+bowtie2 --seed 42 --sensitive -x /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated -1 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.1.1.fastq -2 /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.2.1.fastq -S ./03_align/529.sam
 # Stage picard_sortsam [504]
-# Stage picard_sortsam [508]
 # Stage picard_sortsam [529]
 # Stage picard_sortsam [Cal-H3N2]
 # Stage picard_sortsam [530]
+# Stage picard_sortsam [508]
+java -Xmx4g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar SortSam SO=coordinate INPUT=03_align/Cal-H3N2.sam OUTPUT=03_align/Cal-H3N2.bam VALIDATION_STRINGENCY=LENIENT CREATE_INDEX=true
+java -Xmx4g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar SortSam SO=coordinate INPUT=03_align/530.sam OUTPUT=03_align/530.bam VALIDATION_STRINGENCY=LENIENT CREATE_INDEX=true
 java -Xmx4g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar SortSam SO=coordinate INPUT=03_align/508.sam OUTPUT=03_align/508.bam VALIDATION_STRINGENCY=LENIENT CREATE_INDEX=true
 java -Xmx4g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar SortSam SO=coordinate INPUT=03_align/529.sam OUTPUT=03_align/529.bam VALIDATION_STRINGENCY=LENIENT CREATE_INDEX=true
-java -Xmx4g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar SortSam SO=coordinate INPUT=03_align/530.sam OUTPUT=03_align/530.bam VALIDATION_STRINGENCY=LENIENT CREATE_INDEX=true
-java -Xmx4g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar SortSam SO=coordinate INPUT=03_align/Cal-H3N2.sam OUTPUT=03_align/Cal-H3N2.bam VALIDATION_STRINGENCY=LENIENT CREATE_INDEX=true
 java -Xmx4g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar SortSam SO=coordinate INPUT=03_align/504.sam OUTPUT=03_align/504.bam VALIDATION_STRINGENCY=LENIENT CREATE_INDEX=true
 # Stage picard_removedups [508]
 java -Xmx2g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar MarkDuplicates INPUT=03_align/508.bam OUTPUT=04_removed_duplicates/508.removed.bam REMOVE_DUPLICATES=true CREATE_INDEX=true METRICS_FILE=04_removed_duplicates/508.removed.bam-picard.out.metrics VALIDATION_STRINGENCY=LENIENT
@@ -50,48 +50,86 @@ java -Xmx2g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picar
 java -Xmx2g -Djava.io.tmpdir=./tmp -jar /home/mccrone/variant_pipeline/lib/picard-tools-1.133/picard.jar MarkDuplicates INPUT=03_align/529.bam OUTPUT=04_removed_duplicates/529.removed.bam REMOVE_DUPLICATES=true CREATE_INDEX=true METRICS_FILE=04_removed_duplicates/529.removed.bam-picard.out.metrics VALIDATION_STRINGENCY=LENIENT
 # Stage get_control
 # Stage deepsnv [504]
+# Stage deepsnv [529]
 # Stage deepsnv [Cal-H3N2]
 # Stage deepsnv [530]
 # Stage deepsnv [508]
+Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/504.removed.bam $CONTROL_BAM bonferroni 0.9 fisher two.sided
+Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/Cal-H3N2.removed.bam $CONTROL_BAM bonferroni 0.9 fisher two.sided
+Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/530.removed.bam $CONTROL_BAM bonferroni 0.9 fisher two.sided
+Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/508.removed.bam $CONTROL_BAM bonferroni 0.9 fisher two.sided
+Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/529.removed.bam $CONTROL_BAM bonferroni 0.9 fisher two.sided
+# ########## Finished at Wed Jan 04 14:13:41 EST 2017 Duration = 42 minutes, 45.374 seconds ##########
+
+
+####################################################################################################
+# Starting pipeline at Wed Jan 04 15:39:39 EST 2017
+# Input files:  [/scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/504.2.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/508.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/508.2.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/529.2.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/530.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/530.2.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.1.1.fastq, /scratch/alauring_fluxm/mccrone/FluVac_paper/data/raw/2005-2006/Cal-H3N2.2.1.fastq]
+# Output Log:  .bpipe/logs/44214.log
+# Stage fastqc [508]
+# Stage fastqc [529]
+# Stage fastqc [504]
+# Stage fastqc [530]
+# Stage fastqc [Cal-H3N2]
+# Stage bowtie2 [508]
+# Stage bowtie2 [504]
+# Stage bowtie2 [529]
+# Stage bowtie2 [530]
+# Stage bowtie2 [Cal-H3N2]
+# Stage picard_sortsam [504]
+# Stage picard_sortsam [529]
+# Stage picard_sortsam [530]
+# Stage picard_sortsam [508]
+# Stage picard_sortsam [Cal-H3N2]
+# Stage picard_removedups [508]
+# Stage picard_removedups [529]
+# Stage picard_removedups [504]
+# Stage picard_removedups [Cal-H3N2]
+# Stage picard_removedups [530]
+# Stage get_control
+# Stage deepsnv [Cal-H3N2]
+# Stage deepsnv [508]
+# Stage deepsnv [530]
+# Stage deepsnv [504]
 # Stage deepsnv [529]
+Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/508.removed.bam 04_removed_duplicates/Cal-H3N2.removed.bam bonferroni 0.9 fisher two.sided
+Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/529.removed.bam 04_removed_duplicates/Cal-H3N2.removed.bam bonferroni 0.9 fisher two.sided
 Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/530.removed.bam 04_removed_duplicates/Cal-H3N2.removed.bam bonferroni 0.9 fisher two.sided
 Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/504.removed.bam 04_removed_duplicates/Cal-H3N2.removed.bam bonferroni 0.9 fisher two.sided
 touch deepSNV/Cal-H3N2.removed.bam.deepsnv.csv
-Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/529.removed.bam 04_removed_duplicates/Cal-H3N2.removed.bam bonferroni 0.9 fisher two.sided
-Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/508.removed.bam 04_removed_duplicates/Cal-H3N2.removed.bam bonferroni 0.9 fisher two.sided
 # Stage mapq_conditional [Cal-H3N2.removed.bam]
-# Stage mapq_conditional [Cal-H3N2.removed.bam]
-# Stage mapq_conditional [Cal-H3N2.removed]
 # Stage mapq_conditional [504.removed]
 # Stage mapq_conditional [504]
+# Stage mapq_conditional [Cal-H3N2.removed.bam]
+# Stage mapq_conditional [Cal-H3N2.removed]
 python /home/mccrone/variant_pipeline/scripts/mapq.py deepSNV/504.removed.csv 04_removed_duplicates/504.removed.bam Variants/504.removed.mapq.sum.csv Variants/504.removed.mapq.reads.csv
-# Stage mapq_conditional [504]
 # Stage mapq_conditional [504.removed]
+# Stage mapq_conditional [504]
 # Stage mapq_conditional [508.removed]
-# Stage mapq_conditional [Cal-H3N2.removed]
 # Stage mapq_conditional [508]
 # Stage mapq_conditional [Cal-H3N2.removed.bam]
+# Stage mapq_conditional [Cal-H3N2.removed]
 python /home/mccrone/variant_pipeline/scripts/mapq.py deepSNV/508.removed.csv 04_removed_duplicates/508.removed.bam Variants/508.removed.mapq.sum.csv Variants/508.removed.mapq.reads.csv
-# Stage mapq_conditional [508.removed]
-# Stage mapq_conditional [Cal-H3N2.removed]
-# Stage mapq_conditional [529.removed]
 # Stage mapq_conditional [508]
-# Stage mapq_conditional [504.removed]
-# Stage mapq_conditional [Cal-H3N2.removed.bam]
-# Stage mapq_conditional [504]
-# Stage mapq_conditional [529]
-python /home/mccrone/variant_pipeline/scripts/mapq.py deepSNV/529.removed.csv 04_removed_duplicates/529.removed.bam Variants/529.removed.mapq.sum.csv Variants/529.removed.mapq.reads.csv
-# Stage mapq_conditional [508.removed]
-# Stage mapq_conditional [530]
-# Stage mapq_conditional [Cal-H3N2.removed.bam]
-# Stage mapq_conditional [508]
-# Stage mapq_conditional [529.removed]
-# Stage mapq_conditional [504.removed]
-# Stage mapq_conditional [529]
-# Stage mapq_conditional [Cal-H3N2.removed]
-# Stage mapq_conditional [504]
 # Stage mapq_conditional [530.removed]
+# Stage mapq_conditional [530]
+# Stage mapq_conditional [504.removed]
+# Stage mapq_conditional [504]
+# Stage mapq_conditional [Cal-H3N2.removed]
+# Stage mapq_conditional [508.removed]
+# Stage mapq_conditional [Cal-H3N2.removed.bam]
 python /home/mccrone/variant_pipeline/scripts/mapq.py deepSNV/530.removed.csv 04_removed_duplicates/530.removed.bam Variants/530.removed.mapq.sum.csv Variants/530.removed.mapq.reads.csv
+# Stage mapq_conditional [504]
+# Stage mapq_conditional [504.removed]
+# Stage mapq_conditional [529.removed]
+# Stage mapq_conditional [Cal-H3N2.removed]
+# Stage mapq_conditional [530]
+# Stage mapq_conditional [529]
+# Stage mapq_conditional [530.removed]
+# Stage mapq_conditional [508.removed]
+# Stage mapq_conditional [508]
+# Stage mapq_conditional [Cal-H3N2.removed.bam]
+python /home/mccrone/variant_pipeline/scripts/mapq.py deepSNV/529.removed.csv 04_removed_duplicates/529.removed.bam Variants/529.removed.mapq.sum.csv Variants/529.removed.mapq.reads.csv
 # Stage combine
 python /home/mccrone/variant_pipeline/scripts/combine.py ./Variants reads.csv all.reads.csv
 python /home/mccrone/variant_pipeline/scripts/combine.py ./Variants sum.csv all.sum.csv
@@ -99,5 +137,5 @@ python /home/mccrone/variant_pipeline/scripts/combine.py ./deepSNV cov.csv all.c
 # Stage done
 date
 echo variantPipeline SUCCESS
-# ########## Finished at Wed Nov 02 19:18:59 EDT 2016 Duration = 47 minutes, 9.479 seconds ###########
+# ########### Finished at Wed Jan 04 15:44:46 EST 2017 Duration = 5 minutes, 6.606 seconds ###########
 

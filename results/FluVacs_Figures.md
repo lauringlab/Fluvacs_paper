@@ -1,7 +1,7 @@
 ---
-title: "FluVacs Figures - Draft"
+title: "FluVacs Figures"
 author: "JT"
-date: "June 3, 2016"
+date: "December 29, 2016"
 output:
   html_document:
     toc: true
@@ -13,45 +13,69 @@ output:
 
 
 
-# Figure 4
+
+Here verify the average coverage of the sample is >1000
+
+
+```
+## [1] "reading in ../data/processed/Run_1293/deepSNV/all.coverage.csv"
+## [1] "appending run column: 1293"
+## [1] "reading in ../data/processed/Run_1304/deepSNV/all.coverage.csv"
+## [1] "appending run column: 1304"
+## [1] "reading in ../data/processed/Run_1412/deepSNV/all.coverage.csv"
+## [1] "appending run column: 1412"
+## [1] "reading in ../data/processed/2004-2005/deepSNV/all.coverage.csv"
+## [1] "appending run column: 2004-5"
+## [1] "reading in ../data/processed/2005-2006/deepSNV/all.coverage.csv"
+## [1] "appending run column: 2005-6"
+## [1] "reading in ../data/processed/2007-2008/deepSNV/all.coverage.csv"
+## [1] "appending run column: 2007-8"
+```
+
+<img src="figure/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" />
+In the 2007-2008 data set there were 0 samples removed from the the minority analysis based on a mean coverage less than 1000X.
+
+# Figure 3
 
 High quality is >10^5^ or >10^3^ sequenced in duplicate.
-Currently I am making these plots with just the 2007-2008 samples. Once I have the meta datafor the other seasons it will be trivial to add them (if we want to do that) 
+Currently I am making these plots with just the 2007-2008 samples. 
 
-## A) Variant Frequencies
-
-These are the variants between 1-50%. each bin is 1% wide. The y axis is log scaled which in ggplot leads to a problem when there are no observations (lines below axis). I can remove these before publication.
-<img src="figure/unnamed-chunk-3-1.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" />
+These are the variants between 1-50%. each bin is 1% wide. 
 
 ```
 ## png 
 ##   2
 ```
 
-<img src="figure/unnamed-chunk-3-2.png" title="plot of chunk unnamed-chunk-3" alt="plot of chunk unnamed-chunk-3" style="display: block; margin: auto;" />
+```
+## png 
+##   2
+```
+
+```
+## Loading required package: cowplot
+```
+
+The x axis is so large because there are 2 mutations that are found in 62 and 41 samples. Both of these are infered minor variants.
+
+
 
 ```
 ## png 
 ##   2
 ```
 
-The x axis is so large because there are 2 mutations that are found in 55 and 35 samples. Both of these are infered minor variants. They may be artifacts of our analysis.
-
-
-
-
-<img src="figure/unnamed-chunk-4-1.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" />
-
 ```
 ## png 
 ##   2
 ```
 
-<img src="figure/unnamed-chunk-4-2.png" title="plot of chunk unnamed-chunk-4" alt="plot of chunk unnamed-chunk-4" style="display: block; margin: auto;" />
+```
+## Loading required package: cowplot
+```
 
 ```
-## png 
-##   2
+## Error in eval(expr, envir, enclos): could not find function "plot_grid"
 ```
 
 
@@ -63,22 +87,46 @@ Average iSNV/ segment
 
 All data 
 
-|chr |IIV           |LAIV          |PLACEBO       |
-|:---|:-------------|:-------------|:-------------|
-|HA  |1.43 ± (1)    |1.27 ± (0.5)  |1.27 ± (0)    |
-|M   |1 ± (0)       |1.14 ± (0)    |1 ± (0)       |
-|NP  |1.75 ± (1.25) |1.33 ± (0.75) |1.4 ± (1)     |
-|NR  |1 ± (0)       |1.17 ± (0)    |1.25 ± (0.25) |
-|NS  |1 ± (0)       |1.33 ± (0.75) |1.29 ± (0.5)  |
-|PA  |1.8 ± (0.75)  |1.7 ± (1)     |1.65 ± (1)    |
-|PB1 |1.8 ± (1)     |1.46 ± (1)    |1.45 ± (1)    |
-|PB2 |2.1 ± (2)     |1.78 ± (1)    |1.89 ± (1)    |
+|chr |< 40 (n=31)  |≥ 40 (n=33) |IIV (n=11)   |LAIV (n=30) |PLACEBO (n=23) |
+|:---|:------------|:-----------|:------------|:-----------|:--------------|
+|PB2 |1.42 ± (1)   |1.85 ± (1)  |1.91 ± (2)   |1.6 ± (1)   |1.57 ± (1)     |
+|PB1 |0.68 ± (1)   |0.7 ± (1)   |0.82 ± (1.5) |0.63 ± (1)  |0.7 ± (1)      |
+|PA  |1.39 ± (1)   |1.94 ± (1)  |1.64 ± (1)   |1.7 ± (1)   |1.65 ± (1)     |
+|HA  |0.45 ± (1)   |0.73 ± (1)  |0.91 ± (1.5) |0.47 ± (1)  |0.61 ± (1)     |
+|NP  |0.39 ± (0.5) |0.3 ± (0)   |0.64 ± (1)   |0.27 ± (0)  |0.3 ± (0)      |
+|NR  |0.23 ± (0)   |0.24 ± (0)  |0.27 ± (0.5) |0.23 ± (0)  |0.22 ± (0)     |
+|M   |0.29 ± (1)   |0.24 ± (0)  |0.09 ± (0)   |0.27 ± (0)  |0.35 ± (1)     |
+|NS  |0.32 ± (0)   |0.33 ± (1)  |0.36 ± (1)   |0.27 ± (0)  |0.39 ± (1)     |
+
+
+# Figure 4 
 
 
 
-#Supplemental Figure 1)
+```
+## png 
+##   2
+```
 
-These are just from the first runs. I'm not including the duplicates here - should I? These have a sliding window of 100 with a step of 100 no overlap.
+```
+## png 
+##   2
+```
+
+```
+## png 
+##   2
+```
+
+
+
+```
+## Error in eval(expr, envir, enclos): could not find function "plot_grid"
+```
+
+#Supplemental Figure 3)
+
+These are just from the first runs. These have a sliding window of 100 with a step of 100 no overlap.
 
 <img src="figure/coverage-1.png" title="plot of chunk coverage" alt="plot of chunk coverage" style="display: block; margin: auto;" /><img src="figure/coverage-2.png" title="plot of chunk coverage" alt="plot of chunk coverage" style="display: block; margin: auto;" /><img src="figure/coverage-3.png" title="plot of chunk coverage" alt="plot of chunk coverage" style="display: block; margin: auto;" />
 
@@ -100,19 +148,18 @@ These are just from the first runs. I'm not including the duplicates here - shou
 If we plot on a log scale the bars are well above 0. 
 
 
-```
-## Scale for 'y' is already present. Adding another scale for 'y', which
-## will replace the existing scale.
-```
-
-<img src="figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" style="display: block; margin: auto;" />
+So there are a few samples with poor coverage that should be removed from the analysis, but none of them were in the 2007-2008 year.
 
 
 
 
+# Supplemental 5
 
-# Supplemental Figure 2)
-<img src="figure/extra_iSNV-1.png" title="plot of chunk extra_iSNV" alt="plot of chunk extra_iSNV" style="display: block; margin: auto;" /><img src="figure/extra_iSNV-2.png" title="plot of chunk extra_iSNV" alt="plot of chunk extra_iSNV" style="display: block; margin: auto;" />
+
+
+
+Diversity by titer
+
 
 ```
 ## png 
@@ -125,82 +172,90 @@ If we plot on a log scale the bars are well above 0.
 ```
 
 
-# Appendix
-## Linear plots
+```
+## Error in eval(expr, envir, enclos): could not find function "plot_grid"
+```
 
-<img src="figure/unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" /><img src="figure/unnamed-chunk-8-2.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" /><img src="figure/unnamed-chunk-8-3.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" /><img src="figure/unnamed-chunk-8-4.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" style="display: block; margin: auto;" />
+# Supplemental Figure 6)
 
-## Linear model with all variables
+Genome wide SNV
 
-NB : I'm not sure what I'm doing here and if it's valid.
+```
+## png 
+##   2
+```
+
+```
+## png 
+##   2
+```
 
 
 ```
-## 
-## Call:
-## lm(formula = lines.07$muts ~ lines.07$HAI.WI + lines.07$NAI.WI + 
-##     lines.07$Copy_num + lines.07$dpi)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -5.029 -1.423  0.095  1.492  6.366 
-## 
-## Coefficients:
-##                     Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)        4.458e+00  1.115e+00   4.000 0.000185 ***
-## lines.07$HAI.WI    1.417e-03  8.037e-04   1.763 0.083211 .  
-## lines.07$NAI.WI   -2.191e-03  4.628e-03  -0.473 0.637695    
-## lines.07$Copy_num  5.292e-05  1.392e-05   3.802 0.000352 ***
-## lines.07$dpi       3.643e-02  3.200e-01   0.114 0.909750    
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.552 on 57 degrees of freedom
-##   (2 observations deleted due to missingness)
-## Multiple R-squared:  0.2451,	Adjusted R-squared:  0.1922 
-## F-statistic: 4.628 on 4 and 57 DF,  p-value: 0.00264
+## Error in eval(expr, envir, enclos): could not find function "plot_grid"
 ```
 
-I think this means that maybe the copy number is the only variable that affects the iSNV count. What if we remove the one outlier at 16.
+## Supplemental figure 7 2004-2005 & 2005-2006
+
+
 
 ```
-## 
-## Call:
-## lm(formula = no_out.07$muts ~ no_out.07$HAI.WI + no_out.07$NAI.WI + 
-##     no_out.07$Copy_num + no_out.07$dpi)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -5.029 -1.423  0.095  1.492  6.366 
-## 
-## Coefficients:
-##                      Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)         4.458e+00  1.115e+00   4.000 0.000185 ***
-## no_out.07$HAI.WI    1.417e-03  8.037e-04   1.763 0.083211 .  
-## no_out.07$NAI.WI   -2.191e-03  4.628e-03  -0.473 0.637695    
-## no_out.07$Copy_num  5.292e-05  1.392e-05   3.802 0.000352 ***
-## no_out.07$dpi       3.643e-02  3.200e-01   0.114 0.909750    
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.552 on 57 degrees of freedom
-##   (2 observations deleted due to missingness)
-## Multiple R-squared:  0.2451,	Adjusted R-squared:  0.1922 
-## F-statistic: 4.628 on 4 and 57 DF,  p-value: 0.00264
+## png 
+##   2
 ```
 
-Yep. I looks like that was driving things. 
-
-I'll have to think about whether or not this analysis is justified, valid, and needed.
-
-
-
+```
+## png 
+##   2
+```
 
 
 
 
+```
+## png 
+##   2
+```
+
+```
+## png 
+##   2
+```
 
 
+```
+## Error in eval(expr, envir, enclos): could not find function "plot_grid"
+```
 
-It looks like the iSNV count peaks around day 3 or 4. But I don't know if that's statistically significant or robust.
+# Supplemental tables
+
+## 2004-2005
+
+
+|chr |< 40 (n=1) |≥ 40 (n=7) |NA (n=0) |IIV (n=2)   |LAIV (n=4)    |PLACEBO (n=3) |
+|:---|:----------|:----------|:--------|:-----------|:-------------|:-------------|
+|PB2 |4 ± (0)    |1.86 ± (1) |3 ± (0)  |1 ± (1)     |2 ± (0.5)     |3.33 ± (0.5)  |
+|PB1 |1 ± (0)    |3.14 ± (1) |1 ± (0)  |9 ± (8)     |1 ± (0.5)     |0.67 ± (0.5)  |
+|PA  |3 ± (0)    |3.14 ± (1) |2 ± (0)  |9.5 ± (9.5) |0.5 ± (1)     |2 ± (1)       |
+|HA  |0 ± (0)    |0 ± (0)    |0 ± (0)  |0 ± (0)     |0 ± (0)       |0 ± (0)       |
+|NP  |1 ± (0)    |1 ± (1)    |0 ± (0)  |1 ± (0)     |0.75 ± (1.25) |1 ± (1)       |
+|NR  |2 ± (0)    |1.14 ± (0) |2 ± (0)  |1.5 ± (0.5) |1 ± (0)       |1.67 ± (0.5)  |
+|M   |1 ± (0)    |1.14 ± (0) |0 ± (0)  |4 ± (4)     |0 ± (0)       |0.33 ± (0.5)  |
+|NS  |0 ± (0)    |0.14 ± (0) |0 ± (0)  |0.5 ± (0.5) |0 ± (0)       |0 ± (0)       |
+
+## 2005-2006
+
+
+|chr |< 40 (n=3)   |≥ 40 (n=6)    |IIV (n=6)     |LAIV (n=1) |PLACEBO (n=2) |
+|:---|:------------|:-------------|:-------------|:----------|:-------------|
+|PB2 |3.33 ± (0.5) |2.67 ± (1)    |2.67 ± (1)    |4 ± (0)    |3 ± (0)       |
+|PB1 |0.67 ± (0.5) |0.83 ± (1)    |0.83 ± (1)    |1 ± (0)    |0.5 ± (0.5)   |
+|PA  |2 ± (2.5)    |0.33 ± (0.75) |0.33 ± (0.75) |5 ± (0)    |0.5 ± (0.5)   |
+|HA  |1.67 ± (2.5) |1.67 ± (0.75) |1.67 ± (0.75) |5 ± (0)    |0 ± (0)       |
+|NP  |1.67 ± (0.5) |0.67 ± (1)    |0.67 ± (1)    |1 ± (0)    |2 ± (0)       |
+|NR  |1.33 ± (0.5) |1.83 ± (1)    |1.83 ± (1)    |1 ± (0)    |1.5 ± (0.5)   |
+|M   |0.33 ± (0.5) |0.33 ± (0.75) |0.33 ± (0.75) |0 ± (0)    |0.5 ± (0.5)   |
+|NS  |0.33 ± (0.5) |0.5 ± (0)     |0.5 ± (0)     |0 ± (0)    |0.5 ± (0.5)   |
+
+
 

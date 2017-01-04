@@ -7,7 +7,7 @@
 #PBS -m abe
 #PBS -j oe
 #PBS -V
-#PBS -l nodes=1:ppn=6,mem=120gb,walltime=150:00:00
+#PBS -l nodes=1:ppn=6,mem=120gb,walltime=40:00:00
 
 echo Running job name $PBS_JOBNAME with ID $PBS_JOBID on host $PBS_O_HOST;
 echo Working directory is $PBS_O_WORKDIR
@@ -29,7 +29,9 @@ cd $PBS_O_WORKDIR
 #make ./results/2007-2008.HA.aa.csv
 #make ./resutls/2007-2008.putative.antigenic.csv
 
-make write.paper
+#make download
+#make primary
+make secondary
 
 
 echo Finish time: `date`
