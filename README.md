@@ -21,7 +21,7 @@ This repository holds the analysis used in *citation,2016* it relies heavily on 
     
   --------
 # Dependencies    
-The analysis expects you to have the variant_pipeline repository cloned and saved in your home directory.
+The analysis expects you to have the variant_pipeline repository cloned and saved in your home directory. The published analysis was done using commit 3b7dd2b45e0ce392cacc60c94daf681709d7d83b.
 ```
     cd ~/
     git clone https://github.com/lauringlab/variant_pipeline.git
@@ -69,60 +69,61 @@ loaded via a namespace (and not attached):
 
 ```
 
-#Reproducing the analysis
+The consensus sequence analysis and antigenic analysis relies on [muscle](http://www.drive5.com/muscle/downloads.htm). It expects the exicutable to be named "muscle". Please change the path to this exicutable in the Makefile.
 
-We can use the commands in the Makefile to do everyhing from download the fastq files from the SRA all the way through making the figures. The Makefile contains comments that may be useful if you run into problems.
+# Reproducing the analysis
+
+We can use the commands in the Makefile to do everyhing from download the fastq files from the SRA all the way through making the figures. There are 3 stages to the analysis. 1) Downloading the fastq files from the SRA, 2) Primary analsysis - Calling iSNV in each sample using the variant_pipeline repository referenced above, 3) Secondary analysis - Filtering the iSNV for quality, parsing the consensus files (deepSNV concatenates the 8 segments) and making the iSNV figures and tables. All the intermediate files needed to run the secondary analysis are included in this repository.
+
+Please note that in many places we refer to the genomic segment "NA" as "NR". This is to avoid complications in R as "NA" is a special term. 
 
 ## Downloading raw data
-The following commands download the necessary .sra files into the default directory ~/ncbi/public/sra/,  move and convert them to fastq files in the appropriate data/raw directory and remove the .sra file. These targets also give the fastq files meaningful names based on the meta data avaialable from the SRA.
+
+Becasue we use a plasmid control to estimate the lane specific error rates used to identify iSNV it is important that the fastq files from the SRA are split into separate directories for each Hiseq lane. This stage makes reference files for each run (if needed) and then downloads the .sra files using wget. The sra files are then converted to fastq files and are renamed to match the sample names used in the rest of the analysis. All of this is achieved my running the "download" phony target.
 
 ```
-   Under development 
+make download
 ```
+
 
 ## Processing the raw data
 
-The following commands launch the analyis pipeline from https://github.com/lauringlab/variant_pipeline. This pipeline is based in [bpipe](http://bpipe-test-documentation.readthedocs.io/en/latest/) and is smart enough to remember what commands have been run in the event of failure. It also logs the commands that were run. These steps are time and memory intensive. These commands output a number of intermediate files as well as putative variants and consensus sequences for each sample. 
-
+The following commands launch the analyis pipeline from https://github.com/lauringlab/variant_pipeline. This pipeline is based in [bpipe](http://bpipe-test-documentation.readthedocs.io/en/latest/) and is smart enough to remember what commands have been run in the event of failure. It also logs the commands that were run("./data/processed/\*/commandlog.txt"). These steps are time and memory intensive. These commands output a number of large intermediate files. The important files that are used in down stream analysis are the concatenated variant calls "./data/processed/\*/Variants/all.sum.csv". The concatenated coverage files "./data/processed/\*/deepSNV/all.coverage.csv", and the deepSNV concatenated consensus sequences "./data/processed/\*/deepSNV/\*.fa". This stage of the analysis can be run using the "primary" phony target, and requires that the fastq files are downloaded and named appropriately.
 ```
-make ./data/processed/Run_1293/Variants/all.sum.csv
-make ./data/processed/Run_1304/Variants/all.sum.csv
-make ./data/processed/2007-2008/Variants/all.sum.csv
-make ./data/processed/Run_1412/Variants/all.sum.csv
-make ./data/processed/2004-2005/Variants/all.sum.csv
-make ./data/processed/2005-2006/Variants/all.sum.csv
+make primary
 ```
 
 
-## Making the SNV figures
+## Secondary analysis
 
-The following command calls the an intermediate vairant filtering stage and then "knits" an RMD file to create the figures based on the single nucleotide variant analysis.
+The secondary analysis is broken up into 3 separate stages. Each can be run separately or all three can be run at the same time. 
 
-I usually knit the RMD in R studio; however it should be possible using the following commands. Note : *I'm not sure how these commands work in the context of making a github_document output. You can change this line in figures.Rmd as needed.* 
-
-```
-make ./results/FluVacs_Figures.md
-```
-
-## Preliminary Consensus work and antigenic variants.
-
-The following command deconcatinates the consensus sequence of each sample (the default DeepSNV settings produce a concatenated sequence), trims to just yield the coding sequences, identifies nonsynomomous variants and highlights putuatative antigenic variants.
+All stages are run by the phony target "secondary"
 
 ```
-make ./results/2007-2008.HA.aa.csv
-make ./resutls/2007-2008.putative.antigenic.csv
+make secondary
 ```
 
+### Consensus analysis
 
-
-## Running the analysis in it's entirety
-
-The analysis can be run in it's entirety (from fastq to final figures) using the following command.
+DeepSNV concatenates the consenus file of each sample. This stage uses a bpipe pipeline to deconcatenate the fasta files according the positions provided by deepSNV in the coverage file. These segments are then trimmed to match the coding regions provided by a separate fasta file. Finally we extract the HA and NA segements from each sample and output an HA fasta and an NA fasta file for the 2007-2008 season and the 2004-2005 & 2005-2006 seasons. In this work as with all the code here that involves alignments am drawing heavily (in many cases verbatim) from the HA_number script deleveped by Jesse Bloom at https://github.com/jbloomlab/HA_numbering/blob/master/HA_numbering.py. Many thanks to him for that great work.
 
 ```
-make write.paper
+make consensus
 ```
 
-A pictoral summary of the analyis is provided below.
+### iSNV analysis
 
-<img src="write.paper.png"/>
+The raw iSNV calls produced in the primary stage have not been filtered for quality. In this stage we filter the variants by p-value,mapping quality, phred score, and read position. At this point we narrow our focus to the coding regions of the genome. We also require that each variant be found in duplicate sequencing runs when the genome titer of the sample is between 10^3 and 10^5 genomes/ul. This is done by ./results/processing_var.Rmd. This file outputs a csv containing all iSNV for each season, a csv with iSNV found in HA alone (this is used to find putative antigenic variants below), and an updated meta data file that is helpful in naming the consensus files above. For these reseaon the ./results/processing_var.Rmd script is referenced by all secondary targets. Once the iSNV are filtered the figures are made using ./results/Fluvacs_figures.Rmd. Both of these scripts are r markdown files and contain commentary on the analysis.
+
+```
+make isnv
+```
+
+### Antigenic analysis
+
+This analysis combines the previous two targets. Each minor iSNV found in HA is applied to the sample's consensus seqeunce and each sequence is translated to determine where or not the mutation is synonymous or nonsynonymous. Nonsynonymous variants are then passed through an updated version of the Bloom labs [HA_number.py](https://github.com/jbloomlab/HA_numbering/blob/master/HA_numbering.py.) script. This aligns the varaints to common antigenic regions identified in H1N1 and H3N2 viruses.
+
+```
+make antigenic
+```
