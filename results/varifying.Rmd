@@ -1,0 +1,128 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Here is work varifying what we have done in the fluvacs study.
+
+November 2, 2016
+
+```{r,include=F}
+require(knitr)
+require(plyr)
+require(ggplot2)
+require(reshape2)
+require(ggplot2)
+require(ggdendro)
+require(grid)
+opts_chunk$set(fig.align="center",warning=FALSE,tidy=T,cache = F,echo=F)
+theme_set(new = theme_classic()+ theme(
+axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
+source("../scripts/useful_functions.R") # useful functions adapted largley from HIVE work
+```
+
+## Checking odd variants
+There are 2 mutations found in many samples I'm making sure they fit the build here. Mainly I'm checking to see that they are not being infered becuase of issues in the controls. They are not. The axis is 1-expected frequency because these are infered variants. Note they are found at different frequencies across the data.
+```{r}
+minor.07.08<-read.csv("../results/2007-2008.wg.csv")
+
+minor_counts<-ddply(minor.07.08,~mutation,summarize,count=length(mutation))
+
+head(minor_counts[order(minor_counts$count,decreasing = T),])
+
+suspicious<-subset(minor.07.08,mutation %in% c("PA_G515G","PB2_G900G" ))
+suspicious<-mutate(suspicious,control.freq=(n.ctrl.fw+n.ctrl.bw)/(cov.ctrl.fw+cov.ctrl.bw),exp.freq=1-(n.tst.fw+n.tst.bw)/(cov.tst.fw+cov.tst.bw))
+
+ggplot(suspicious,aes(x=exp.freq,y=freq.var,color=control.freq))+geom_point()+xlab("1-Expected frequence given coverage")+ylab("Reported frequency")+scale_color_gradient(name="Frequency of variant in control")+scale_y_continuous(limit=c(0,0.1),breaks=seq(0,0.1,0.01))+scale_x_continuous(limit=c(0,0.1),breaks=seq(0,0.1,0.01))
+```
+
+## Checking coverage
+
+I have found that sometimes we get poor coverage and this can throw us off if we use duplicate sequencing and average the frequency of the variants. I'm chekcing the average coverage of each sample here.
+
+```{r}
+read_rbind<-function(list,list2=NULL){
+  out<-data.frame()
+  for(i in 1:length(list)){
+    print(paste0("reading in ",list[i]))
+    
+    x<-read.csv(list[i],stringsAsFactors = F)
+    if(is.null(list2)==F){
+      x$run=list2[i]
+      print(paste0("appending run column: ",list2[i]))
+    }
+    out<-rbind(x,out)
+  }
+  return(out)
+}
+
+
+cov_files<-c("../data/processed/Run_1293/deepSNV/all.coverage.csv","../data/processed/Run_1304/deepSNV/all.coverage.csv","../data/processed/Run_1412/deepSNV/all.coverage.csv","../data/processed/2004-2005/deepSNV/all.coverage.csv","../data/processed/2005-2006/deepSNV/all.coverage.csv","../data/processed/2007-2008/deepSNV/all.coverage.csv")
+
+
+ cov<-read_rbind(cov_files,c("1293","1304","1412","2004-5","2005-6","2007-8"))
+ 
+ cov.sample<-ddply(cov,~Id+run,summarize,cov=mean(coverage))
+
+ ggplot(cov.sample,aes(x=as.factor(run),y=cov))+geom_boxplot()+geom_point(position="jitter")+xlab("Run")+ylab("Mean Coverage in the sample") #+ scale_y_continuous(limits=c(0,50000),breaks = seq(0,50000,by=10000))
+
+ poor_cov<-subset(cov.sample,cov<1000)
+poor_cov 
+ 
+subset(minor.07.08,Id %in% poor_cov$Id) 
+ 
+```
+
+
+
+So samples 426 ad 427 are from 2004-2005 years and only included in the supplement. Sample 91 is from 2007-2008 but is not in the minor variant csv. I want to know why so here I'm reading in the raw data from that run. And the meta data.
+
+First the meta data on the sample.
+```{r}
+meta.all<-read.csv("../data/raw/all.meta.csv",stringsAsFactors = F)
+meta.all[which(meta.all$Id=="91"),]
+```
+
+The copy number here is terrible <1,000 gc/ul so we would not look for minority variants.
+
+How about the other samples?
+
+```{r}
+meta.all[which(meta.all$Id %in% c("426","427")),]
+```
+
+These would be sequenced in duplicate. They do end up in the final cut. Here are the frequencies of the non infered variants.
+
+```{r}
+
+minor.04.05<-read.csv("../results/2004-2005.wg.csv")
+odd<-subset(minor.04.05,Id %in% c("426","427"))
+
+odd<-mutate(odd,control.freq=(n.ctrl.fw+n.ctrl.bw)/(cov.ctrl.fw+cov.ctrl.bw),exp.freq=(n.tst.fw+n.tst.bw)/(cov.tst.fw+cov.tst.bw))
+
+ggplot(subset(odd,ref!=var),aes(x=exp.freq,y=freq.var,color=control.freq))+geom_point()+xlab("Expected frequence given coverage")+ylab("Reported frequency")+scale_color_gradient(name="Frequency of variant in control")+scale_y_continuous(limit=c(0,1),breaks=seq(0,1,0.1))+scale_x_continuous(limit=c(0,1),breaks=seq(0,1,0.1))+geom_abline(slope=1,intercept = 0)
+```
+
+Here are the frequencies of the infered ones.
+
+```{r}
+
+minor.04.05<-read.csv("../results/2004-2005.wg.csv")
+odd<-subset(minor.04.05,Id %in% c("426","427"))
+
+odd<-mutate(odd,control.freq=(n.ctrl.fw+n.ctrl.bw)/(cov.ctrl.fw+cov.ctrl.bw),exp.freq=1-(n.tst.fw+n.tst.bw)/(cov.tst.fw+cov.tst.bw))
+
+ggplot(subset(odd,ref=var),aes(x=exp.freq,y=freq.var,color=control.freq))+geom_point()+xlab("1-Expected frequence given coverage")+ylab("Reported frequency")+scale_color_gradient(name="Frequency of variant in control")+scale_y_continuous(limit=c(0,1),breaks=seq(0,1,0.1))+scale_x_continuous(limit=c(0,1),breaks=seq(0,1,0.1))+geom_abline(slope=1,intercept = 0)
+```
+
+These are off. The samples should be removed from the study. This will change the supplimental figures.
+
+
+
+
+
+
+
+
+
