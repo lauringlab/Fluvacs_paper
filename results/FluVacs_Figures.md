@@ -56,6 +56,17 @@ These are the variants between 1-50%. each bin is 1% wide.
 ## Loading required package: cowplot
 ```
 
+```
+## 
+## Attaching package: 'cowplot'
+```
+
+```
+## The following object is masked from 'package:ggplot2':
+## 
+##     ggsave
+```
+
 The x axis is so large because there are 2 mutations that are found in 62 and 41 samples. Both of these are infered minor variants.
 
 
@@ -69,14 +80,7 @@ The x axis is so large because there are 2 mutations that are found in 62 and 41
 ## png 
 ##   2
 ```
-
-```
-## Loading required package: cowplot
-```
-
-```
-## Error in eval(expr, envir, enclos): could not find function "plot_grid"
-```
+<img src="figure/fig_3-1.png" title="plot of chunk fig_3" alt="plot of chunk fig_3" style="display: block; margin: auto;" />
 
 
 There are very few iSNV in NA. 
@@ -119,10 +123,7 @@ All data
 ```
 
 
-
-```
-## Error in eval(expr, envir, enclos): could not find function "plot_grid"
-```
+<img src="figure/fig_4-1.png" title="plot of chunk fig_4" alt="plot of chunk fig_4" style="display: block; margin: auto;" />
 
 #Supplemental Figure 3)
 
@@ -171,10 +172,7 @@ Diversity by titer
 ##   2
 ```
 
-
-```
-## Error in eval(expr, envir, enclos): could not find function "plot_grid"
-```
+<img src="figure/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" />
 
 # Supplemental Figure 6)
 
@@ -190,10 +188,7 @@ Genome wide SNV
 ##   2
 ```
 
-
-```
-## Error in eval(expr, envir, enclos): could not find function "plot_grid"
-```
+<img src="figure/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" />
 
 ## Supplemental figure 7 2004-2005 & 2005-2006
 
@@ -222,10 +217,7 @@ Genome wide SNV
 ##   2
 ```
 
-
-```
-## Error in eval(expr, envir, enclos): could not find function "plot_grid"
-```
+<img src="figure/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" />
 
 # Supplemental tables
 
