@@ -46,7 +46,7 @@ def ReadFASTA(fastafile):
 meta_df=pd.read_csv(args.key[0])
 lauring_id=list(meta_df["Id"])
 
-print lauring_id
+#print lauring_id
 
 
 selected_seg=[]
@@ -66,12 +66,12 @@ for fa in glob.glob(args.dir[0]+"/*.fa"):
                     date=list(meta_df["collection_date"])[i]
                     print Id
                 else:
-                    print "didn't find" + Id
+                    print "didn't find sample: " + Id +" in the meta data file"
                     intervention="NA"
                     geom="NA"
                     date="NA"
             except ValueError:
-                    print "value error for " + Id
+                    print "value error for " + Id +" missing meta data"
                     intervention="NA"
                     geom="NA"
                     date="NA"

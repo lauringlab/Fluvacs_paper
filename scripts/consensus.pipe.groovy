@@ -21,8 +21,8 @@ coding = {
 concatenate = {
 	doc "Concatenate desired segments from each sample into one file and use meta data to name the sequences in that file accordingly."
 	produce("${MAIN_DIR}/*.fa"){
-	exec "python ${SCRIPTS}/concat_seg.py ${MAIN_DIR}/coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv ${MAIN_DIR}/HA.fa"
-	exec "python ${SCRIPTS}/concat_seg.py ${MAIN_DIR}/coding_fa/ NR ./data/raw/2007_2008.meta.HAgm.csv ${MAIN_DIR}/NR.fa"
+	exec "python ${SCRIPTS}/concat_seg.py ${MAIN_DIR}/coding_fa/ HA ./data/raw/meta.all.HAgm.csv ${MAIN_DIR}/HA.fa"
+	exec "python ${SCRIPTS}/concat_seg.py ${MAIN_DIR}/coding_fa/ NR ./data/raw/meta.all.HAgm.csv ${MAIN_DIR}/NR.fa"
 	}
 }
 

@@ -1,7 +1,7 @@
 ---
-title: "FluVacs Figures - Draft"
+title: "FluVacs Figures"
 author: "JT"
-date: "June 3, 2016"
+date: "December 29, 2016"
 output:
   html_document:
     toc: true
@@ -26,46 +26,83 @@ source("../scripts/useful_functions.R") # useful functions adapted largley from 
 ```
 
 ```{r}
-minor<-read.csv("../results/2007-2008.wg.csv")
+minor.07.08<-read.csv("../results/2007-2008.wg.csv")
 ```
-# Figure 4
+
+Here verify the average coverage of the sample is >1000
+
+```{r}
+read_rbind<-function(list,list2=NULL){
+  out<-data.frame()
+  for(i in 1:length(list)){
+    print(paste0("reading in ",list[i]))
+    
+    x<-read.csv(list[i],stringsAsFactors = F)
+    if(is.null(list2)==F){
+      x$run=list2[i]
+      print(paste0("appending run column: ",list2[i]))
+    }
+    out<-rbind(x,out)
+  }
+  return(out)
+}
+
+
+cov_files<-c("../data/processed/Run_1293/deepSNV/all.coverage.csv","../data/processed/Run_1304/deepSNV/all.coverage.csv","../data/processed/Run_1412/deepSNV/all.coverage.csv","../data/processed/2004-2005/deepSNV/all.coverage.csv","../data/processed/2005-2006/deepSNV/all.coverage.csv","../data/processed/2007-2008/deepSNV/all.coverage.csv")
+
+
+ cov<-read_rbind(cov_files,c("1293","1304","1412","2004-5","2005-6","2007-8"))
+ 
+ cov.sample<-ddply(cov,~Id+run,summarize,cov=mean(coverage))
+
+ ggplot(cov.sample,aes(x=as.factor(run),y=cov))+geom_boxplot()+geom_point(position="jitter")+xlab("Run")+ylab("Mean Coverage in the sample")+scale_y_log10() #+ scale_y_continuous(limits=c(0,50000),breaks = seq(0,50000,by=10000))
+
+ poor_cov<-subset(cov.sample,cov<1000)
+ poor_cov$Id<-as.numeric(poor_cov$Id)
+removed<-dim(subset(minor.07.08,Id %in% poor_cov$Id))[1]
+ 
+```
+In the 2007-2008 data set there were `r removed` samples removed from the the minority analysis based on a mean coverage less than 1000X.
+
+# Figure 3
 
 High quality is >10^5^ or >10^3^ sequenced in duplicate.
-Currently I am making these plots with just the 2007-2008 samples. Once I have the meta datafor the other seasons it will be trivial to add them (if we want to do that) 
+Currently I am making these plots with just the 2007-2008 samples. 
 
-## A) Variant Frequencies
-
-These are the variants between 1-50%. each bin is 1% wide. The y axis is log scaled which in ggplot leads to a problem when there are no observations (lines below axis). I can remove these before publication.
+These are the variants between 1-50%. each bin is 1% wide. 
 ```{r}
 #ggplot(subset(var.2007.8.df,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
 
-fig_4A<-ggplot(minor,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
-fig_4A+ggtitle("Figure 4A")
+fig_3A<-ggplot(minor.07.08,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
+#fig_3A+ggtitle("Figure 3A")
 
-pdf("./figures/fig_4A.pdf")
-fig_4A
+pdf("./figures/fig_3A.pdf")
+fig_3A
 dev.off()
 
 
-minor_counts<-ddply(minor,~mutation,summarize,count=length(mutation))
+minor_counts<-ddply(minor.07.08,~mutation,summarize,count=length(unique(Id)))
 
-fig_4B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
-fig_4B+ggtitle("Figure 4B")
+fig_3B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
+#fig_3B+ggtitle("Figure 3B")
 
 
 
-pdf("./figures/fig_4B.pdf")
-fig_4B
+pdf("./figures/fig_3B.pdf")
+fig_3B
 dev.off()
+
+
+require(cowplot)
 ```
 
-The x axis is so large because there are 2 mutations that are found in 55 and 35 samples. Both of these are infered minor variants. They may be artifacts of our analysis.
-
-
+The x axis is so large because there are 2 mutations that are found in 62 and 41 samples. Both of these are infered minor variants.
 
 
 ```{r}
-qual.ha.snv<-ddply(minor,~HAI.geo+Id,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr=="HA")))
+# XAI.cut is T if the titer is above 40
+qual.ha.snv<-ddply(minor.07.08,~HAI.cut+Id,summarize,HAI=ifelse(unique(HAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(which(chr=="HA")))
+# If there are no snv in HA then length returns 0. HAI.cut is true if the titer is >=40
 
 ## define custom median function https://designdatadecisions.wordpress.com/2015/06/09/graphs-in-r-overlaying-data-summaries-in-dotplots/
 plot.median <- function(x) {
@@ -74,22 +111,28 @@ plot.median <- function(x) {
 }
 
 
-fig_4C<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.15)+ylab("Number of iSNV")+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)
-fig_4C
-
-pdf("./figures/fig_4C.pdf")
-fig_4C
+fig_3C<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.09)+ylab("Number of iSNV")+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+xlab("HAI titer")
+#fig_3C
+write.csv(x = qual.ha.snv,"./2007-2008.HA.HAI.stats.csv")
+pdf("./figures/fig_3C.pdf")
+fig_3C
 dev.off()
 
-qual.na.snv<-ddply(minor,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=sum(which(chr =="NR")))
+qual.na.snv<-ddply(minor.07.08,~NAI.cut+Id,summarize,NAI=ifelse(unique(NAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(which(chr =="NR")))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
 
-fig_4D<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.15)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+ylab("Number of iSNV")
-fig_4D
+fig_3D<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.05)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+ylab("Number of iSNV")+xlab("NAI titer")
+#fig_3D
+write.csv(x = qual.na.snv,"./2007-2008.NA.NAI.stats.csv")
 
-pdf("./figures/fig_4D.pdf")
-fig_4D
+pdf("./figures/fig_3D.pdf")
+fig_3D
 dev.off()
+```
+```{r,fig_3,fig.width=10,fig.height=10}
+require(cowplot)
+plot_grid(fig_3A, fig_3B, fig_3C, fig_3D, labels = c("A", "B", "C", "D"), ncol = 2)
+
 ```
 
 
@@ -101,22 +144,138 @@ Average iSNV/ segment
 
 All data 
 ```{r}
+# The problem here is that it does not include the cases where no variants are found.
+# These add_missing functions correct that.
+add_missing.intervention<-function(x){ #This is a helper function to add the cases where there were no variants called.
+missing_chr<-levels(x$chr)[!((levels(x$chr) %in% as.character(x$chr)))]
+  if(length(missing_chr)>0){
+    for(i in 1:length(missing_chr)){
+      x<-rbind(x,data.frame(Intervention=unique(x$Intervention),chr=missing_chr[i],Id=unique(x$Id),iSNV=0,n=unique(x$n)))
+    }
+  }
+  return(x)
+}
 
-qual.chr.counts<-ddply(minor,~Intervention+chr+Id,summarize,iSNV=length(mutation))
+add_missing.HAI<-function(x){ #This is a helper function to add the cases where there were no variants called.
+  missing_chr<-levels(x$chr)[!((levels(x$chr) %in% as.character(x$chr)))]
+  if(length(missing_chr)>0){
+    for(i in 1:length(missing_chr)){
+      x<-rbind(x,data.frame(HAI.cut=unique(x$HAI.cut),chr=missing_chr[i],Id=unique(x$Id),iSNV=0,n=unique(x$n)))
+    }
+  }  
+  return(x)
+}
 
-qual.chr.sum<-ddply(qual.chr.counts,~Intervention+chr,summarize,mean_iSNV=mean(iSNV),range=IQR(iSNV))
+count_tables<-function(data){
+intervention.chr.counts<-ddply(data,~Intervention+chr+Id,summarize,iSNV=length(mutation))
 
-qual.chr.tab<-mutate(qual.chr.sum,iSNV=paste0(round(mean_iSNV,2)," \u00b1 ","(",range,")"))
-qual.chr.table<-dcast(qual.chr.tab,chr~Intervention,value.var="iSNV")
-knitr::kable(qual.chr.table)
+intervention.chr.counts$chr<-factor(intervention.chr.counts$chr,levels=c("PB2","PB1","PA","HA","NP","NR","M","NS"))
+
+
+columns<-unique(intervention.chr.counts$Intervention)
+intervention.chr.counts$n=0
+for(i in 1:length(columns)){ # How many samples are there in each intervention
+x<-length(unique(intervention.chr.counts$Id[which(intervention.chr.counts$Intervention==columns[i])]))
+intervention.chr.counts$n[which(intervention.chr.counts$Intervention==columns[i])]=x
+}
+
+intervention.chr.counts<-mutate(intervention.chr.counts,Intervention=paste0(Intervention," ","(n=",n,")"))
+
+# I need to add the cases where no variants were found.
+
+intervention.chr.counts<-ddply(intervention.chr.counts,~Id,add_missing.intervention)
+
+intervention.chr.sum<-ddply(intervention.chr.counts,~Intervention+chr,summarize,mean_iSNV=mean(iSNV),range=IQR(iSNV))
+
+intervention.chr.tab<-mutate(intervention.chr.sum,iSNV=paste0(round(mean_iSNV,2)," \u00b1 ","(",range,")"))
+intervention.chr.table<-dcast(intervention.chr.tab,chr~Intervention,value.var="iSNV")
+#knitr::kable(qual.chr.table)
+
+HAI.chr.counts<-ddply(data,~HAI.cut+chr+Id,summarize,iSNV=length(mutation))
+HAI.chr.counts$chr<-factor(HAI.chr.counts$chr,levels=c("PB2","PB1","PA","HA","NP","NR","M","NS"))
+
+HAI.chr.counts<-mutate(HAI.chr.counts,HAI.cut=ifelse(HAI.cut,yes = "\u2265 40",no= "< 40"))
+
+columns<-unique(HAI.chr.counts$HAI.cut)
+HAI.chr.counts$n=0
+for(i in 1:length(columns)){
+x<-length(unique(HAI.chr.counts$Id[which(HAI.chr.counts$HAI.cut==columns[i])]))
+HAI.chr.counts$n[which(HAI.chr.counts$HAI.cut==columns[i])]=x
+}
+
+HAI.chr.counts<-mutate(HAI.chr.counts,HAI.cut=paste0(HAI.cut," ","(n=",n,")"))
+
+HAI.chr.counts<-ddply(HAI.chr.counts,~Id,add_missing.HAI)
+
+HAI.chr.sum<-ddply(HAI.chr.counts,~HAI.cut+chr,summarize,mean_iSNV=mean(iSNV),range=IQR(iSNV))
+
+HAI.chr.tab<-mutate(HAI.chr.sum,iSNV=paste0(round(mean_iSNV,2)," \u00b1 ","(",range,")"))
+HAI.chr.table<-dcast(HAI.chr.tab,chr~HAI.cut,value.var="iSNV")
+#knitr::kable(HAI.chr.table)  
+all<-join_all(dfs = list(HAI.chr.table,intervention.chr.table),by="chr")
+
+all$chr<-factor(all$chr,levels = c("PB2","PB1","PA","HA","NP","NR","M","NS"))
+
+all<-all[order(all$chr,decreasing = F),]
+
+knitr::kable(all)
+
+
+}
+
+count_tables(minor.07.08)
+```
+
+
+# Figure 4 
+
+
+```{r, isnv_by_day}
+isnv.day.intervention<-ddply(minor.07.08,~Intervention+Id+Day.of.Infection.sample.collected,summarize,iSNV=length(mutation))
+
+
+fig_4A<-ggplot(data=isnv.day.intervention,aes(y=iSNV,x=factor(Day.of.Infection.sample.collected),fill=factor(Intervention)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.4,position='dodge')+geom_boxplot(aes(lower=..middle.., upper=..middle..,ymin=..middle.., ymax=..middle..),outlier.shape = 32)+ylab("Number of iSNV")+xlab("Day of Infection")+scale_fill_discrete(name="Intervention")
+#fig_4A
+
+isnv.day.HAI<-ddply(minor.07.08,~HAI.cut+Id+Day.of.Infection.sample.collected,summarize,HAI=ifelse(sum(HAI.cut)==0,yes = "< 40",no= "\u2265 40"),iSNV=length(mutation))
+
+
+fig_4B<-ggplot(data=isnv.day.HAI,aes(y=iSNV,x=factor(Day.of.Infection.sample.collected),fill=factor(HAI)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.4,position='dodge')+geom_boxplot(aes(lower=..middle.., upper=..middle..,ymin=..middle.., ymax=..middle..),outlier.shape = 32)+ylab("Number of iSNV")+xlab("Day of Infection")+scale_fill_discrete(name="HAI")
+#fig_4B
+
+isnv.day.NAI<-ddply(minor.07.08,~NAI.cut+Id+Day.of.Infection.sample.collected,summarize,NAI=ifelse(sum(NAI.cut)==0,yes = "< 40",no= "\u2265 40"),iSNV=length(mutation))
+
+isnv.day.NAI<-subset(isnv.day.NAI,!(is.na(NAI)))
+
+fig_4C<-ggplot(data=isnv.day.NAI,aes(y=iSNV,x=factor(Day.of.Infection.sample.collected),fill=factor(NAI)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.4,position='dodge')+geom_boxplot(aes(lower=..middle.., upper=..middle..,ymin=..middle.., ymax=..middle..),outlier.shape = 32)+ylab("Number of iSNV")+xlab("Day of Infection")+scale_fill_discrete(name="NAI")
+#fig_4C
+
+#stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.5)
+
+
+pdf("./figures/fig_4A.pdf",width = 20,height = 12)
+fig_4A
+dev.off()
+
+pdf("./figures/fig_4B.pdf",width = 20,height = 12)
+fig_4B
+dev.off()
+
+pdf("./figures/fig_4C.pdf",width = 20,height = 12)
+fig_4C
+dev.off()
 
 ```
 
 
+```{r,fig_4,fig.height=10}
+plot_grid(fig_4A, fig_4B, fig_4C, labels = c("A", "B", "C"), ncol = 1)
 
-#Supplemental Figure 1)
+```
 
-These are just from the first runs. I'm not including the duplicates here - should I? These have a sliding window of 100 with a step of 100 no overlap.
+#Supplemental Figure 3)
+
+These are just from the first runs. These have a sliding window of 100 with a step of 100 no overlap.
 
 ```{r,coverage}
 
@@ -156,15 +315,12 @@ dev.off()
 pdf("./figures/sup_1C.pdf")
 cov.plot.05.06
 dev.off()
-
 ```
 
 If we plot on a log scale the bars are well above 0. 
 
-```{r}
-cov.plot.07.08+scale_y_log10(breaks=c(1,10,100,1000,10000,100000))
-```
 
+So there are a few samples with poor coverage that should be removed from the analysis, but none of them were in the 2007-2008 year.
 
 
 ```{r}
@@ -172,107 +328,172 @@ concat.pos<-ddply(cov.2007.8,~chr, summarize, low=min(concat.pos), high=max(conc
 
 ```
 
-# Supplemental Figure 2)
-```{r,extra_iSNV}
-qual.ha.snv<-ddply(minor,~HAI.geo+Id,summarize,HAI=ifelse(sum(HAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
+# Supplemental 5
 
-sup_2A<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
-sup_2A
+```{r}
+meta.all<-read.csv("../data/raw/all.meta.csv",stringsAsFactors = F)
+titer_data<-subset(meta.all,select=c(Id,season,HAI.post.vax,NAI.post.vax))
+write.csv(x = titer_data,file = "./titer_data.csv")
+```
 
 
-qual.na.snv<-ddply(minor,~NAI.geo+Id,summarize,NAI=ifelse(sum(NAI.geo)==0,yes = "Below geometric mean",no= "Above geomtric mean"),iSNV=length(mutation))
+Diversity by titer
+
+```{r}
+qual.ha.snv<-ddply(minor.07.08,~HAI.post.vax+Id,summarize,HAI=HAI.post.vax[1],iSNV=length(which(chr=="HA")))
+
+## define custom median function https://designdatadecisions.wordpress.com/2015/06/09/graphs-in-r-overlaying-data-summaries-in-dotplots/
+plot.median <- function(x) {
+  m <- median(x)
+  c(y = m, ymin = m, ymax = m)
+}
+
+
+sup_5A<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=as.factor(HAI)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.1)+ylab("Number of iSNV")+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+xlab("HAI")+scale_x_discrete(labels=paste0("1:",unique(qual.ha.snv$HAI)))+scale_y_continuous(breaks=c(0,2,4,6))
+#titer_3C
+
+pdf("./figures/sup_5A.pdf",width = 10)
+sup_5A
+dev.off()
+
+qual.na.snv<-ddply(minor.07.08,~NAI.post.vax+Id,summarize,NAI=NAI.post.vax[1],iSNV=length(which(chr =="NR")))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
 
-sup_2B<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
-sup_2B
+sup_5B<-ggplot(data=qual.na.snv,aes(y=iSNV,x=as.factor(NAI)))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.05)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+ylab("Number of iSNV")+xlab("NAI")+scale_x_discrete(labels=paste0("1:",unique(qual.na.snv$NAI)))+scale_y_continuous(breaks=c(0,2,4,6,8,10))
+#titer_3D
+
+pdf("./figures/sup_5B.pdf",width=12)
+sup_5B
+dev.off()
+```
+
+```{r,fig.width=20}
+plot_grid(sup_5A, sup_5B, labels = c("A", "B"), ncol = 2)
+
+```
+
+# Supplemental Figure 6)
+
+Genome wide SNV
+```{r,extra_iSNV}
+qual.ha.snv<-ddply(minor.07.08,~HAI.cut+Id,summarize,HAI=ifelse(unique(HAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(mutation))
+# Again if there are no mutations the length above would output 0.
+
+sup_6A<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
+#sup_6A
 
 
-pdf("./figures/sup_2A.pdf")
-sup_2A
+qual.na.snv<-ddply(minor.07.08,~NAI.cut+Id,summarize,NAI=ifelse(unique(NAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(mutation))
+qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
+
+sup_6B<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
+#sup_6B
+
+
+pdf("./figures/sup_6A.pdf")
+sup_6A
 dev.off()
 
-pdf("./figures/sup_2B.pdf")
-sup_2B
+pdf("./figures/sup_6B.pdf")
+sup_6B
+dev.off()
+
+```
+
+```{r}
+plot_grid(sup_6A, sup_6B, labels = c("A", "B"), ncol = 2)
+
+```
+
+## Supplemental figure 7 2004-2005 & 2005-2006
+
+
+```{r}
+#ggplot(subset(var.2007.8.df,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
+
+minor.04.05<-read.csv("../results/2004-2005.wg.csv",stringsAsFactors = F)
+sup_7A<-ggplot(minor.04.05,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
+#sup_7A+ggtitle("2004-2005")
+
+pdf("./figures/sup_7A.pdf")
+sup_7A
+dev.off()
+
+
+minor_counts<-ddply(minor.04.05,~mutation,summarize,count=length(unique(Id)))
+
+sup_7B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
+#sup_7B+ggtitle("2004-2005")
+
+
+
+pdf("./figures/sup_7B.pdf")
+sup_7B
 dev.off()
 
 
 ```
 
 
-# Appendix
-## Linear plots
 
 ```{r}
-count_muts_samples<-function(data.df){
-  data.df<-subset(data.df,freq.var<=0.5)
-  out<-ddply(data.df,~Id,summarize,muts=length(mutation),HAI.WI=HAI.WI.30.post.vax[1],NAI.WI=NAI.WI.30.post.vax[1],Copy_num=Copy_num[1],dpi=Day.of.Infection.sample.collected[1])
+#ggplot(subset(var.2007.8.df,freq.var<=0.5),aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)#+scale_y_log10() + ggtitle("All samples")
+
+minor.05.06<-read.csv("../results/2005-2006.wg.csv",stringsAsFactors = F)
+sup_7C<-ggplot(minor.05.06,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
+#sup_7C+ggtitle("2005-2006")
+
+pdf("./figures/sup_7C.pdf")
+sup_7C
+dev.off()
+
+
+minor_counts<-ddply(minor.05.06,~mutation,summarize,count=length(unique(Id)))
+
+sup_7D<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
+#sup_7D+ggtitle("2005-2006")
+
+
+
+pdf("./figures/sup_7D.pdf")
+sup_7D
+dev.off()
+```
+
+```{r,fig.width=10,fig.height=10}
+plot_grid(sup_7A,sup_7B,sup_7C,sup_7D, labels = c("A", "B", "C", "D"), ncol = 2)
+
+```
+
+# Supplemental tables
+
+## 2004-2005
+
+```{r}
+count_tables(minor.04.05)
+```
+
+## 2005-2006
+
+```{r}
+count_tables(minor.05.06)
+```
+
+
+```{r,eval=F}
+
+check_titers<-function(data){
+  H<-mutate(data,H=HAI.geo+HAI.cut)
+  print("HAI not equal")
+  print(unique(H$Id[H$H==1]))
+  
+  N<-subset(data,N=NAI.geo+NAI.cut)
+  print("NAI not equal")
+  print(unique(N$Id[N$N==1]))
+  
 }
 
-lines.07<-count_muts_samples(minor)
-
-
-ggplot(lines.07,aes(y=muts,x=Copy_num))+geom_point()
-ggplot(lines.07,aes(y=muts,x=HAI.WI))+geom_point()
-ggplot(lines.07,aes(y=muts,x=NAI.WI))+geom_point()
-ggplot(lines.07,aes(y=muts,x=dpi))+geom_point()
-
-
+check_titers(minor.04.05)
+check_titers(minor.05.06)
+check_titers(minor.07.08)
 ```
-
-## Linear model with all variables
-
-NB : I'm not sure what I'm doing here and if it's valid.
-
-```{r}
-model<-lm(lines.07$muts~lines.07$HAI.WI+lines.07$NAI.WI+lines.07$Copy_num+lines.07$dpi)
-
-summary(model)
-
-```
-
-I think this means that maybe the copy number is the only variable that affects the iSNV count. What if we remove the one outlier at 16.
-```{r}
-no_out.07<-subset(lines.07,muts!=16)
-
-model.no<-lm(no_out.07$muts~no_out.07$HAI.WI+no_out.07$NAI.WI+no_out.07$Copy_num+no_out.07$dpi)
-
-summary(model.no)
-
-```
-
-Yep. I looks like that was driving things. 
-
-I'll have to think about whether or not this analysis is justified, valid, and needed.
-
-
-
-
-
-
-```{r,by_day}
-isnv_day<-function(df){
-  df<-subset(df,freq.var<=0.5)
-  ddply(df,~Id+Day.of.Infection.sample.collected+Intervention,summarize,iSNV=length(mutation))
-}
-
-#all.isnv.day<-isnv_day(var.2007.8.df)
-#all.isnv.day$data="All"
-qual.isnv.day<-isnv_day(minor)
-#qual.isnv.day$data="High Quality"
-
-#all.data.isnv.day<-rbind(all.isnv.day,qual.isnv.day)
-qual.isnv.day<-rbind(qual.isnv.day,data.frame(Id=rep("extra",3),Day.of.Infection.sample.collected=c(5,6,6),Intervention=c("IIV","IIV","LAIV"),iSNV=rep(NA,3))) # this keeps everything in order. We don't had data for these days and interventions
-
-
-iSNV.day<-ggplot(data=qual.isnv.day,aes(y=iSNV,x=as.factor(paste(Day.of.Infection.sample.collected,Intervention,sep="_"))))+geom_dotplot(aes(fill=Intervention),stackdir = "center",binaxis = 'y',position='dodge',binwidth = 1,dotsize = 0.7)+ylab("Number of SNV")+ggtitle("iSNV by day")+xlab("Day of Infection")+stat_summary(fun.y = median, fun.ymin = median, fun.ymax = median,geom = "crossbar", width = 0.5)+scale_y_continuous(limits=c(0,18),breaks=seq(0,18,2))+scale_x_discrete(labels=c("","2","","","3","","","4","","","5","","","6",""))
-
-# pdf("~/Box Sync/FluVax Paper/Graphs/iSNV.day.pdf",width=9,height=4)
-# iSNV.day
-# dev.off()
-
-```
-
-
-
-It looks like the iSNV count peaks around day 3 or 4. But I don't know if that's statistically significant or robust.
-
