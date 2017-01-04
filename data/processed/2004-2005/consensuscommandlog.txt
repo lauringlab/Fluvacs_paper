@@ -1,0 +1,60 @@
+
+####################################################################################################
+# Starting pipeline at Thu Jul 07 10:07:01 EDT 2016
+# Input files:  [/Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/504.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/508.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/529.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/536.removed.fa]
+# Output Log:  .bpipe/logs/1284.log
+# Stage parse [508]
+# Stage parse [504]
+# Stage parse [529]
+# Stage parse [536]
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/508.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/../parsed_fa/508.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/536.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/../parsed_fa/536.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/504.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/../parsed_fa/504.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/529.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2005-2006/deepSNV/../parsed_fa/529.removed.parsed.fa
+# ################ Finished at Thu Jul 07 10:07:03 EDT 2016 Duration = 1.496 seconds #################
+
+
+####################################################################################################
+# Starting pipeline at Thu Jul 07 10:09:27 EDT 2016
+# Input files:  [/Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/400.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/402.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/403.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/406.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/409.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/414.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/426.removed.fa, /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/427.removed.fa]
+# Output Log:  .bpipe/logs/1489.log
+# Stage parse [426]
+# Stage parse [402]
+# Stage parse [403]
+# Stage parse [400]
+# Stage parse [409]
+# Stage parse [427]
+# Stage parse [406]
+# Stage parse [414]
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/402.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/402.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/427.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/427.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/403.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/403.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/409.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/409.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/400.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/400.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/406.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/406.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/426.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/426.removed.parsed.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/parse_consensus.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/414.removed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/concat_pos_CalH3N2.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/414.removed.parsed.fa
+# Stage coding [426]
+# Stage coding [409]
+# Stage coding [414]
+# Stage coding [402]
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/409.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/CalH3N2SeqCont.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/409.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/414.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/CalH3N2SeqCont.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/414.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/426.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/CalH3N2SeqCont.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/426.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/402.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/CalH3N2SeqCont.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/402.removed.parsed.coding.fa
+# Stage coding [427]
+# Stage coding [406]
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/427.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/CalH3N2SeqCont.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/427.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/406.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/CalH3N2SeqCont.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/406.removed.parsed.coding.fa
+# Stage coding [403]
+# Stage coding [400]
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/403.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/CalH3N2SeqCont.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/403.removed.parsed.coding.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/trim_to_coding.py ~/muscle3.8.31/ /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../parsed_fa/400.removed.parsed.fa /Users/jt/Documents/Analysis/FluVac_paper/data/reference/CalH3N2SeqCont.fa -out_fa /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/400.removed.parsed.coding.fa
+# Stage concatenate
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/concat_seg.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/ HA ./data/raw/2007_2008.meta.HAgm.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../HA.fa
+/Users/jt/Documents/Analysis/FluVac_paper/scripts/concat_seg.py /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../coding_fa/ NR ./data/raw/2007_2008.meta.HAgm.csv /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../NR.fa
+# Stage clean_up
+mv ./fasta.config.groovy /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../fasta.config.groovy
+mv ./commandlog.txt /Users/jt/Documents/Analysis/FluVac_paper/data/processed/2004-2005/deepSNV/../consensuscommandlog.txt
+# ################ Finished at Thu Jul 07 10:09:32 EDT 2016 Duration = 4.641 seconds #################
+
