@@ -3,9 +3,9 @@
 # fastq files
 
 
-musclePath= /sw/lsa/centos7/muscle/3.8.31/bin/
+#musclePath= /sw/lsa/centos7/muscle/3.8.31/bin/
 
-#musclePath= ~/muscle3.8.31/
+musclePath= ~/muscle3.8.31/
 .PHONY: download primary bowtie_alignments secondary consensus isnv antigenic ./data/processed/concat_pos_bris.csv ./data/processed/concat_pos_CalH3N2.csv
 
 
