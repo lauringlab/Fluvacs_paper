@@ -5,20 +5,24 @@ date: "July 7, 2016"
 output: html_document
 ---
 
-This document will run the first analysis on the variant calls. It will take in the csv files from the variant calling pipeline and filter out low quality calls as well as handle any samples done in duplicate. This script will then output 3 csv files. One that contains all minor quality variants. This will be used to make the figures. The second will just include quality calls from the HA segement. This will be used to identify ptutative antigenic variants. These go in the results directory as they are probably interesting for others as tables. The third is an improved metadata csv which includes information regarding the geometric mean of antibody titer and the day of collection in year.decimal format.
+This document will run the first analysis on the variant calls. It will take in the csv files from the variant calling pipeline and filter out low quality calls as well as handle any samples done in duplicate. This script will then output 3 csv files. One that contains all minor quality variants. This will be used to make the figures. The second will just include quality calls from the HA segement. This will be used to identify putative antigenic variants. These go in the results directory as they are probably interesting for others as tables. The third is an improved metadata csv which includes information regarding the geometric mean of antibody titer and the day of collection in year.decimal format.
 
 
-
+Read in the meta data file
 
 ```r
 meta.all <- read.csv("../data/raw/all.meta.csv", stringsAsFactors = F)
 ```
+
+Here I read in the variants calls, filter the calls for quality, apply the duplicate analysis on the appropriate sample, and trim for coding regions.
 
 
 ```r
 var.2007.8 <- read.csv("../data/processed/Run_1293/Variants/all.sum.csv", stringsAsFactors = F)
 x <- read.csv("../data/processed/Run_1304/Variants/all.sum.csv", stringsAsFactors = F)  # the rest of these samples
 var.2007.8 <- rbind(var.2007.8, x)  # combine both runs
+
+# Processing involves infering reciprocal variants
 
 var.2007.8.df <- processing(data.df = var.2007.8, meta.df = meta.all, pval = 0.01, 
     phred = 35, mapq = 30, read_cut = c(32, 94))
@@ -42,7 +46,7 @@ var.2004.5.df2 <- processing(data.df = var.2004.5.df2, meta.df = meta.all, pval 
 # 
 var.2005.6.df2 <- read.csv("../data/processed/2005-2006/Variants/all.sum.csv", 
     stringsAsFactors = F)
-var.2005.6.df2 <- mutate(var.2005.6.df2, Id = gsub(536, 530, Id))
+var.2005.6.df2 <- mutate(var.2005.6.df2, Id = gsub(536, 530, Id))  # correct labling error in this run. There is no sample 536
 var.2005.6.df2 <- processing(data.df = var.2005.6.df2, meta.df = meta.all, pval = 0.01, 
     phred = 35, mapq = 30, read_cut = c(32, 94))
 
@@ -67,6 +71,7 @@ qual.2007.8 <- high_qual(data1.df = var.2007.8.df, dups.df = dups.2007.8, titer 
 # all.qual.df<-rbind(all.qual.df,qual.2007.8)
 # all.qual.df<-subset(all.qual.df,freq.var>=0.01 & freq.var<=0.99)
 
+# Filter for frequency.
 var.2007.8.df <- subset(var.2007.8.df, freq.var >= 0.01 & freq.var <= 0.99)
 qual.2007.8 <- subset(qual.2007.8, freq.var >= 0.01 & freq.var <= 0.99)
 qual.2004.5 <- subset(qual.2004.5, freq.var >= 0.01 & freq.var <= 0.99)
@@ -86,7 +91,7 @@ coding.adjust.bris <- function(x) {
 }
 
 
-
+# Just the variants in the coding regions.
 qual.2007.8 <- ddply(qual.2007.8, ~chr, coding.adjust.bris)
 
 
@@ -102,6 +107,7 @@ qual.2004.5 <- ddply(qual.2004.5, ~chr, coding.adjust.cal)
 qual.2005.6 <- ddply(qual.2005.6, ~chr, coding.adjust.cal)
 ```
 
+Initially we partitioned the data relative to the geometric mean of the antibody titer for a given season. In the final anlysis we used a titer of 40 as the cutoff. These cut offs were identical except for in 2005-2006 in which the mean was 30. This affected 2 samples.
 
 ```r
 gm_mean = function(x, na.rm = TRUE, zero.propagate = FALSE) {
@@ -141,30 +147,84 @@ NAI.gm <- ddply(meta.all, ~season, summarise, gm_mean = gm_mean(NAI.post.vax))
 HAI.cut <- function(x) {
     season <- unique(x$season)
     gm <- HAI.gm$gm_mean[which(HAI.gm$season == season)]
-    # print(gm)
-    mutate(x, HAI.geo = HAI.post.vax > gm)
+    print(gm)
+    mutate(x, HAI.geo = HAI.post.vax > gm, HAI.cut = HAI.post.vax >= 40)
 }
 
 NAI.cut <- function(x) {
     season <- unique(x$season)
     gm <- NAI.gm$gm_mean[which(NAI.gm$season == season)]
-    # print(gm)
-    mutate(x, NAI.geo = NAI.post.vax > gm)
+    print(gm)
+    mutate(x, NAI.geo = NAI.post.vax > gm, NAI.cut = NAI.post.vax >= 40)
 }
 meta.df <- ddply(meta.all, ~season, HAI.cut)
+```
+
+```
+## [1] 31.21756
+## [1] 30.6433
+## [1] 63.16057
+```
+
+```r
 meta.df <- ddply(meta.df, ~season, NAI.cut)
+```
 
+```
+## [1] 1
+## [1] 1
+## [1] 31.33869
+```
 
+```r
 minor.04.05 <- ddply(minor.04.05, ~season, HAI.cut)
+```
+
+```
+## [1] 31.21756
+```
+
+```r
 minor.04.05 <- ddply(minor.04.05, ~season, NAI.cut)
+```
 
+```
+## [1] 1
+```
+
+```r
 minor.05.06 <- ddply(minor.05.06, ~season, HAI.cut)
+```
+
+```
+## [1] 30.6433
+```
+
+```r
 minor.05.06 <- ddply(minor.05.06, ~season, NAI.cut)
+```
 
+```
+## [1] 1
+```
+
+```r
 minor.07.08 <- ddply(minor.07.08, ~season, HAI.cut)
+```
+
+```
+## [1] 63.16057
+```
+
+```r
 minor.07.08 <- ddply(minor.07.08, ~season, NAI.cut)
+```
 
+```
+## [1] 31.33869
+```
 
+```r
 # meta.df<-mutate(meta.all,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax))
 meta.df$collection_date <- as.Date(meta.df$collection_date, format = "%d-%b-%y")
 require(lubridate)

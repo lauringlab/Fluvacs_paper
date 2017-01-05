@@ -166,7 +166,7 @@ add_missing.HAI<-function(x){ #This is a helper function to add the cases where 
   return(x)
 }
 
-count_tables<-function(data){
+count_tables<-function(data,return=F){
 intervention.chr.counts<-ddply(data,~Intervention+chr+Id,summarize,iSNV=length(mutation))
 
 intervention.chr.counts$chr<-factor(intervention.chr.counts$chr,levels=c("PB2","PB1","PA","HA","NP","NR","M","NS"))
@@ -218,6 +218,9 @@ all$chr<-factor(all$chr,levels = c("PB2","PB1","PA","HA","NP","NR","M","NS"))
 
 all<-all[order(all$chr,decreasing = F),]
 
+if(return==T){
+  return(list(HAI.chr.counts,intervention.chr.counts))
+}
 knitr::kable(all)
 
 
@@ -225,10 +228,13 @@ knitr::kable(all)
 
 count_tables(minor.07.08)
 ```
-
+```{r}
+write.csv("./table2_data.csv",x = inter)
+```
 
 # Figure 4 
 
+# Figure 4 
 
 ```{r, isnv_by_day}
 isnv.day.intervention<-ddply(minor.07.08,~Intervention+Id+Day.of.Infection.sample.collected,summarize,iSNV=length(mutation))
@@ -381,6 +387,7 @@ qual.ha.snv<-ddply(minor.07.08,~HAI.cut+Id,summarize,HAI=ifelse(unique(HAI.cut)=
 
 sup_6A<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
 #sup_6A
+write.csv(x = qual.ha.snv,"./2007-2008.wg.HAI.stats.csv")
 
 
 qual.na.snv<-ddply(minor.07.08,~NAI.cut+Id,summarize,NAI=ifelse(unique(NAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(mutation))
@@ -388,6 +395,12 @@ qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
 
 sup_6B<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
 #sup_6B
+write.csv(x = qual.na.snv,"./2007-2008.wg.NAI.stats.csv")
+
+# By intervention
+qual.intervention.snv<-ddply(minor.07.08,~Intervention+Id,summarize,iSNV=length(mutation))
+
+write.csv(x = qual.intervention.snv,"./2007-2008.wg.intervention.stats.csv")
 
 
 pdf("./figures/sup_6A.pdf")

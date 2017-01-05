@@ -20,9 +20,6 @@ coding.cut<-function(x){ # a helper function to remove the variants that lie in 
 }
 
 
-
-
-
 infer<-function(x){ # helper function that identifies the variants that need to be infered.
   
   x<-mutate(x,var=ref,freq.var=1-total.freq,mutation=paste0(chr,"_",ref,pos,var))
@@ -105,6 +102,7 @@ high_qual<-function(data1.df,dups.df,titer){
   htiter<-subset(data1.df,Copy_num>=1e5)
   dups.df<-mean_dups(dups.df,names(data1.df))
   dups.df<-subset(dups.df,select=c(names(data1.df)))
+  #print(dups.df$mutation[dups.df$Id=="2"])
   all.df<-rbind(htiter,dups.df)
   subset(all.df,Copy_num>=titer)
 }

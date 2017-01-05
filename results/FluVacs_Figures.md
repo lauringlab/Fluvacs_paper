@@ -43,13 +43,13 @@ Currently I am making these plots with just the 2007-2008 samples.
 These are the variants between 1-50%. each bin is 1% wide. 
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
@@ -72,13 +72,13 @@ The x axis is so large because there are 2 mutations that are found in 62 and 41
 
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 <img src="figure/fig_3-1.png" title="plot of chunk fig_3" alt="plot of chunk fig_3" style="display: block; margin: auto;" />
 
@@ -108,18 +108,18 @@ All data
 
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 
@@ -132,18 +132,18 @@ These are just from the first runs. These have a sliding window of 100 with a st
 <img src="figure/coverage-1.png" title="plot of chunk coverage" alt="plot of chunk coverage" style="display: block; margin: auto;" /><img src="figure/coverage-2.png" title="plot of chunk coverage" alt="plot of chunk coverage" style="display: block; margin: auto;" /><img src="figure/coverage-3.png" title="plot of chunk coverage" alt="plot of chunk coverage" style="display: block; margin: auto;" />
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 If we plot on a log scale the bars are well above 0. 
@@ -163,13 +163,13 @@ Diversity by titer
 
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 <img src="figure/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" style="display: block; margin: auto;" />
@@ -179,13 +179,13 @@ Diversity by titer
 Genome wide SNV
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 <img src="figure/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" style="display: block; margin: auto;" />
@@ -195,26 +195,26 @@ Genome wide SNV
 
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 
 
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 ```
-## quartz_off_screen 
-##                 2
+## png 
+##   2
 ```
 
 <img src="figure/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" style="display: block; margin: auto;" />
