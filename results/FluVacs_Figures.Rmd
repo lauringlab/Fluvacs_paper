@@ -228,7 +228,9 @@ knitr::kable(all)
 
 count_tables(minor.07.08)
 ```
-
+```{r}
+write.csv("./table2_data.csv",x = inter)
+```
 
 # Figure 4 
 

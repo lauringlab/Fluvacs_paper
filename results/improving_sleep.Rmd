@@ -1,0 +1,230 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+We want to look in depth at the iSNV calls. In particular, in the samples that were sequenced twice is one of runs skewing our results. In this case I'm in
+
+```{r,include=F}
+require(knitr)
+require(plyr)
+require(ggplot2)
+require(reshape2)
+require(ggplot2)
+require(ggdendro)
+require(grid)
+opts_chunk$set(fig.align="center",warning=FALSE,tidy=T,cache = F,echo=T)
+theme_set(new = theme_classic()+ theme(
+axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
+source("../scripts/useful_functions.R") # useful functions adapted largley from HIVE work 
+```
+
+Read in the meta data file
+```{r}
+meta.all<-read.csv("../data/raw/all.meta.csv",stringsAsFactors = F)
+```
+
+Here I read in the variants calls, filter the calls for quality, apply the duplicate analysis on the appropriate sample, and trim for coding regions.
+
+## 2007-2008
+
+
+```{r, variant_calls}
+
+var.2007.8<-read.csv("../data/processed/Run_1293/Variants/all.sum.csv",stringsAsFactors = F)
+x<-read.csv("../data/processed/Run_1304/Variants/all.sum.csv",stringsAsFactors = F) # the rest of these samples
+var.2007.8<-rbind(var.2007.8,x) # combine both runs
+
+# Processing involves infering reciprocal variants
+
+var.2007.8.df<-processing(data.df = var.2007.8,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+
+var.2007.8.df2<-read.csv("../data/processed/2007-2008/Variants/all.sum.csv",stringsAsFactors = F)
+var.2007.8.df2<-processing(data.df = var.2007.8.df2,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+```
+
+
+
+```{r}
+#var.2007.8.df<-mutate(var.2007.8.df,id_mut=paste(Id,mutation,sep="_"))
+#var.2007.8.df2<-mutate(var.2007.8.df2,id_mut=paste(Id,mutation,sep="_"))
+dups.2007.8<-join_dups(data1.df = var.2007.8.df,data2.df = var.2007.8.df2)
+qual.2007.8<-high_qual(data1.df = var.2007.8.df,dups.df = dups.2007.8,titer = 1e3)
+```
+
+filtering the calls
+```{r}
+bris.bed<-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") 
+
+coding.adjust.bris<-function(x){
+  chr<-unique(x$chr)
+  start<-bris.bed$off.5[match(x$chr,bris.bed$chr)]
+
+  mutate(x,coding.pos=pos-start)
+  }
+
+
+# Just the variants in the coding regions.
+final.var<-ddply(subset(qual.2007.8,freq.var>0.01 & freq.var<=0.5),~chr,coding.adjust.bris)
+
+
+first.var<-ddply(subset(var.2007.8.df,freq.var>0.01 & freq.var<=0.5),~chr,coding.adjust.bris)
+
+second.var<-ddply(subset(var.2007.8.df2,freq.var>0.01 & freq.var<=0.5),~chr,coding.adjust.bris)
+
+
+first<-ddply(first.var,~Id,summarize,count1=length(mutation))
+second<-ddply(second.var,~Id,summarize,count2=length(mutation))
+final<-ddply(final.var,~Id,summarize,final=length(mutation))
+
+table<-join(first,second)
+table<-join(table,final)  
+table
+
+ggplot(table,aes(x=count1,y=final))+geom_point()
+ggplot(table,aes(x=count2,y=final))+geom_point()
+```
+
+
+```{r}
+other.seasons<-read.csv("../data/processed/Run_1412/Variants/all.sum.csv",stringsAsFactors = F)
+
+
+other.seasons.df<-processing(data.df = other.seasons,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+
+var.2004.5.df<-subset(other.seasons.df,season=="04-05")
+var.2005.6.df<-subset(other.seasons.df,season=="05-06")
+
+# ##### Now for the duplicate runs #######
+# 
+var.2004.5.df2<-read.csv("../data/processed/2004-2005/Variants/all.sum.csv",stringsAsFactors = F)
+var.2004.5.df2<-processing(data.df = var.2004.5.df2,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+# 
+var.2005.6.df2<-read.csv("../data/processed/2005-2006/Variants/all.sum.csv",stringsAsFactors = F)
+var.2005.6.df2<-mutate(var.2005.6.df2,Id=gsub(536,530,Id)) # correct labling error in this run. There is no sample 536
+var.2005.6.df2<-processing(data.df = var.2005.6.df2,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+
+
+
+
+### Join duplicates #####
+
+dups.2004.5<-join_dups(data1.df = var.2004.5.df,data2.df = var.2004.5.df2)
+dups.2005.6<-join_dups(data1.df = var.2005.6.df,data2.df = var.2005.6.df2)
+dups.2007.8<-join_dups(data1.df = var.2007.8.df,data2.df = var.2007.8.df2)
+
+##### Merge duplicates with intial data that was >1e5
+
+qual.2004.5<-high_qual(data1.df = var.2004.5.df,dups.df = dups.2004.5,titer = 1e3) # only duplicates above 1e3 kept
+qual.2005.6<-high_qual(data1.df = var.2005.6.df,dups.df = dups.2005.6,titer = 1e3)
+qual.2007.8<-high_qual(data1.df = var.2007.8.df,dups.df = dups.2007.8,titer = 1e3)
+# all.qual.df<-rbind(qual.2004.5,qual.2005.6)
+# all.qual.df<-rbind(all.qual.df,qual.2007.8)
+# 
+# all.qual.df<-subset(all.qual.df,freq.var>=0.01 & freq.var<=0.99)
+
+# Filter for frequency.
+var.2007.8.df<-subset(var.2007.8.df,freq.var>=0.01 & freq.var<=0.99)
+qual.2007.8<-subset(qual.2007.8,freq.var>=0.01 & freq.var<=0.99)
+qual.2004.5<-subset(qual.2004.5,freq.var>=0.01 & freq.var<=0.99)
+qual.2005.6<-subset(qual.2005.6,freq.var>=0.01 & freq.var<=0.99)
+
+
+
+
+bris.bed<-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") 
+
+coding.adjust.bris<-function(x){
+  chr<-unique(x$chr)
+  start<-bris.bed$off.5[match(x$chr,bris.bed$chr)]
+
+  mutate(x,coding.pos=pos-start)
+  }
+
+
+# Just the variants in the coding regions.
+qual.2007.8<-ddply(qual.2007.8,~chr,coding.adjust.bris)
+
+
+cal.bed<-read.csv("../data/processed/CalH3N2_difference.csv")
+coding.adjust.cal<-function(x){
+  chr<-unique(x$chr)
+  start<-cal.bed$off.5[match(x$chr,cal.bed$chr)]
+
+  mutate(x,coding.pos=pos-start)
+  }
+
+qual.2004.5<-ddply(qual.2004.5,~chr,coding.adjust.cal)
+qual.2005.6<-ddply(qual.2005.6,~chr,coding.adjust.cal)
+
+
+
+```
+
+Initially we partitioned the data relative to the geometric mean of the antibody titer for a given season. In the final anlysis we used a titer of 40 as the cutoff. These cut offs were identical except for in 2005-2006 in which the mean was 30. This affected 2 samples.
+```{r}
+gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){ # from http://stackoverflow.com/questions/2602583/geometric-mean-is-there-a-built-in
+  if(any(x < 0, na.rm = TRUE)){
+    return(NaN)
+  }
+  if(zero.propagate){
+    if(any(x == 0, na.rm = TRUE)){
+      return(0)
+    }
+    exp(mean(log(x), na.rm = na.rm))
+  } else {
+    exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+  }
+}
+
+#var.2007.8.df<-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
+
+#qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
+minor.07.08=subset(qual.2007.8,freq.var<=0.5)
+
+minor.04.05=subset(qual.2004.5,freq.var<=0.5)
+
+minor.05.06=subset(qual.2005.6,freq.var<=0.5)
+
+
+
+### For consensus seqeunce meta data
+
+HAI.gm<-ddply(meta.all,~season,summarise,gm_mean=gm_mean(HAI.post.vax))
+NAI.gm<-ddply(meta.all,~season,summarise,gm_mean=gm_mean(NAI.post.vax))
+
+HAI.cut<-function(x){
+  season<-unique(x$season)
+  gm<-HAI.gm$gm_mean[which(HAI.gm$season==season)]
+  print(gm)
+  mutate(x,HAI.geo=HAI.post.vax>gm,HAI.cut=HAI.post.vax>=40)
+  }
+
+NAI.cut<-function(x){
+  season<-unique(x$season)
+  gm<-NAI.gm$gm_mean[which(NAI.gm$season==season)]
+  print(gm)
+  mutate(x,NAI.geo=NAI.post.vax>gm,NAI.cut=NAI.post.vax>=40)
+  }
+meta.df<-ddply(meta.all,~season,HAI.cut)
+meta.df<-ddply(meta.df,~season,NAI.cut)
+
+
+minor.04.05<-ddply(minor.04.05,~season,HAI.cut)
+minor.04.05<-ddply(minor.04.05,~season,NAI.cut)
+
+minor.05.06<-ddply(minor.05.06,~season,HAI.cut)
+minor.05.06<-ddply(minor.05.06,~season,NAI.cut)
+
+minor.07.08<-ddply(minor.07.08,~season,HAI.cut)
+minor.07.08<-ddply(minor.07.08,~season,NAI.cut)
+
+
+#meta.df<-mutate(meta.all,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax))
+meta.df$collection_date<-as.Date(meta.df$collection_date,format = "%d-%b-%y")
+require(lubridate)
+meta.df$collection_date<-decimal_date(meta.df$collection_date)
+
+
+```

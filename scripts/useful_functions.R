@@ -20,9 +20,6 @@ coding.cut<-function(x){ # a helper function to remove the variants that lie in 
 }
 
 
-
-
-
 infer<-function(x){ # helper function that identifies the variants that need to be infered.
   
   x<-mutate(x,var=ref,freq.var=1-total.freq,mutation=paste0(chr,"_",ref,pos,var))
@@ -48,7 +45,7 @@ infer_all<-function(data.df,cut.low,cut.high){
 }
 
 processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T){
-  data.df.cut<-subset(data.df,MapQ>mapq & Phred>phred & Read_pos <read_cut[2] & Read_pos>read_cut[1] & p.val<pval) # subset dataframe
+  data.df.cut<-subset(data.df,MapQ>mapq & Phred>phred & Read_pos <read_cut[2] & Read_pos>read_cut[1] & p.val<pval & freq.var>0.01) # subset dataframe
   
   data.df.cut<-ddply(data.df.cut,~chr,coding.cut) # interogating only the sites within coding regions
   # Removed for now as it looks like we just have the coding regions here
@@ -92,7 +89,9 @@ mean_dups<-function(data.df,ref.names){
   for(i in 1:length(ref.names)){
     matches<-which(grepl(paste0("^",ref.names[i]),names(data.df))==T) # the ^ makes sure the names starts with the matched name 
     #print(ref.names[matches])
+    #print(matches)
     if(length(matches)==2){
+      print(ref.names[i])
       data.df<-mutate(data.df, new_col = rowMeans(cbind(data.df[,matches[1]],data.df[,matches[2]])))
       data.df<-rename(data.df,c("new_col"=ref.names[i]))
     }
@@ -105,6 +104,7 @@ high_qual<-function(data1.df,dups.df,titer){
   htiter<-subset(data1.df,Copy_num>=1e5)
   dups.df<-mean_dups(dups.df,names(data1.df))
   dups.df<-subset(dups.df,select=c(names(data1.df)))
+  #print(dups.df$mutation[dups.df$Id=="2"])
   all.df<-rbind(htiter,dups.df)
   subset(all.df,Copy_num>=titer)
 }
