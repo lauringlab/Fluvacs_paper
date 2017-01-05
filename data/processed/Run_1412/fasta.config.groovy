@@ -1,0 +1,5 @@
+CONCAT_CSV="/scratch/alauring_fluxm/mccrone/FluVac_paper/data/processed/concat_pos_CalH3N2.csv"
+CODING_FA="/scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2SeqCont.fa"
+SCRIPTS="/scratch/alauring_fluxm/mccrone/FluVac_paper/scripts"
+MAIN_DIR="/scratch/alauring_fluxm/mccrone/FluVac_paper/data/processed/Run_1412/deepSNV/.."
+MUSCLE_DIR="/sw/lsa/centos7/muscle/3.8.31/bin"
