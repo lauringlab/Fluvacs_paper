@@ -31,6 +31,11 @@ cd $PBS_O_WORKDIR
 
 #make download
 #make primary
+# This is to add 409 which was lost for some reason.
+
+python ~/variant_pipeline/bin/variantPipeline.py -i ./data/raw/Run_1412/ -o ./data/processed/Run_1412/ -r ./data/reference/CalH3N2_untranslated -p Cal-H3N2 -d two.sided -m fisher -a 0.9
+
+
 make secondary
 
 

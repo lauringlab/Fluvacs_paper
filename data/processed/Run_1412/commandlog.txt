@@ -3414,4 +3414,11 @@ python /home/mccrone/variant_pipeline/scripts/combine.py ./deepSNV cov.csv all.c
 date
 echo variantPipeline SUCCESS
 # ########### Finished at Thu Jan 05 09:54:22 EST 2017 Duration = 9 minutes, 2.140 seconds ###########
-
+Run by hand since for some reason 508 got left out.
+Rscript  /home/mccrone/variant_pipeline/scripts/deepSNV.R /scratch/alauring_fluxm/mccrone/FluVac_paper/data/reference/CalH3N2_untranslated.fa 04_removed_duplicates/508.removed.bam 04_removed_duplicates/Cal-H3N2.removed.bam bonferroni 0.9 fisher two.sided
+python /home/mccrone/variant_pipeline/scripts/mapq.py deepSNV/508.removed.csv 04_removed_duplicates/508.removed.bam Variants/508.removed.mapq.sum.csv Variants/508.removed.mapq.reads.csv
+rm deepSNV/all.*
+rm Variants/all.*
+python /home/mccrone/variant_pipeline/scripts/combine.py ./Variants reads.csv all.reads.csv
+python /home/mccrone/variant_pipeline/scripts/combine.py ./Variants sum.csv all.sum.csv
+python /home/mccrone/variant_pipeline/scripts/combine.py ./deepSNV cov.csv all.coverage.csv
