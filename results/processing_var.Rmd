@@ -37,10 +37,12 @@ var.2007.8<-read_rbind(c("../data/processed/Run_1293/Variants/all.sum.csv","../d
 
 var.2007.8.df<-processing(data.df = var.2007.8,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94),gc=1e3)
 
+ddply(subset(var.2007.8.df, Id=="34" & freq.var<0.5 & freq.var>0.01),~run,summarize, length(mutation))
+
 minor.07.08<-quality(var.2007.8.df,c(0.01,0.5))
 
 # Processing again with 34 only once
-var.2007.8.df.cut<-subset(var.2007.8.df,!(Id==34 & run=="Run_1293"))
+var.2007.8.df.cut<-subset(var.2007.8.df,!(Id==34 & run=="2007-2008"))
 
 minor.07.08<-quality(var.2007.8.df.cut,c(0.01,0.5))
 
@@ -65,12 +67,16 @@ other.seasons<-read_rbind(c("../data/processed/Run_1412/Variants/all.sum.csv",".
 
 var.other.seasons.df<-processing(data.df = other.seasons,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94),gc=1e3)
 
+
+ddply(subset(var.other.seasons.df, Id %in% c("529","530") & freq.var<0.5 & freq.var>0.01),~run+Id,summarize, length(mutation))
+
 minor.other.seasons<-quality(var.other.seasons.df,c(0.01,0.5))
 
-# Processing again with 529 and 530 only once
-var.other.seasons.df.cut<-subset(var.other.seasons.df,!(Id==530 & run=="Run_1412"))
 
-var.other.seasons.df.cut<-subset(var.other.seasons.df.cut,!(Id==529 & run=="Run_1412"))
+# Processing again with 529 and 530 only once
+var.other.seasons.df.cut<-subset(var.other.seasons.df,!(Id==530 & run=="2005-2006"))
+
+var.other.seasons.df.cut<-subset(var.other.seasons.df.cut,!(Id==529 & run=="2005-2006"))
 
 minor.other.seasons<-quality(var.other.seasons.df.cut,c(0.01,0.5))
 
