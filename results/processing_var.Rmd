@@ -2,7 +2,9 @@
 title: "Fluvacs Processing"
 author: "JT McCrone"
 date: "July 7, 2016"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 This document will run the first analysis on the variant calls. It will take in the csv files from the variant calling pipeline and filter out low quality calls as well as handle any samples done in duplicate. This script will then output 3 csv files. One that contains all minor quality variants. This will be used to make the figures. The second will just include quality calls from the HA segement. This will be used to identify putative antigenic variants. These go in the results directory as they are probably interesting for others as tables. The third is an improved metadata csv which includes information regarding the geometric mean of antibody titer and the day of collection in year.decimal format.
@@ -29,64 +31,23 @@ meta.all<-read.csv("../data/raw/all.meta.csv",stringsAsFactors = F)
 Here I read in the variants calls, filter the calls for quality, apply the duplicate analysis on the appropriate sample, and trim for coding regions.
 
 ```{r, variant_calls}
-
-var.2007.8<-read.csv("../data/processed/Run_1293/Variants/all.sum.csv",stringsAsFactors = F)
-x<-read.csv("../data/processed/Run_1304/Variants/all.sum.csv",stringsAsFactors = F) # the rest of these samples
-var.2007.8<-rbind(var.2007.8,x) # combine both runs
-
-# Processing involves infering reciprocal variants
-
-var.2007.8.df<-processing(data.df = var.2007.8,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+## Read in and process samples
+var.2007.8<-read_rbind(c("../data/processed/Run_1293/Variants/all.sum.csv","../data/processed/Run_1304/Variants/all.sum.csv","../data/processed/2007-2008/Variants/all.sum.csv"),c("Run_1293","Run_1304","2007-2008"))
 
 
-other.seasons<-read.csv("../data/processed/Run_1412/Variants/all.sum.csv",stringsAsFactors = F)
+var.2007.8.df<-processing(data.df = var.2007.8,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94),gc=1e3)
 
+minor.07.08<-quality(var.2007.8.df,c(0.01,0.5))
 
-other.seasons.df<-processing(data.df = other.seasons,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
+# Processing again with 34 only once
+var.2007.8.df.cut<-subset(var.2007.8.df,!(Id==34 & run=="Run_1293"))
 
-var.2004.5.df<-subset(other.seasons.df,season=="04-05")
-var.2005.6.df<-subset(other.seasons.df,season=="05-06")
-
-# ##### Now for the duplicate runs #######
-# 
-var.2004.5.df2<-read.csv("../data/processed/2004-2005/Variants/all.sum.csv",stringsAsFactors = F)
-var.2004.5.df2<-processing(data.df = var.2004.5.df2,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-# 
-var.2005.6.df2<-read.csv("../data/processed/2005-2006/Variants/all.sum.csv",stringsAsFactors = F)
-var.2005.6.df2<-mutate(var.2005.6.df2,Id=gsub(536,530,Id)) # correct labling error in this run. There is no sample 536
-var.2005.6.df2<-processing(data.df = var.2005.6.df2,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-
-
-var.2007.8.df2<-read.csv("../data/processed/2007-2008/Variants/all.sum.csv",stringsAsFactors = F)
-var.2007.8.df2<-processing(data.df = var.2007.8.df2,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94))
-
-### Join duplicates #####
-
-dups.2004.5<-join_dups(data1.df = var.2004.5.df,data2.df = var.2004.5.df2)
-dups.2005.6<-join_dups(data1.df = var.2005.6.df,data2.df = var.2005.6.df2)
-dups.2007.8<-join_dups(data1.df = var.2007.8.df,data2.df = var.2007.8.df2)
-
-##### Merge duplicates with intial data that was >1e5
-
-qual.2004.5<-high_qual(data1.df = var.2004.5.df,dups.df = dups.2004.5,titer = 1e3) # only duplicates above 1e3 kept
-qual.2005.6<-high_qual(data1.df = var.2005.6.df,dups.df = dups.2005.6,titer = 1e3)
-qual.2007.8<-high_qual(data1.df = var.2007.8.df,dups.df = dups.2007.8,titer = 1e3)
-# all.qual.df<-rbind(qual.2004.5,qual.2005.6)
-# all.qual.df<-rbind(all.qual.df,qual.2007.8)
-# 
-# all.qual.df<-subset(all.qual.df,freq.var>=0.01 & freq.var<=0.99)
-
-# Filter for frequency.
-var.2007.8.df<-subset(var.2007.8.df,freq.var>=0.01 & freq.var<=0.99)
-qual.2007.8<-subset(qual.2007.8,freq.var>=0.01 & freq.var<=0.99)
-qual.2004.5<-subset(qual.2004.5,freq.var>=0.01 & freq.var<=0.99)
-qual.2005.6<-subset(qual.2005.6,freq.var>=0.01 & freq.var<=0.99)
-
-
+minor.07.08<-quality(var.2007.8.df.cut,c(0.01,0.5))
 
 
 bris.bed<-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") 
 
+# Adjust the coding positions of each variant
 coding.adjust.bris<-function(x){
   chr<-unique(x$chr)
   start<-bris.bed$off.5[match(x$chr,bris.bed$chr)]
@@ -95,8 +56,30 @@ coding.adjust.bris<-function(x){
   }
 
 
-# Just the variants in the coding regions.
-qual.2007.8<-ddply(qual.2007.8,~chr,coding.adjust.bris)
+minor.07.08<-ddply(minor.07.08,~chr,coding.adjust.bris)
+
+## Other seasons
+## Read in and process samples
+other.seasons<-read_rbind(c("../data/processed/Run_1412/Variants/all.sum.csv","../data/processed/2005-2006/Variants/all.sum.csv","../data/processed/2004-2005/Variants/all.sum.csv"),c("Run_1412","2005-2006","2004-2005"))
+
+
+var.other.seasons.df<-processing(data.df = other.seasons,meta.df = meta.all,pval = 0.01,phred = 35,mapq = 30,read_cut = c(32,94),gc=1e3)
+
+minor.other.seasons<-quality(var.other.seasons.df,c(0.01,0.5))
+
+# Processing again with 529 and 530 only once
+var.other.seasons.df.cut<-subset(var.other.seasons.df,!(Id==530 & run=="Run_1412"))
+
+var.other.seasons.df.cut<-subset(var.other.seasons.df.cut,!(Id==529 & run=="Run_1412"))
+
+minor.other.seasons<-quality(var.other.seasons.df.cut,c(0.01,0.5))
+
+
+bris.bed<-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") 
+
+
+# Filter to coding region.
+
 
 
 cal.bed<-read.csv("../data/processed/CalH3N2_difference.csv")
@@ -107,8 +90,10 @@ coding.adjust.cal<-function(x){
   mutate(x,coding.pos=pos-start)
   }
 
-qual.2004.5<-ddply(qual.2004.5,~chr,coding.adjust.cal)
-qual.2005.6<-ddply(qual.2005.6,~chr,coding.adjust.cal)
+minor.other.seasons<-ddply(minor.other.seasons,~chr,coding.adjust.cal)
+
+minor.04.05<-subset(minor.other.seasons,season=="04-05")
+minor.05.06<-subset(minor.other.seasons,season=="05-06")
 
 
 
@@ -130,14 +115,7 @@ gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){ # from http://stackov
   }
 }
 
-#var.2007.8.df<-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
 
-#qual.2007.8<-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax>40,responder.NA=NAI.WI.30.post.vax>40,HAI.geo=HAI.WI.30.post.vax>gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax>gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&responder.HA==T), geom.both=(HAI.geo&NAI.geo==T))
-minor.07.08=subset(qual.2007.8,freq.var<=0.5)
-
-minor.04.05=subset(qual.2004.5,freq.var<=0.5)
-
-minor.05.06=subset(qual.2005.6,freq.var<=0.5)
 
 
 

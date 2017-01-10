@@ -4,10 +4,12 @@ author: "JT"
 date: "December 29, 2016"
 output:
   html_document:
-    toc: true
+    toc: yes
     toc_depth: 4
-    toc_float: true
-    
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
 ---
 
 ```{r,include=F}
@@ -18,7 +20,7 @@ require(reshape2)
 require(ggplot2)
 require(ggdendro)
 require(grid)
-opts_chunk$set(fig.align="center",warning=FALSE,tidy=T,cache = F,echo=F)
+opts_chunk$set(fig.align="center",warning=FALSE,tidy=T,cache = F,echo=T)
 theme_set(new = theme_classic()+ theme(
 axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
 axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
@@ -229,7 +231,7 @@ knitr::kable(all)
 count_tables(minor.07.08)
 ```
 ```{r}
-write.csv("./table2_data.csv",x = inter)
+#write.csv("./table2_data.csv",x = inter)
 ```
 
 # Figure 4 

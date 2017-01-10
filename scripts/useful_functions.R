@@ -7,6 +7,20 @@ require(grid)
 
 
 ######## Procesing #########
+read_rbind<-function(list,list2=NULL){
+  out<-data.frame()
+  for(i in 1:length(list)){
+    print(paste0("reading in ",list[i]))
+    
+    x<-read.csv(list[i],stringsAsFactors = F)
+    if(is.null(list2)==F){
+      x$run=list2[i]
+      print(paste0("appending run column: ",list2[i]))
+    }
+    out<-rbind(x,out)
+  }
+  return(out)
+}
 
 
 regions.bed <-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") # these are the untranslated regions from the brisbane sequence
@@ -32,7 +46,7 @@ infer<-function(x){ # helper function that identifies the variants that need to 
 }
 
 infer_all<-function(data.df,cut.low,cut.high){ 
-  data.df=mutate(data.df,id_pos=paste(chr,pos,Id,sep="_"))
+  data.df=mutate(data.df,id_pos=paste(chr,pos,Id,run,sep="_"))
   x<-ddply(data.df,~id_pos,summarize,total.freq=sum(freq.var)) # what is the total frequency of all the variants found at this position.
   data.df=mutate(data.df, total.freq=x$total.freq[match(id_pos,x$id_pos)])
   
@@ -44,7 +58,7 @@ infer_all<-function(data.df,cut.low,cut.high){
   data.df<-subset(data.df,select=-c(id_pos))
 }
 
-processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T){
+processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T,gc){
   data.df.cut<-subset(data.df,MapQ>mapq & Phred>phred & Read_pos <read_cut[2] & Read_pos>read_cut[1] & p.val<pval) # subset dataframe
   
   data.df.cut<-ddply(data.df.cut,~chr,coding.cut) # interogating only the sites within coding regions
@@ -55,8 +69,9 @@ processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T){
   
   meta<-meta.df
   data.df.cut<-join(data.df.cut,meta,by="Id",type='left')
+  data.df.cut<-subset(data.df.cut,Copy_num>gc)
   
-  #data.df.cut<-mutate(data.df.cut,Lauring_Id=Id,Id=paste(HOUSE_ID,season,Id,VAX,onset,sep="."))
+  #data.df.cut<-mutate(data.df.cut,Id=Id,Id=paste(HOUSE_ID,season,Id,VAX,onset,sep="."))
   
   if(recip==T){
     data.df.cut<-infer_all(data.df.cut,0.01,0.99) # infer minor variants with major frequency at or below 99%
@@ -73,40 +88,65 @@ processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T){
 
 ##### join duplicates/ high quality #####
 
-
-join_dups<-function(data1.df,data2.df){
-  data1.df<-mutate(data1.df,samp_mut=paste0(Id,mutation))
-  data2.df<-mutate(data2.df,samp_mut=paste0(Id,mutation))
-  #data2.df<-rename(data2.df,c("freq.var"="freq.var2","p.val"="p.val2","MapQ"="MapQ2","Phred"="Phred2","Read_pos"="Read_pos2","sigma2.freq.var"="sigma2.freq.var2","n.tst.fw"="n.tst.fw2","cov.tst.fw"="cov.tst.fw2","n.tst.bw"="n.tst.bw2","cov.tst.bw"="cov.tst.bw2","n.ctrl.fw"="n.ctrl.fw2","cov.ctrl.fw"="cov.ctrl.fw2","n.ctrl.bw"="n.ctrl.bw2","cov.ctrl.bw"="cov.ctrl.bw2","raw.p.val"="raw.p.val2"))
-  dups.df<-merge(data1.df,data2.df,type='inner',by=c("samp_mut","chr","pos","ref","var","Id","mutation", "Copy_num","Vax","season", "Intervention","HAI.Uruguay.preseason","HAI.Uruaguay.30.post.vax", "HAI.WI.vax.preseason","HAI.WI.30.post.vax","NAI.WI.vax.preseason", "NAI.WI.30.post.vax","Day.of.Infection.sample.collected","collection_date")) # inner so that only shared rows are kept
-  #dups.df<-mutate(dups.df,freq.var=rowMeans(cbind(freq.var.x,freq.var.y)))
-  #print(names(dups.df))
+sift_dups<-function(df){
+  mean_wanted<-c("p.val","freq.var","sigma2.freq.var","n.tst.fw","cov.tst.fw","n.tst.bw","cov.tst.bw","n.ctrl.fw","cov.ctrl.fw","n.ctrl.bw","cov.ctrl.bw","raw.p.val","MapQ","Read_pos","Phred","total.freq")
+  if(dim(df)[1]==2){ #it's found in both duplicates
+    x<-df[1,] #3 grab the first column
+    x[mean_wanted]<-colMeans(df[mean_wanted])
+    x$run<-paste(df$run[1],df$run[2],sep=".")
+    return(x)
+  } 
+  try(if(dim(df)[1]>2) stop(paste0("This mutation is found more than once in this sample : ", unique(df$Id), " - ", unique(df$mutation))))
+  # add if statement to through error if the dim is greater than 2 
 }
 
+join_dups<-function(df){
+  ddply(df,~Id+mutation,sift_dups)
+}
 
-mean_dups<-function(data.df,ref.names){
+quality<-function(df,freq_cut){
+  starting_samples<-unique(df$Id)
+  #good<-subset(df,gc_ul>=1e5)
+  # check only one run/sample
+  runs<-ddply(df,~Id,summarize,runs=length(unique(run))) # Id is unique to the sample. How many times was each sample sequenced? duplicates were sequenced in separate runs
+  doubles<-subset(runs,runs==2) # Theses were sequenced twice
+  dups_ran<-subset(df,Id %in% doubles$Id)
   
-  for(i in 1:length(ref.names)){
-    matches<-which(grepl(paste0("^",ref.names[i]),names(data.df))==T) # the ^ makes sure the names starts with the matched name 
-    #print(ref.names[matches])
-    if(length(matches)==2){
-      data.df<-mutate(data.df, new_col = rowMeans(cbind(data.df[,matches[1]],data.df[,matches[2]])))
-      data.df<-rename(data.df,c("new_col"=ref.names[i]))
-    }
+  dups_good<-join_dups(subset(dups_ran,Copy_num>1e3)) # We only want those sequenced twice with high enough titers.
+  
+  good<-subset(df,Copy_num>1e5 & !(Id %in% dups_ran$Id)) # Just incase some with high titers were sequenced twice
+  out<-rbind(good,dups_good)
+  
+  ## filter to coding regions
+  
+  
+  
+  out<-subset(out,freq.var>freq_cut[1] & freq.var<freq_cut[2]) # filter on frequency
+  # Were any with high titers sequenced twice?
+  
+  high_twice<-subset(df,Copy_num>1e5 & (Id %in% dups_ran$Id))
+  if(dim(high_twice)[1]>0){
+    print(paste0("Sample ",as.character(unique(high_twice$Id)), " was sequenced twice even though the titer was ",  as.character(unique(high_twice$Copy_num)),". It was treated as duplicates in the analysis"))
   }
-  return(data.df)
+  print(paste0("We removed ",dim(df)[1]-dim(out)[1]," variants of ",dim(df)[1]," and ", dim(out)[1], " remain."))
+  final_samples<-unique(out$Id)
   
+  if(length(which(!(starting_samples %in% final_samples)))>0){
+    samples=starting_samples[which(!(starting_samples %in% final_samples))]
+    runs<-c()
+    for( i in 1:length(samples)){
+      sub<-subset(df,Id==samples[i],select=c(run))
+      runs[i]=paste(unique(sub$run),sep=".")
+    }
+    missing_table<-data.frame(id = samples,
+      Copy_num=unique(df$Copy_num[df$Id%in%samples]),
+      runs= runs)
+    print(paste0("After processing no variants were found the following samples: "))
+    print(missing_table)
+  }
+  
+  return(out)
 }
-
-high_qual<-function(data1.df,dups.df,titer){
-  htiter<-subset(data1.df,Copy_num>=1e5)
-  dups.df<-mean_dups(dups.df,names(data1.df))
-  dups.df<-subset(dups.df,select=c(names(data1.df)))
-  #print(dups.df$mutation[dups.df$Id=="2"])
-  all.df<-rbind(htiter,dups.df)
-  subset(all.df,Copy_num>=titer)
-}
-
 
 slide_window<-function(freq.df,window,step){
   
