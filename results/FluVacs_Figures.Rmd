@@ -20,11 +20,15 @@ require(reshape2)
 require(ggplot2)
 require(ggdendro)
 require(grid)
+require(extrafont)
 opts_chunk$set(fig.align="center",warning=FALSE,tidy=T,cache = F,echo=T)
 theme_set(new = theme_classic()+ theme(
 axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
-axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))) # to make nice plots
+axis.line.y = element_line(colour ='black',size=0.5,linetype='solid'),
+text=element_text(family="Arial Narrow"))) # to make nice plots
 source("../scripts/useful_functions.R") # useful functions adapted largley from HIVE work
+
+
 ```
 
 ```{r}
@@ -64,7 +68,7 @@ cov_files<-c("../data/processed/Run_1293/deepSNV/all.coverage.csv","../data/proc
 removed<-dim(subset(minor.07.08,Id %in% poor_cov$Id))[1]
  
 ```
-In the 2007-2008 data set there were `r removed` samples removed from the the minority analysis based on a mean coverage less than 1000X.
+In the 2007-2008 data set that were `r removed` samples removed from the the minority analysis based on a mean coverage less than 1000X.
 
 # Figure 3
 
@@ -77,6 +81,9 @@ These are the variants between 1-50%. each bin is 1% wide.
 
 fig_3A<-ggplot(minor.07.08,aes(x=freq.var))+geom_histogram(color="white",binwidth = 0.01)+xlab("Frequency")+ylab("Number of iSNV")+scale_x_continuous(breaks=seq(0,.5,0.1),labels=c("0%","10%","20%","30%","40%","50%"))
 #fig_3A+ggtitle("Figure 3A")
+
+# saving_plot("./figures/fig_3A.pdf", plot=fig_3A)
+# embed_fonts("./figures/fig_3A.pdf", outfile="./figures/fig_3A.pdf_embed.pdf")
 
 pdf("./figures/fig_3A.pdf")
 fig_3A
@@ -105,7 +112,7 @@ The x axis is so large because there are 2 mutations that are found in 62 and 41
 # XAI.cut is T if the titer is above 40
 qual.ha.snv<-ddply(minor.07.08,~HAI.cut+Id,summarize,HAI=ifelse(unique(HAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(which(chr=="HA")))
 # If there are no snv in HA then length returns 0. HAI.cut is true if the titer is >=40
-
+qual.ha.snv$HAI<-factor(qual.ha.snv$HAI,levels=c("\u2265 40","< 40"))
 ## define custom median function https://designdatadecisions.wordpress.com/2015/06/09/graphs-in-r-overlaying-data-summaries-in-dotplots/
 plot.median <- function(x) {
   m <- median(x)
@@ -122,6 +129,7 @@ dev.off()
 
 qual.na.snv<-ddply(minor.07.08,~NAI.cut+Id,summarize,NAI=ifelse(unique(NAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(which(chr =="NR")))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
+qual.na.snv$NAI<-factor(qual.na.snv$NAI,levels=c("\u2265 40","< 40"))
 
 fig_3D<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.05)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.95, size=0.5)+ylab("Number of iSNV")+xlab("NAI titer")
 #fig_3D
@@ -143,11 +151,12 @@ NAI.stat<-with(qual.na.snv,wilcox.test(iSNV~NAI) )
 
 We did not observe a difference in iSNV count based on HAI and NAI titers for either HA or NA (Figure 3C-D, p=`r round(HAI.stat$p.value,3)` for HA, p=`r round(NAI.stat$p.value,3)` for NA, Mann Whitney U test; 
 
-
 ```{r,fig_3,fig.width=10,fig.height=10}
 require(cowplot)
-plot_grid(fig_3A, fig_3B, fig_3C, fig_3D, labels = c("A", "B", "C", "D"), ncol = 2)
-
+fig_3<-plot_grid(fig_3A, fig_3B, fig_3C, fig_3D, labels = c("A", "B", "C", "D"), ncol = 2)
+ggsave(plot = fig_3,filename= "./figures/fig_3.pdf",width = 5.87,height = 5.74,units = "in")
+embed_fonts("./figures/fig_3.pdf", outfile="./figures/fig_3_embed.pdf")
+fig_3
 ```
 
 
@@ -255,12 +264,10 @@ wg.sum<-ddply(minor.07.08,~Intervention+Id,summarize,iSNV=length(mutation))
 wg.sum.stat<-with(wg.sum,kruskal.test(iSNV~Intervention)) # where y is numeric and A is a factor
 
 wg.HAI<-ddply(minor.07.08,~HAI.cut+Id,summarize,iSNV=length(mutation))
-# Kruskal Wallis Test One Way Anova by Ranks 
 wg.HAI.stat<-with(wg.HAI,wilcox.test(iSNV~HAI.cut)) # where y is numeric
 
 
 wg.NAI<-ddply(minor.07.08,~NAI.cut+Id,summarize,iSNV=length(mutation))
-# Kruskal Wallis Test One Way Anova by Ranks 
 wg.NAI.stat<-with(wg.NAI,wilcox.test(iSNV~NAI.cut)) # where y is numeric
 ```
 The average number of iSNV per sample was similar across the genome regardless of host treatment group (Table 2, p=`r round(wg.sum.stat$p.value,3)`, non-parametric one way ANOVA) or HAI and NAI titers (S6 Fig, p=`r round(wg.HAI.stat$p.value,3)` for HAI, p=`r round(wg.NAI.stat$p.value,3)` for NAI, Mann Whitney U test).
@@ -410,7 +417,7 @@ write.csv(x = titer_data,file = "./titer_data.csv")
 Diversity by titer
 
 ```{r}
-qual.ha.snv<-ddply(minor.07.08,~HAI.post.vax+Id,summarize,HAI=HAI.post.vax[1],iSNV=length(which(chr=="HA")))
+qual.ha.snv<-ddply(minor.07.08,~HAI.post.vax+Id,summarize,HAI=unique(HAI.post.vax),iSNV=length(which(chr=="HA")))
 
 ## define custom median function https://designdatadecisions.wordpress.com/2015/06/09/graphs-in-r-overlaying-data-summaries-in-dotplots/
 plot.median <- function(x) {
@@ -448,6 +455,7 @@ Genome wide SNV
 ```{r,extra_iSNV}
 qual.ha.snv<-ddply(minor.07.08,~HAI.cut+Id,summarize,HAI=ifelse(unique(HAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(mutation))
 # Again if there are no mutations the length above would output 0.
+qual.ha.snv$HAI<-factor(qual.ha.snv$HAI,levels=c("\u2265 40","< 40"))
 
 sup_6A<-ggplot(data=qual.ha.snv,aes(y=iSNV,x=HAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
 #sup_6A
@@ -456,6 +464,7 @@ write.csv(x = qual.ha.snv,"./2007-2008.wg.HAI.stats.csv")
 
 qual.na.snv<-ddply(minor.07.08,~NAI.cut+Id,summarize,NAI=ifelse(unique(NAI.cut)==F,yes = "< 40",no= "\u2265 40"),iSNV=length(mutation))
 qual.na.snv<-subset(qual.na.snv,!(is.na(NAI)))
+qual.na.snv$NAI<-factor(qual.na.snv$NAI,levels=c("\u2265 40","< 40"))
 
 sup_6B<-ggplot(data=qual.na.snv,aes(y=iSNV,x=NAI))+geom_dotplot(stackdir = "center",binaxis = 'y',binwidth = 1,dotsize = 0.3)+stat_summary(fun.data="plot.median", geom="errorbar", colour="black", width=0.5, size=0.5)+ylab("Number of iSNV")
 #sup_6B
@@ -499,7 +508,7 @@ dev.off()
 
 minor_counts<-ddply(minor.04.05,~mutation,summarize,count=length(unique(Id)))
 
-sup_7B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
+sup_7B<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")+scale_x_continuous(breaks=c(1:9))
 #sup_7B+ggtitle("2004-2005")
 
 
@@ -527,7 +536,7 @@ dev.off()
 
 minor_counts<-ddply(minor.05.06,~mutation,summarize,count=length(unique(Id)))
 
-sup_7D<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")
+sup_7D<-ggplot(minor_counts,aes(x=count))+geom_histogram(color="white",binwidth=1)+xlab("Samples with iSNV")+ylab("Number of iSNV")+scale_x_continuous(breaks=c(1:9))
 #sup_7D+ggtitle("2005-2006")
 
 

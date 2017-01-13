@@ -127,71 +127,39 @@ $(document).ready(function () {
 <p>Read in the meta data file</p>
 <pre class="r"><code>meta.all &lt;- read.csv(&quot;../data/raw/all.meta.csv&quot;, stringsAsFactors = F)</code></pre>
 <p>Here I read in the variants calls, filter the calls for quality, apply the duplicate analysis on the appropriate sample, and trim for coding regions.</p>
-<pre class="r"><code>var.2007.8 &lt;- read.csv(&quot;../data/processed/Run_1293/Variants/all.sum.csv&quot;, stringsAsFactors = F)
-x &lt;- read.csv(&quot;../data/processed/Run_1304/Variants/all.sum.csv&quot;, stringsAsFactors = F)  # the rest of these samples
-var.2007.8 &lt;- rbind(var.2007.8, x)  # combine both runs
+<pre class="r"><code>## Read in and process samples
+var.2007.8 &lt;- read_rbind(c(&quot;../data/processed/Run_1293/Variants/all.sum.csv&quot;, 
+    &quot;../data/processed/Run_1304/Variants/all.sum.csv&quot;, &quot;../data/processed/2007-2008/Variants/all.sum.csv&quot;), 
+    c(&quot;Run_1293&quot;, &quot;Run_1304&quot;, &quot;2007-2008&quot;))</code></pre>
+<pre><code>## [1] &quot;reading in ../data/processed/Run_1293/Variants/all.sum.csv&quot;
+## [1] &quot;appending run column: Run_1293&quot;
+## [1] &quot;reading in ../data/processed/Run_1304/Variants/all.sum.csv&quot;
+## [1] &quot;appending run column: Run_1304&quot;
+## [1] &quot;reading in ../data/processed/2007-2008/Variants/all.sum.csv&quot;
+## [1] &quot;appending run column: 2007-2008&quot;</code></pre>
+<pre class="r"><code>var.2007.8.df &lt;- processing(data.df = var.2007.8, meta.df = meta.all, pval = 0.01, 
+    phred = 35, mapq = 30, read_cut = c(32, 94), gc = 1000)
 
-# Processing involves infering reciprocal variants
+minor.07.08 &lt;- quality(var.2007.8.df, c(0.01, 0.5))</code></pre>
+<pre><code>## [1] &quot;Sample 34 was sequenced twice even though the titer was 167000. It was treated as duplicates in the analysis&quot;
+## [1] &quot;We removed 11131 variants of 11491 and 360 remain.&quot;
+## [1] &quot;After processing no variants were found the following samples: &quot;
+##   id Copy_num      runs
+## 1 94     1220 2007-2008
+## 2 95     7920 2007-2008</code></pre>
+<pre class="r"><code># Processing again with 34 only once
+var.2007.8.df.cut &lt;- subset(var.2007.8.df, !(Id == 34 &amp; run == &quot;Run_1293&quot;))
 
-var.2007.8.df &lt;- processing(data.df = var.2007.8, meta.df = meta.all, pval = 0.01, 
-    phred = 35, mapq = 30, read_cut = c(32, 94))
-
-
-other.seasons &lt;- read.csv(&quot;../data/processed/Run_1412/Variants/all.sum.csv&quot;, 
-    stringsAsFactors = F)
-
-
-other.seasons.df &lt;- processing(data.df = other.seasons, meta.df = meta.all, 
-    pval = 0.01, phred = 35, mapq = 30, read_cut = c(32, 94))
-
-var.2004.5.df &lt;- subset(other.seasons.df, season == &quot;04-05&quot;)
-var.2005.6.df &lt;- subset(other.seasons.df, season == &quot;05-06&quot;)
-
-# ##### Now for the duplicate runs #######
-var.2004.5.df2 &lt;- read.csv(&quot;../data/processed/2004-2005/Variants/all.sum.csv&quot;, 
-    stringsAsFactors = F)
-var.2004.5.df2 &lt;- processing(data.df = var.2004.5.df2, meta.df = meta.all, pval = 0.01, 
-    phred = 35, mapq = 30, read_cut = c(32, 94))
-# 
-var.2005.6.df2 &lt;- read.csv(&quot;../data/processed/2005-2006/Variants/all.sum.csv&quot;, 
-    stringsAsFactors = F)
-var.2005.6.df2 &lt;- mutate(var.2005.6.df2, Id = gsub(536, 530, Id))  # correct labling error in this run. There is no sample 536
-var.2005.6.df2 &lt;- processing(data.df = var.2005.6.df2, meta.df = meta.all, pval = 0.01, 
-    phred = 35, mapq = 30, read_cut = c(32, 94))
-
-
-var.2007.8.df2 &lt;- read.csv(&quot;../data/processed/2007-2008/Variants/all.sum.csv&quot;, 
-    stringsAsFactors = F)
-var.2007.8.df2 &lt;- processing(data.df = var.2007.8.df2, meta.df = meta.all, pval = 0.01, 
-    phred = 35, mapq = 30, read_cut = c(32, 94))
-
-### Join duplicates #####
-
-dups.2004.5 &lt;- join_dups(data1.df = var.2004.5.df, data2.df = var.2004.5.df2)
-dups.2005.6 &lt;- join_dups(data1.df = var.2005.6.df, data2.df = var.2005.6.df2)
-dups.2007.8 &lt;- join_dups(data1.df = var.2007.8.df, data2.df = var.2007.8.df2)
-
-##### Merge duplicates with intial data that was &gt;1e5
-
-qual.2004.5 &lt;- high_qual(data1.df = var.2004.5.df, dups.df = dups.2004.5, titer = 1000)  # only duplicates above 1e3 kept
-qual.2005.6 &lt;- high_qual(data1.df = var.2005.6.df, dups.df = dups.2005.6, titer = 1000)
-qual.2007.8 &lt;- high_qual(data1.df = var.2007.8.df, dups.df = dups.2007.8, titer = 1000)
-# all.qual.df&lt;-rbind(qual.2004.5,qual.2005.6)
-# all.qual.df&lt;-rbind(all.qual.df,qual.2007.8)
-# all.qual.df&lt;-subset(all.qual.df,freq.var&gt;=0.01 &amp; freq.var&lt;=0.99)
-
-# Filter for frequency.
-var.2007.8.df &lt;- subset(var.2007.8.df, freq.var &gt;= 0.01 &amp; freq.var &lt;= 0.99)
-qual.2007.8 &lt;- subset(qual.2007.8, freq.var &gt;= 0.01 &amp; freq.var &lt;= 0.99)
-qual.2004.5 &lt;- subset(qual.2004.5, freq.var &gt;= 0.01 &amp; freq.var &lt;= 0.99)
-qual.2005.6 &lt;- subset(qual.2005.6, freq.var &gt;= 0.01 &amp; freq.var &lt;= 0.99)
-
-
-
-
-bris.bed &lt;- read.csv(&quot;../data/processed/bis_difference.csv&quot;, stringsAsFactors = F, 
+minor.07.08 &lt;- quality(var.2007.8.df.cut, c(0.01, 0.5))</code></pre>
+<pre><code>## [1] &quot;We removed 11048 variants of 11408 and 360 remain.&quot;
+## [1] &quot;After processing no variants were found the following samples: &quot;
+##   id Copy_num      runs
+## 1 94     1220 2007-2008
+## 2 95     7920 2007-2008</code></pre>
+<pre class="r"><code>bris.bed &lt;- read.csv(&quot;../data/processed/bis_difference.csv&quot;, stringsAsFactors = F, 
     comment.char = &quot;#&quot;)
 
+# Adjust the coding positions of each variant
 coding.adjust.bris &lt;- function(x) {
     chr &lt;- unique(x$chr)
     start &lt;- bris.bed$off.5[match(x$chr, bris.bed$chr)]
@@ -200,8 +168,64 @@ coding.adjust.bris &lt;- function(x) {
 }
 
 
-# Just the variants in the coding regions.
-qual.2007.8 &lt;- ddply(qual.2007.8, ~chr, coding.adjust.bris)
+minor.07.08 &lt;- ddply(minor.07.08, ~chr, coding.adjust.bris)
+
+## Other seasons Read in and process samples
+other.seasons &lt;- read_rbind(c(&quot;../data/processed/Run_1412/Variants/all.sum.csv&quot;, 
+    &quot;../data/processed/2005-2006/Variants/all.sum.csv&quot;, &quot;../data/processed/2004-2005/Variants/all.sum.csv&quot;), 
+    c(&quot;Run_1412&quot;, &quot;2005-2006&quot;, &quot;2004-2005&quot;))</code></pre>
+<pre><code>## [1] &quot;reading in ../data/processed/Run_1412/Variants/all.sum.csv&quot;
+## [1] &quot;appending run column: Run_1412&quot;
+## [1] &quot;reading in ../data/processed/2005-2006/Variants/all.sum.csv&quot;
+## [1] &quot;appending run column: 2005-2006&quot;
+## [1] &quot;reading in ../data/processed/2004-2005/Variants/all.sum.csv&quot;
+## [1] &quot;appending run column: 2004-2005&quot;</code></pre>
+<pre class="r"><code>var.other.seasons.df &lt;- processing(data.df = other.seasons, meta.df = meta.all, 
+    pval = 0.01, phred = 35, mapq = 30, read_cut = c(32, 94), gc = 1000)
+
+minor.other.seasons &lt;- quality(var.other.seasons.df, c(0.01, 0.5))</code></pre>
+<pre><code>## [1] &quot;Sample 530 was sequenced twice even though the titer was 102000. It was treated as duplicates in the analysis&quot;
+## [2] &quot;Sample 529 was sequenced twice even though the titer was 206000. It was treated as duplicates in the analysis&quot;
+## [1] &quot;We removed 7020 variants of 7202 and 182 remain.&quot;
+## [1] &quot;After processing no variants were found the following samples: &quot;
+##     id Copy_num     runs
+## 1  407    16400 Run_1412
+## 2  525     6990 Run_1412
+## 3  501     6530 Run_1412
+## 4  411     4170 Run_1412
+## 5  517    19500 Run_1412
+## 6  512     2870 Run_1412
+## 7  415     5580 Run_1412
+## 8  506     9220 Run_1412
+## 9  515     6150 Run_1412
+## 10 524    29300 Run_1412</code></pre>
+<pre class="r"><code># Processing again with 529 and 530 only once
+var.other.seasons.df.cut &lt;- subset(var.other.seasons.df, !(Id == 530 &amp; run == 
+    &quot;Run_1412&quot;))
+
+var.other.seasons.df.cut &lt;- subset(var.other.seasons.df.cut, !(Id == 529 &amp; run == 
+    &quot;Run_1412&quot;))
+
+minor.other.seasons &lt;- quality(var.other.seasons.df.cut, c(0.01, 0.5))</code></pre>
+<pre><code>## [1] &quot;We removed 6644 variants of 6857 and 213 remain.&quot;
+## [1] &quot;After processing no variants were found the following samples: &quot;
+##     id Copy_num     runs
+## 1  407    16400 Run_1412
+## 2  525     6990 Run_1412
+## 3  501     6530 Run_1412
+## 4  411     4170 Run_1412
+## 5  517    19500 Run_1412
+## 6  512     2870 Run_1412
+## 7  415     5580 Run_1412
+## 8  506     9220 Run_1412
+## 9  515     6150 Run_1412
+## 10 524    29300 Run_1412</code></pre>
+<pre class="r"><code>bris.bed &lt;- read.csv(&quot;../data/processed/bis_difference.csv&quot;, stringsAsFactors = F, 
+    comment.char = &quot;#&quot;)
+
+
+# Filter to coding region.
+
 
 
 cal.bed &lt;- read.csv(&quot;../data/processed/CalH3N2_difference.csv&quot;)
@@ -212,8 +236,10 @@ coding.adjust.cal &lt;- function(x) {
     mutate(x, coding.pos = pos - start)
 }
 
-qual.2004.5 &lt;- ddply(qual.2004.5, ~chr, coding.adjust.cal)
-qual.2005.6 &lt;- ddply(qual.2005.6, ~chr, coding.adjust.cal)</code></pre>
+minor.other.seasons &lt;- ddply(minor.other.seasons, ~chr, coding.adjust.cal)
+
+minor.04.05 &lt;- subset(minor.other.seasons, season == &quot;04-05&quot;)
+minor.05.06 &lt;- subset(minor.other.seasons, season == &quot;05-06&quot;)</code></pre>
 <p>Initially we partitioned the data relative to the geometric mean of the antibody titer for a given season. In the final anlysis we used a titer of 40 as the cutoff. These cut offs were identical except for in 2005-2006 in which the mean was 30. This affected 2 samples.</p>
 <pre class="r"><code>gm_mean = function(x, na.rm = TRUE, zero.propagate = FALSE) {
     # from
@@ -231,16 +257,7 @@ qual.2005.6 &lt;- ddply(qual.2005.6, ~chr, coding.adjust.cal)</code></pre>
     }
 }
 
-# var.2007.8.df&lt;-mutate(var.2007.8.df,responder.HA=HAI.WI.30.post.vax&gt;40,responder.NA=NAI.WI.30.post.vax&gt;40,HAI.geo=HAI.WI.30.post.vax&gt;gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax&gt;gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&amp;responder.HA==T),
-# geom.both=(HAI.geo&amp;NAI.geo==T))
 
-# qual.2007.8&lt;-mutate(qual.2007.8,responder.HA=HAI.WI.30.post.vax&gt;40,responder.NA=NAI.WI.30.post.vax&gt;40,HAI.geo=HAI.WI.30.post.vax&gt;gm_mean(HAI.WI.30.post.vax),NAI.geo=NAI.WI.30.post.vax&gt;gm_mean(NAI.WI.30.post.vax),responder.both=(responder.NA&amp;responder.HA==T),
-# geom.both=(HAI.geo&amp;NAI.geo==T))
-minor.07.08 = subset(qual.2007.8, freq.var &lt;= 0.5)
-
-minor.04.05 = subset(qual.2004.5, freq.var &lt;= 0.5)
-
-minor.05.06 = subset(qual.2005.6, freq.var &lt;= 0.5)
 
 
 
