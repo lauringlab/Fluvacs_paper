@@ -131,6 +131,19 @@ pdf("./figures/fig_3D.pdf")
 fig_3D
 dev.off()
 ```
+
+## Stats
+
+line 207-209
+```{r}
+HAI.stat<-with(qual.ha.snv,wilcox.test(iSNV~HAI) )
+NAI.stat<-with(qual.na.snv,wilcox.test(iSNV~NAI) )
+
+```
+
+We did not observe a difference in iSNV count based on HAI and NAI titers for either HA or NA (Figure 3C-D, p=`r round(HAI.stat$p.value,3)` for HA, p=`r round(NAI.stat$p.value,3)` for NA, Mann Whitney U test; 
+
+
 ```{r,fig_3,fig.width=10,fig.height=10}
 require(cowplot)
 plot_grid(fig_3A, fig_3B, fig_3C, fig_3D, labels = c("A", "B", "C", "D"), ncol = 2)
@@ -138,7 +151,6 @@ plot_grid(fig_3A, fig_3B, fig_3C, fig_3D, labels = c("A", "B", "C", "D"), ncol =
 ```
 
 
-There are very few iSNV in NA. 
 
 
 # Table 3
@@ -230,11 +242,29 @@ knitr::kable(all)
 
 count_tables(minor.07.08)
 ```
-```{r}
-#write.csv("./table2_data.csv",x = inter)
+```{r,eval=F}
+inter<-count_tables(minor.07.08,return = T)
+write.csv("./table2_data.csv",x = inter[[2]])
 ```
 
-# Figure 4 
+# Stats for accross whole genome
+lines 210-212
+```{r}
+wg.sum<-ddply(minor.07.08,~Intervention+Id,summarize,iSNV=length(mutation))
+# Kruskal Wallis Test One Way Anova by Ranks 
+wg.sum.stat<-with(wg.sum,kruskal.test(iSNV~Intervention)) # where y is numeric and A is a factor
+
+wg.HAI<-ddply(minor.07.08,~HAI.cut+Id,summarize,iSNV=length(mutation))
+# Kruskal Wallis Test One Way Anova by Ranks 
+wg.HAI.stat<-with(wg.HAI,wilcox.test(iSNV~HAI.cut)) # where y is numeric
+
+
+wg.NAI<-ddply(minor.07.08,~NAI.cut+Id,summarize,iSNV=length(mutation))
+# Kruskal Wallis Test One Way Anova by Ranks 
+wg.NAI.stat<-with(wg.NAI,wilcox.test(iSNV~NAI.cut)) # where y is numeric
+```
+The average number of iSNV per sample was similar across the genome regardless of host treatment group (Table 2, p=`r round(wg.sum.stat$p.value,3)`, non-parametric one way ANOVA) or HAI and NAI titers (S6 Fig, p=`r round(wg.HAI.stat$p.value,3)` for HAI, p=`r round(wg.NAI.stat$p.value,3)` for NAI, Mann Whitney U test).
+
 
 # Figure 4 
 
@@ -275,6 +305,38 @@ dev.off()
 
 ```
 
+## Stats fig. 4
+
+```{r}
+intervention<-c()
+for(i in 2:4){
+  print(paste0("Day: ",i))
+  stat<-with(subset(isnv.day.intervention,Day.of.Infection.sample.collected==i),kruskal.test(iSNV~Intervention))
+  print(stat$p.value)
+  intervention[i]<-stat$p.value
+}
+HAI<-c()
+for(i in 2:5){ # days where we have 2 groups
+  print(paste0("Day: ",i))
+  stat<-with(subset(isnv.day.HAI,Day.of.Infection.sample.collected==i),wilcox.test(iSNV~HAI.cut))
+  print(stat$p.value)
+  HAI[i]<-stat$p.value
+}
+
+NAI<-c()
+for(i in 2:5){ # days where we have 2 groups
+  print(paste0("Day: ",i))
+  stat<-with(subset(isnv.day.NAI,Day.of.Infection.sample.collected==i),wilcox.test(iSNV~NAI.cut))
+  print(stat$p.value)
+  NAI[i]<-stat$p.value
+}
+
+
+```
+Line 225 
+(Figure 4, p=`r paste(round(range(intervention,na.rm = T),3),sep="-")` for days 2-4, non-parametric one way ANOVA) 
+Line 227
+on day 2 (uncorrected p-value `r round(HAI[2],3)` with >6 comparisons, Mann Whitney U test). 
 
 ```{r,fig_4,fig.height=10}
 plot_grid(fig_4A, fig_4B, fig_4C, labels = c("A", "B", "C"), ncol = 1)

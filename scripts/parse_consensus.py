@@ -22,6 +22,15 @@ fa=args.fasta[0]
 key=args.key[0]
 out_file=args.out_fa[0]
 
+
+## Remove out file if it already exists so we don't append the segments to it
+
+try:
+    os.remove(out_file)
+except OSError:
+    pass
+
+
 def get_seg(string,segment,seg_df):
     "This splits a sting by position into the 8 genomic segments"
     seg=seg_df['chr'][seg_df['chr']==segment].index[0] # get the index of the segment

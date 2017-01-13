@@ -42,7 +42,7 @@ ddply(subset(var.2007.8.df, Id=="34" & freq.var<0.5 & freq.var>0.01),~run,summar
 minor.07.08<-quality(var.2007.8.df,c(0.01,0.5))
 
 # Processing again with 34 only once
-var.2007.8.df.cut<-subset(var.2007.8.df,!(Id==34 & run=="2007-2008"))
+var.2007.8.df.cut<-subset(var.2007.8.df,!(Id==34 & run=="2007-2008")) # This was the second run
 
 minor.07.08<-quality(var.2007.8.df.cut,c(0.01,0.5))
 
@@ -81,12 +81,9 @@ var.other.seasons.df.cut<-subset(var.other.seasons.df.cut,!(Id==529 & run=="2005
 minor.other.seasons<-quality(var.other.seasons.df.cut,c(0.01,0.5))
 
 
-bris.bed<-read.csv("../data/processed/bis_difference.csv",stringsAsFactors = F,comment.char = "#") 
 
 
 # Filter to coding region.
-
-
 
 cal.bed<-read.csv("../data/processed/CalH3N2_difference.csv")
 coding.adjust.cal<-function(x){

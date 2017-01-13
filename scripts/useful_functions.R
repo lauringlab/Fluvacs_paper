@@ -48,6 +48,7 @@ infer<-function(x){ # helper function that identifies the variants that need to 
 infer_all<-function(data.df,cut.low,cut.high){ 
   data.df=mutate(data.df,id_pos=paste(chr,pos,Id,run,sep="_"))
   x<-ddply(data.df,~id_pos,summarize,total.freq=sum(freq.var)) # what is the total frequency of all the variants found at this position.
+  print(x)
   data.df=mutate(data.df, total.freq=x$total.freq[match(id_pos,x$id_pos)])
   
   to_infer<-subset(data.df,total.freq>cut.low & total.freq<cut.high)
@@ -67,8 +68,7 @@ processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T,gc){
   ### work with meta data and then join data frames
   #meta<-rename(meta.df,c("Sample"="Id"))
   
-  meta<-meta.df
-  data.df.cut<-join(data.df.cut,meta,by="Id",type='left')
+  data.df.cut<-join(data.df.cut,meta.df,by="Id",type='left')
   data.df.cut<-subset(data.df.cut,Copy_num>gc)
   
   #data.df.cut<-mutate(data.df.cut,Id=Id,Id=paste(HOUSE_ID,season,Id,VAX,onset,sep="."))
@@ -91,7 +91,11 @@ processing<-function(data.df,meta.df,pval,phred,mapq,read_cut,recip=T,gc){
 sift_dups<-function(df){
   mean_wanted<-c("p.val","freq.var","sigma2.freq.var","n.tst.fw","cov.tst.fw","n.tst.bw","cov.tst.bw","n.ctrl.fw","cov.ctrl.fw","n.ctrl.bw","cov.ctrl.bw","raw.p.val","MapQ","Read_pos","Phred","total.freq")
   if(dim(df)[1]==2){ #it's found in both duplicates
-    x<-df[1,] #3 grab the first column
+    x<-df[1,] # grab the first row
+    check<-df[,names(df)[!(names(df) %in% c(mean_wanted,"run"))]] # the run should be different
+    if(any(check[1,]!=check[2,],na.rm = T)){
+      stop(paste("Meta data doesn't match for sample", unique(x$Id)))
+    }
     x[mean_wanted]<-colMeans(df[mean_wanted])
     x$run<-paste(df$run[1],df$run[2],sep=".")
     return(x)
@@ -105,14 +109,14 @@ join_dups<-function(df){
 }
 
 quality<-function(df,freq_cut){
-  starting_samples<-unique(df$Id)
+  starting_samples<-unique(df$Id) # samples we start with
   #good<-subset(df,gc_ul>=1e5)
   # check only one run/sample
   runs<-ddply(df,~Id,summarize,runs=length(unique(run))) # Id is unique to the sample. How many times was each sample sequenced? duplicates were sequenced in separate runs
   doubles<-subset(runs,runs==2) # Theses were sequenced twice
   dups_ran<-subset(df,Id %in% doubles$Id)
   
-  dups_good<-join_dups(subset(dups_ran,Copy_num>1e3)) # We only want those sequenced twice with high enough titers.
+  dups_good<-join_dups(dups_ran) # We only want those sequenced twice with high enough titers.
   
   good<-subset(df,Copy_num>1e5 & !(Id %in% dups_ran$Id)) # Just incase some with high titers were sequenced twice
   out<-rbind(good,dups_good)
@@ -129,6 +133,7 @@ quality<-function(df,freq_cut){
     print(paste0("Sample ",as.character(unique(high_twice$Id)), " was sequenced twice even though the titer was ",  as.character(unique(high_twice$Copy_num)),". It was treated as duplicates in the analysis"))
   }
   print(paste0("We removed ",dim(df)[1]-dim(out)[1]," variants of ",dim(df)[1]," and ", dim(out)[1], " remain."))
+  
   final_samples<-unique(out$Id)
   
   if(length(which(!(starting_samples %in% final_samples)))>0){
